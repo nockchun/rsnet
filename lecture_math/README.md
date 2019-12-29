@@ -1,2 +1,0 @@
-# rsnet
-example for math
