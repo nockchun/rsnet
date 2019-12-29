@@ -1,0 +1,70 @@
+###########################################################################
+# Install Korean ime
+root# apt install -y fonts-nanum*
+root# apt install -y zenity nabi
+root# apt install -y fonts-nanum fonts-nanum-coding fonts-unfonts-core
+root# apt install -y im-config
+root# im-config
+
+###########################################################################
+# Base Develope Environments In Virtualbox
+root# apt install -y vim build-essential git wget net-tools
+root# apt install -y module-assistant
+root# m-a prepare
+root# mkdir /media/cdrom
+root# mount /dev/cdrom /media/cdrom
+root# cp /media/cdrom/VBoxLinuxAdditions.run .
+root# ./VBoxLinuxAdditions.run
+root# rm -rf VBoxLinuxAdditions.run
+root# vi /etc/fstab
+    > workspace /workspace vboxsf defaults 0 0
+    > rsnet     /rsnet     vboxsf defaults 0 0
+root# vi ~/.bashrc
+    > export LS_COLORS="$LS_COLORS:ow=0;34:tw=1;34"
+root# poweroff
+
+###########################################################################
+# Docker Install Kali
+root# apt install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+root# curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+root# echo 'deb https://download.docker.com/linux/debian stretch stable' > /etc/apt/sources.list.d/docker.list
+root# apt update
+root# apt install -y docker-ce docker-compose
+
+# Docker Install Ubuntu
+root# apt install apt-transport-https ca-certificates curl software-properties-common
+root# curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+root# add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+root# apt update
+root# apt install -y docker-ce docker-compose
+
+# if want to use private docker-hub then
+root# vi /etc/docker/daemon.json
+    > {
+    >     "insecure-registries" : ["xx.xx.xx.xx:5000"]
+    > }
+root# systemctl restart docker
+root# curl -X GET http://xx.xx.xx.xx:5000/v2/_catalog
+
+
+###########################################################################
+* Vi Editor (~/.vimrc)
+set number
+set tabstop=4
+set shiftwidth=4
+set showmatch
+set title
+set hlsearch
+set fileencodings=utf-8,euc-kr
+set ruler
+set title
+set statusline=\ %<%l:%v\ [%P]%=%a\ %h%m%r\ %F\
+
+syntax on
+
+###########################################################################
+* Setup Alias(~/.bashrc)
+alias ll='ls -alh'
+alias ld='ls -alh | grep "^d"'
+alias lf='ls -alh | grep "^[^d]"'
+alias doi='f(){ docker image "$@";  unset -f f; }; f'

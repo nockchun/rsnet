@@ -1,0 +1,32 @@
+version: "3.3"
+
+services:
+    rshub:
+        build:
+            context: ./registry
+            dockerfile: Dockerfile
+        image: rshub
+        container_name: rshub
+        hostname: rshub
+        restart: always
+        ports:
+            - "5000:5000"
+        volumes:
+            - /data/dockerhub:/var/lib/registry
+
+    rsflask:
+        build:
+            context: ./flask
+            dockerfile: Dockerfile
+        image: rsflask
+        container_name: rsflask
+        hostname: rsflask
+        restart: always
+        env_file:
+            - .env
+        command:
+            python app.py
+        ports:
+            - "5080:5000"
+        volumes:
+            - ./flask/app:/app

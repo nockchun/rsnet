@@ -1,0 +1,105 @@
+###########################################################################
+# Install GPU Environments
+* Install Video Driver
+user:~$ sudo add-apt-repository ppa:graphics-drivers/ppa
+user:~$ curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+user:~$ sudo apt update
+
+* Install Cuda Driver 10.1
+user:~$ wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1810/x86_64/cuda-repo-ubuntu1810_10.1.168-1_amd64.deb
+user:~$ sudo dpkg -i cuda-repo-ubuntu1810_10.1.168-1_amd64.deb
+user:~$ sudo apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1810/x86_64/7fa2af80.pub
+user:~$ sudo apt update
+user:~$ sudo apt-get install cuda
+
+# Install cuda-toolkit
+user:~$ wget https://developer.nvidia.com/compute/cuda/10.1/Prod/local_installers/cuda-repo-ubuntu1810-10-1-local-10.1.168-418.67_1.0-1_amd64.deb
+user:~$ sudo dpkg -i cuda-repo-ubuntu1810-10-1-local-10.1.168-418.67_1.0-1_amd64.deb
+
+# Install cuDNN
+> dowonload from "https://developer.nvidia.com/rdp/cudnn-download"
+user:~$ sudo dpkg -i libcudnn7_7.6.2.24-1+cuda10.1_amd64.deb
+
+###########################################################################
+# Docker Install Ubuntu
+user:~$ sudo apt install apt-transport-https ca-certificates curl software-properties-common
+user:~$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+user:~$ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+user:~$ sudo apt update
+user:~$ sudo apt install -y docker-ce docker-compose
+
+# Nvidia-Docker Install Ubuntu
+user:~$ curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+user:~$ sudo vi /etc/apt/sources.list.d/nvidia-docker.list
+	> deb https://nvidia.github.io/libnvidia-container/ubuntu18.04/$(ARCH) /
+	> deb https://nvidia.github.io/nvidia-container-runtime/ubuntu18.04/$(ARCH) /
+	> deb https://nvidia.github.io/nvidia-docker/ubuntu18.04/$(ARCH) /
+user:~$ sudo apt update
+user:~$ sudo apt-get install nvidia-docker2
+
+# Setting Docker
+user:~$ vi /etc/docker/daemon.json
+	{
+	  "default-runtime": "nvidia",
+	  "runtimes": {
+	    "nvidia": {
+	      "path": "/usr/bin/nvidia-container-runtime",
+	      "runtimeArgs": []
+	    }
+	  }
+	}
+user:~$ systemctl daemon-reload
+user:~$ systemctl restart docker
+
+
+###########################################################################
+# Create Conda Virtual Environments & Jupyterlab Kernel
+* create "environment.yml" like below...
+name: tf2
+channels:
+	- conda-forge
+dependencies:
+	- python=3.7
+	- numpy
+	- cudnn
+	- cudatoolkit=10.0
+	- pip:
+		- tensorflow==2.0.0-beta1
+		- ipykernel
+
+user:~$ conda env create -f environment.yml -p /opt/tf2
+user:~$ source conda activate /opt/tf2
+(demo_env) user:~$ conda list | grep ipykernel <-- check ipykernel
+(demo_env) user:~$ ipython kernel install --user --name /opt/tf2 --display-name "Tensorflow 2"
+
+* install with command line
+user:~$ conda create -n tf2 python=3.6 cudnn cudatoolkit=10.0
+
+* manage conda config for proxy
+user:~$ conda config --set proxy_servers.http http://id:pw@address:port
+user:~$ conda config --set proxy_servers.https https://id:pw@address:port
+
+###########################################################################
+# Simple Iptables command
+# Deny All ports
+user:~$ sudo iptables -A INPUT -p tcp --dport 0:65535 -j DROP <target ports of tcp>
+user:~$ sudo iptables -A OUTPUT -p udp --dport 0:65535 -j DROP <target ports of udp>
+
+# Open specific ports
+user:~$ sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+user:~$ sudo iptables -I OUTPUT -p tcp --sport 80 -j ACCEPT
+
+# Open specific ports for host
+user:~$ sudo iptables -I INPUT -p tcp --dport 80 -s xx.xx.xx.xx -j ACCEPT
+user:~$ sudo iptables -I OUTPUT -p tcp --dport 80 -d xx.xx.xx.xx -j ACCEPT
+
+# Redirect
+user:~$ sudo iptables -A INPUT -i eth0 -p tcp --dport 80 -j ACCEPT
+user:~$ sudo iptables -A INPUT -i eth0 -p tcp --dport 8080 -j ACCEPT
+user:~$ sudo iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
+
+# Save iptables setting info in ubuntu
+user:~$ sudo mkdir /iptables_rule
+user:~$ sudo iptables-save > /iptables_rule/iptables.rules
+user:~$ sudo vi /etc/network/interfaces
+	> add this : pre-up iptables-restore < /iptables_rule/iptables.rules

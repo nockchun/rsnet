@@ -1,0 +1,31 @@
+version: "3.4"
+
+services:
+    jupyterlab:
+        build:
+            context: ./jupyterlab.gpu
+            dockerfile: Dockerfile
+        image: jupyterlab
+        container_name: jupyterlab
+        hostname: jupyterlab
+        restart: always
+        # network_mode: host
+        env_file:
+            - ./jupyterlab.gpu/.env
+        ports:
+            - "8888:8888"
+            - "6006:6006"
+            - "8786:8786"
+            - "8787:8787"
+        networks:
+            - rsnet
+        volumes:
+            - /data/notebooks:/notebooks
+            - /data/notebooks/asa_data:/asa_data
+            - /data/tensorboard:/tensorboard
+        command:
+            jupyter lab --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
+
+networks:
+    rsnet:
+        driver: bridge

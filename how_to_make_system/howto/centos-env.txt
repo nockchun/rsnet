@@ -1,0 +1,184 @@
+###########################################################################
+# Network Setting
+vi /etc/sysconfig/network-scripts/ifcfg-eth0
+BOOTPROTO=static
+ONBOOT=yes
+IPADDR=192.168.0.100
+GATEWAY=192.168.0.1
+NETMASK=255.255.255.0
+DNS1=168.126.63.1
+DNS2=8.8.8.8
+
+
+###########################################################################
+# Setup Basic
+# Bash 자동완성 -----------------------------------------------------------
+root# yum install -y epel-release
+root# yum install -y bash-completion-extras
+
+# VIM & Color -------------------------------------------------------------
+root# yum install -y vim
+root# vi /etc/profile
+alias vi="vim"
+
+root# vi /etc/profile
+# Shorten home dir, cygwin drives, paths that are too long
+if [ -d /cygdrive ] && uname -a |grep -qi cygwin; then CYGWIN_OS=1; fi
+function PSWD() {
+  local p="$*" space A B cols="${COLUMNS:-`tput cols 2>/dev/null || echo 80`}"
+  p="${p/$HOME/\~}"         # shrink home down to a tilde
+  if [ -n "$CYGWIN_OS" ] && [ "${p#/cygdrive/?/}" != "$p" ]; then
+    p="${p:10:1}:${p:11}"   # /cygdrive/c/hi -> c:/hi
+  fi
+  space="$((${#USER}+${#HOSTNAME}+6))"  # width w/out the path
+  if [ "$cols" -lt 60 ]; then echo -n "$N "; space=-29; p="$p$N\b"; fi
+  if [ "$cols" -lt "$((space+${#p}+20))" ]; then # < 20 chars for the command
+    A=$(( (cols-20-space)/4 ))      # a quarter of the space (-20 for cmd)
+    if [ $A -lt 4 ]; then A=4; fi   # 4+ chars from beginning
+    B=$(( cols-20-space-A*2 ))      # half (plus rounding) of the space
+    if [ $B -lt 8 ]; then B=8; fi   # 8+ chars from end
+    p="${p:0:$A}..${p: -$B}"
+  fi
+  echo "$p"
+}
+
+PSC() { echo -ne "\[\033[${1:-0;38}m\]"; }
+PR="0;32"       # default color used in prompt is green
+if [ "$(id -u)" = 0 ]; then
+    sudo=41     # root is red background
+  elif [ "$USER" != "${SUDO_USER:-$USER}" ]; then
+    sudo=31     # not root, not self: red text
+  else sudo="$PR"   # standard user color
+fi
+PROMPT_COMMAND='[ $? = 0 ] && PS1=${PS1[1]} || PS1=${PS1[2]}'
+PSbase="$(PSC $sudo)\u$(PSC $PR)@\h $(PSC 33)\$(PSWD \w)"
+PS1[1]="$PSbase$(PSC $PR)\$ $(PSC)"
+PS1[2]="$PSbase$(PSC  31)\$ $(PSC)"
+PS1="${PS1[1]}"
+unset sudo PR PSbase
+
+# NTFS Driver -------------------------------------------------------------
+root# yum install -y ntfs-3g
+user:~$ sudo mount /dev/sdc /mnt/usb
+
+# Firewall Stop -----------------------------------------------------------
+root# systemctl stop firewalld
+root# systemctl disable firewalld
+
+# Selinux Off -------------------------------------------------------------
+root# sed -i 's/^SELINUX=enforcing$/SELINUX=disabled/' /etc/selinux/config
+
+
+###########################################################################
+* Vi Editor (~/.vimrc)
+set number
+set tabstop=4
+set shiftwidth=4
+set showmatch
+set title
+set hlsearch
+set fileencodings=utf-8,euc-kr
+set ruler
+set title
+set statusline=\ %<%l:%v\ [%P]%=%a\ %h%m%r\ %F\
+
+syntax on
+
+
+###########################################################################
+# Install VirtualBox Guest Additions on CentOS 7
+root# yum groupinstall -y "Development Tools"
+root# yum install -y kernel-devel
+root# yum install -y epel-release
+root# yum install -y dkms
+root# mount /dev/cdrom /mnt/VBoxLinuxAdditions
+root# /mnt/VBoxLinuxAdditions.run --nox11
+
+
+###########################################################################
+# Install Docker & Compose on CentOS 7
+user:~$ sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+user:~$ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+user:~$ sudo yum install -y docker-ce-18.09.9 docker-ce-cli-18.09.9 containerd.io
+user:~$ sudo usermod -aG docker $(whoami)
+user:~$ sudo systemctl enable docker.service
+user:~$ sudo systemctl start docker.service
+user:~$ sudo yum install -y epel-release
+user:~$ sudo yum install -y python-pip
+user:~$ sudo pip install docker-compose
+user:~$ sudo yum upgrade python*
+user:~$ docker-compose version
+
+
+###########################################################################
+# Install Kubernetes
+# Master & Node HOST File Setting -----------------------------------------
+root# cat >> /etc/hosts<<EOF
+192.168.0.100 master.lab master
+192.168.0.101 node01.lab node01
+192.168.0.102 node02.lab node02
+EOF
+
+# Disable swap ------------------------------------------------------------
+root# sed -i '/swap/d' /etc/fstab
+root# swapoff -a
+
+# Update sysctl settings for Kubernetes networking ------------------------
+root# cat >>/etc/sysctl.d/kubernetes.conf<<EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+root# sysctl --system
+
+
+# Add Kubernetes Yum Repository -------------------------------------------
+root# cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+root# yum install -y kubelet kubeadm kubectl
+
+
+# Setup daemon
+root# cat > /etc/docker/daemon.json <<EOF
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2",
+  "storage-opts": [
+    "overlay2.override_kernel_check=true"
+  ]
+}
+EOF
+root# mkdir -p /etc/systemd/system/docker.service.d
+
+# Start Docker
+root# systemctl daemon-reload
+root# systemctl enable kubelet
+root# systemctl start kubelet
+
+
+###########################################################################
+# Setting Up Kubernetes Master
+# Initialize Kubernetes Cluster -------------------------------------------
+rsnet# sudo kubeadm init --apiserver-advertise-address=10.10.1.101 --pod-network-cidr=10.10.0.0/16
+
+# Copy kube config --------------------------------------------------------
+rsnet# mkdir ~/.kube
+rsnet# sudo cp /etc/kubernetes/admin.conf ~/.kube/config
+rsnet# sudo chown -R rsnet:rsnet ~/.kube
+
+# Deploy Calico network ---------------------------------------------------
+rsnet# kubectl create -f https://docs.projectcalico.org/v3.10/manifests/calico.yaml
+
+# Cluster join command ----------------------------------------------------
+rsnet# kubeadm token create --print-join-command
+

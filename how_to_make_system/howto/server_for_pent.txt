@@ -1,0 +1,17 @@
+* Simple Private DNS/DHCP Server
+root# apt install dnsmasq
+root# vi /etc/hosts
+    > 10.0.2.11     wfp1.pent.lab
+    > 10.0.2.12     wfp2.pent.lab
+root# vi /etc/resolv.conf
+    > nameserver 127.0.0.1
+    > nameserver 8.8.8.8
+
+# Install Jupyterlab On Conda
+conda# conda install -c conda-forge jupyterlab
+conda# conda install nodejs
+
+# Change Default Python Version On Linux
+root# update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+root# update-alternatives --install /usr/bin/python python /usr/bin/python3 2
+root# update-alternatives --config python
