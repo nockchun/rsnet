@@ -114,9 +114,9 @@ user:~$ docker-compose version
 # Install Kubernetes
 # Master & Node HOST File Setting -----------------------------------------
 root# cat >> /etc/hosts<<EOF
-192.168.0.100 master.lab master
-192.168.0.101 node01.lab node01
-192.168.0.102 node02.lab node02
+10.10.1.101 master.lab master
+10.10.1.111 node01.lab node01
+10.10.1.112 node02.lab node02
 EOF
 
 # Disable swap ------------------------------------------------------------

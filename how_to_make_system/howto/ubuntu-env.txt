@@ -196,9 +196,14 @@ user:~$ sudo systemctl start docker
 user:~$ sudo systemctl enable docker
 user:~$ sudo systemctl status docker
 
-
-
-
+# Update swap & sysctl settings for Kubernetes networking ------------------------
+root# swapoff -a
+root# sed -i '/swap/d' /etc/fstab
+root# cat >>/etc/sysctl.d/kubernetes.conf<<EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+root# sysctl --system
 
 # Setup daemon
 root# cat > /etc/docker/daemon.json <<EOF
@@ -218,14 +223,10 @@ root# mkdir -p /etc/systemd/system/docker.service.d
 root# systemctl daemon-reload
 root# systemctl restart docker
 
-
-
-
 ###########################################################################
 # Kubernetes Install Ubuntu
 root:~$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 root:~$ sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
-root:~$ sudo swapoff -a
 root:~$ apt install -y kubelet kubeadm kubectl
 
 ###########################################################################
@@ -237,5 +238,5 @@ user:~$ sudo chown -R rsnet:rsnet ~/.kube
 user:~$ kubectl create -f https://docs.projectcalico.org/v3.10/manifests/calico.yaml
 user:~$ kubeadm token create --print-join-command
 
-요거 해결 해야 함.
-[WARNING IsDockerSystemdCheck]: detected "cgroupfs" as the Docker cgroup driver. The recommended driver is "systemd".
+# Change Hot Name
+user:~$ sudo hostnamectl set-hostname abc
