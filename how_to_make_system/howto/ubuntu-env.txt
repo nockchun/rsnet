@@ -190,18 +190,20 @@ user:~$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key a
 user:~$ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
 user:~$ sudo apt update
 user:~$ sudo apt-cache madison docker-ce
-user:~$ sudo apt install -y docker-ce*=5:18.09.9~3-0~ubuntu-bionic docker-compose
+user:~$ sudo apt install -y docker-ce*=5:18.09.9~3-0~ubuntu-bionic docker-compose containerd.io
 
 user:~$ sudo systemctl start docker
 user:~$ sudo systemctl enable docker
 user:~$ sudo systemctl status docker
+user:~$ sudo usermod -aG docker $USER
 
 # Update swap & sysctl settings for Kubernetes networking ------------------------
 root# swapoff -a
 root# sed -i '/swap/d' /etc/fstab
 root# cat >>/etc/sysctl.d/kubernetes.conf<<EOF
+net.bridge.bridge-nf-call-iptables  = 1
+net.ipv4.ip_forward                 = 1
 net.bridge.bridge-nf-call-ip6tables = 1
-net.bridge.bridge-nf-call-iptables = 1
 EOF
 root# sysctl --system
 
@@ -213,10 +215,7 @@ root# cat > /etc/docker/daemon.json <<EOF
   "log-opts": {
     "max-size": "100m"
   },
-  "storage-driver": "overlay2",
-  "storage-opts": [
-    "overlay2.override_kernel_check=true"
-  ]
+  "storage-driver": "overlay2"
 }
 EOF
 root# mkdir -p /etc/systemd/system/docker.service.d
