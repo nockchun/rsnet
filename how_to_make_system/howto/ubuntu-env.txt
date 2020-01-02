@@ -189,12 +189,7 @@ user:~$ sudo apt install apt-transport-https ca-certificates curl software-prope
 user:~$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 user:~$ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
 user:~$ sudo apt update
-user:~$ sudo apt-cache madison docker-ce
-user:~$ sudo apt install -y docker-ce*=5:18.09.9~3-0~ubuntu-bionic docker-compose containerd.io
-
-user:~$ sudo systemctl start docker
-user:~$ sudo systemctl enable docker
-user:~$ sudo systemctl status docker
+user:~$ sudo apt install -y docker-ce=5:19.03.4~3-0~ubuntu-bionic docker-ce-cli=5:19.03.4~3-0~ubuntu-bionic containerd.io=1.2.10-3
 user:~$ sudo usermod -aG docker $USER
 
 # Update swap & sysctl settings for Kubernetes networking ------------------------
@@ -234,8 +229,8 @@ user:~$ sudo kubeadm init --apiserver-advertise-address=10.10.1.101 --pod-networ
 user:~$ mkdir ~/.kube
 user:~$ sudo cp /etc/kubernetes/admin.conf ~/.kube/config
 user:~$ sudo chown -R rsnet:rsnet ~/.kube
-user:~$ kubectl create -f https://docs.projectcalico.org/v3.10/manifests/calico.yaml
+user:~$ kubectl create -f https://docs.projectcalico.org/v3.11/manifests/calico.yaml
 user:~$ kubeadm token create --print-join-command
 
-# Change Hot Name
-user:~$ sudo hostnamectl set-hostname abc
+# Change Worker Node Host Name
+user:~$ sudo hostnamectl set-hostname "K8Node01"

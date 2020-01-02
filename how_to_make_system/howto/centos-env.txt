@@ -99,7 +99,7 @@ root# /mnt/VBoxLinuxAdditions.run --nox11
 # Install Docker & Compose on CentOS 7
 user:~$ sudo yum install -y yum-utils device-mapper-persistent-data lvm2
 user:~$ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-user:~$ sudo yum install -y docker-ce-18.09.9 docker-ce-cli-18.09.9 containerd.io
+user:~$ sudo yum install -y docker-ce-19.03.4 docker-ce-cli-19.03.4 containerd.io-1.2.10
 user:~$ sudo usermod -aG docker $(whoami)
 user:~$ sudo systemctl enable docker.service
 user:~$ sudo systemctl start docker.service
@@ -108,7 +108,6 @@ user:~$ sudo yum install -y python-pip
 user:~$ sudo pip install docker-compose
 user:~$ sudo yum upgrade python*
 user:~$ docker-compose version
-
 
 ###########################################################################
 # Install Kubernetes
@@ -177,7 +176,7 @@ rsnet# sudo cp /etc/kubernetes/admin.conf ~/.kube/config
 rsnet# sudo chown -R rsnet:rsnet ~/.kube
 
 # Deploy Calico network ---------------------------------------------------
-rsnet# kubectl create -f https://docs.projectcalico.org/v3.10/manifests/calico.yaml
+rsnet# kubectl create -f https://docs.projectcalico.org/v3.11/manifests/calico.yaml
 
 # Cluster join command ----------------------------------------------------
 rsnet# kubeadm token create --print-join-command
