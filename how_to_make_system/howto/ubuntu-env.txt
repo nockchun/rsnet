@@ -144,7 +144,7 @@ user:~$ sudo sysctl vm.drop_caches=3
 
 ###########################################################################
 # Terminator
-root# yum install -y terminator
+user:~$ sudo apt install -y terminator
 Toggle fullscreen                          : F11.
 Split terminals horizontally               : Ctrl + Shift + O.
 Split terminals vertically                 : Ctrl + Shift + E.
