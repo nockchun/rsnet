@@ -86,6 +86,12 @@ syntax on
 
 
 ###########################################################################
+* Install Sublime Text
+root# sudo rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg
+root# sudo yum-config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
+root# sudo yum install sublime-text
+
+###########################################################################
 # Install VirtualBox Guest Additions on CentOS 7
 root# yum groupinstall -y "Development Tools"
 root# yum install -y kernel-devel
@@ -109,6 +115,26 @@ user:~$ sudo pip install docker-compose
 user:~$ sudo yum upgrade python*
 user:~$ docker-compose version
 
+###########################################################################
+# X11 Forwarding
+root# yum install -y xorg-x11-server-Xorg xorg-x11-xauth xorg-x11-apps
+root# vim /etc/ssh/sshd_config
+      X11Forwarding yes
+      X11DisplayOffset 10
+      PrintMotd no
+      PrintLastLog yes
+      TCPKeepAlive yes
+      UseLogin no
+      X11UseLocalhost no
+root# systemctl restart sshd
+
+# At Windows
+1. Xming Install
+2. putty
+   * SSH > X11 > Enable X11 forwarding (check)
+   * X display location : localhost:0.0
+
+###########################################################################
 ###########################################################################
 # Install Kubernetes
 # Master & Node HOST File Setting -----------------------------------------
