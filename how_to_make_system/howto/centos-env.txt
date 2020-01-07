@@ -87,9 +87,10 @@ syntax on
 
 ###########################################################################
 * Install Sublime Text
-root# sudo rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg
-root# sudo yum-config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
-root# sudo yum install sublime-text
+user:~$ sudo rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg
+user:~$ sudo yum install yum-utils
+user:~$ sudo yum-config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
+user:~$ sudo yum install sublime-text
 
 ###########################################################################
 # Install VirtualBox Guest Additions on CentOS 7
@@ -111,6 +112,7 @@ user:~$ sudo systemctl enable docker.service
 user:~$ sudo systemctl start docker.service
 user:~$ sudo yum install -y epel-release
 user:~$ sudo yum install -y python-pip
+user:~$ sudo yum install gcc glibc glibc-common gd gd-devel python-devel -y
 user:~$ sudo pip install docker-compose
 user:~$ sudo yum upgrade python*
 user:~$ docker-compose version
@@ -121,11 +123,12 @@ root# yum install -y xorg-x11-server-Xorg xorg-x11-xauth xorg-x11-apps
 root# vim /etc/ssh/sshd_config
       X11Forwarding yes
       X11DisplayOffset 10
+      X11UseLocalhost no
+      
       PrintMotd no
       PrintLastLog yes
       TCPKeepAlive yes
       UseLogin no
-      X11UseLocalhost no
 root# systemctl restart sshd
 
 # At Windows
