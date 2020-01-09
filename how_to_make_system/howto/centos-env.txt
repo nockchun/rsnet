@@ -9,7 +9,6 @@ NETMASK=255.255.255.0
 DNS1=168.126.63.1
 DNS2=8.8.8.8
 
-
 ###########################################################################
 # Setup Basic
 # Bash 자동완성 -----------------------------------------------------------
@@ -68,7 +67,6 @@ root# systemctl disable firewalld
 # Selinux Off -------------------------------------------------------------
 root# sed -i 's/^SELINUX=enforcing$/SELINUX=disabled/' /etc/selinux/config
 
-
 ###########################################################################
 * Vi Editor (~/.vimrc)
 set number
@@ -84,6 +82,12 @@ set statusline=\ %<%l:%v\ [%P]%=%a\ %h%m%r\ %F\
 
 syntax on
 
+###########################################################################
+* Install git2 new version
+user:~$ sudo yum remove git*
+user:~$ sudo yum -y install  https://centos7.iuscommunity.org/ius-release.rpm
+user:~$ sudo yum -y install  git2u-all
+user:~$ git --version
 
 ###########################################################################
 * Install Sublime Text
@@ -91,6 +95,26 @@ user:~$ sudo rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.
 user:~$ sudo yum install yum-utils
 user:~$ sudo yum-config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
 user:~$ sudo yum install sublime-text
+
+###########################################################################
+# X11 Forwarding
+root# yum install -y xorg-x11-server-Xorg xorg-x11-xauth xorg-x11-apps
+root# vim /etc/ssh/sshd_config
+      X11Forwarding yes
+      X11DisplayOffset 10
+      X11UseLocalhost no
+      
+      PrintMotd no
+      PrintLastLog yes
+      TCPKeepAlive yes
+      UseLogin no
+root# systemctl restart sshd
+
+# At Windows
+1. Xming Install
+2. putty
+   * SSH > X11 > Enable X11 forwarding (check)
+   * X display location : localhost:0.0
 
 ###########################################################################
 # Install VirtualBox Guest Additions on CentOS 7
@@ -117,25 +141,6 @@ user:~$ sudo pip install docker-compose
 user:~$ sudo yum upgrade python*
 user:~$ docker-compose version
 
-###########################################################################
-# X11 Forwarding
-root# yum install -y xorg-x11-server-Xorg xorg-x11-xauth xorg-x11-apps
-root# vim /etc/ssh/sshd_config
-      X11Forwarding yes
-      X11DisplayOffset 10
-      X11UseLocalhost no
-      
-      PrintMotd no
-      PrintLastLog yes
-      TCPKeepAlive yes
-      UseLogin no
-root# systemctl restart sshd
-
-# At Windows
-1. Xming Install
-2. putty
-   * SSH > X11 > Enable X11 forwarding (check)
-   * X display location : localhost:0.0
 
 ###########################################################################
 ###########################################################################
