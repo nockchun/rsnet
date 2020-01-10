@@ -141,6 +141,27 @@ user:~$ sudo pip install docker-compose
 user:~$ sudo yum upgrade python*
 user:~$ docker-compose version
 
+###########################################################################
+# Private Docker-hub
+user:~$ docker pull registry
+user:~$ docker run -d --name docker-registry -p 5000:5000 registry
+
+# Push Image
+user:~$ docker tag myhello localhost:5000/myhello
+user:~$ docker push localhost:5000/myhello
+
+# if want to use private docker-hub without https
+root# vi /etc/docker/daemon.json
+    > {
+    >     "insecure-registries" : ["xx.xx.xx.xx:5000"]
+    > }
+root# systemctl restart docker
+
+# Image Check
+user:~$ curl -X GET http://xx.xx.xx.xx:5000/v2/_catalog
+# Tag Info Check
+user:~$ curl -X GET http://xx.xx.xx.xx:5000/v2/hello-world/tags/list
+
 
 ###########################################################################
 ###########################################################################
