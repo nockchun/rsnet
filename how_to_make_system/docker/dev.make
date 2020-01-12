@@ -1,7 +1,7 @@
 # GLOBAL VARIABLES ----------------------------------------------------------
 DK  := docker
 DC  := docker-compose
-DCF := /data/notebooks/rsnet/system/docker/dev.compose.yml
+DCF := /data/notebooks/rsnet/how_to_make_system/docker/dev.compose.yml
 HUB := 192.168.0.17:5000
 
 # COLORS & UTIL FUNCTION ----------------------------------------------------

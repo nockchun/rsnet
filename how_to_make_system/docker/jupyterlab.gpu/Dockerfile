@@ -79,12 +79,12 @@ RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
  && jupyter serverextension enable --py jupyterlab_code_formatter
 
 # Create Tensorflow 1 Environments
-# ADD environment.yml environment.yml
-# RUN conda env update --name tf1 --file environment.yml \
-#  && rm environment.yml
-# RUN ["/bin/bash" , "-c", "source activate tf1 && \
-#     ipython kernel install --user --name tf1 --display-name 'Tensorflow 1' && \
-#     conda deactivate"]
+ADD environment.yml environment.yml
+RUN conda env update --name tf1 --file environment.yml \
+ && rm environment.yml
+RUN ["/bin/bash" , "-c", "source activate tf1 && \
+    ipython kernel install --user --name tf1 --display-name 'Tensorflow 1' && \
+    conda deactivate"]
 
 # Setting Up JupyterLab Environments
 USER root
