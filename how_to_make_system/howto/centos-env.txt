@@ -83,14 +83,29 @@ set statusline=\ %<%l:%v\ [%P]%=%a\ %h%m%r\ %F\
 syntax on
 
 ###########################################################################
-* Install git2 new version
+# Install git2 new version
 user:~$ sudo yum remove git*
 user:~$ sudo yum -y install  https://centos7.iuscommunity.org/ius-release.rpm
 user:~$ sudo yum -y install  git2u-all
 user:~$ git --version
 
 ###########################################################################
-* Install Sublime Text
+# Install ksonnet
+user:~$ sudo yum install -y wget
+user:~$ wget https://github.com/ksonnet/ksonnet/releases/download/v0.13.1/ks_0.13.1_linux_amd64.tar.gz
+user:~$ tar xfvz ks_0.13.1_linux_amd64.tar.gz
+user:~$ sudo mv ks_0.13.1_linux_amd64 /opt/
+user:~$ sudo ln -s /opt/ks_0.13.1_linux_amd64/ks /usr/local/bin/ks
+
+###########################################################################
+# Install helm
+user:~$ wget https://get.helm.sh/helm-v3.0.2-linux-amd64.tar.gz
+user:~$ tar xfvz helm-v3.0.2-linux-amd64.tar.gz
+user:~$ sudo mv linux-amd64/ /opt/helm
+user:~$ sudo ln -s /opt/helm/helm /usr/local/bin/helm
+
+###########################################################################
+# Install Sublime Text
 user:~$ sudo rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg
 user:~$ sudo yum install yum-utils
 user:~$ sudo yum-config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
