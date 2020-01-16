@@ -15,6 +15,14 @@ DNS2=8.8.8.8
 root# yum install -y epel-release
 root# yum install -y bash-completion-extras
 
+# Ubuntu Color Setting
+if [ "$color_prompt" = yes ]; then
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+
+
 # VIM & Color -------------------------------------------------------------
 root# yum install -y vim
 root# vi /etc/profile
@@ -143,6 +151,7 @@ root# /mnt/VBoxLinuxAdditions.run --nox11
 
 ###########################################################################
 # Install Docker & Compose on CentOS 7
+# docker-ce-18.09.8 : Kubernetes 1.15 : kubeflow 0.7
 user:~$ sudo yum install -y yum-utils device-mapper-persistent-data lvm2
 user:~$ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 user:~$ sudo yum install -y docker-ce-19.03.4 docker-ce-cli-19.03.4 containerd.io-1.2.10
