@@ -235,6 +235,7 @@ user:~$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key a
 user:~? sudo echo -e "\ndeb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" | sudo tee -a /etc/apt/sources.list
 user:~$ sudo apt update
 user:~$ sudo apt install -y docker-ce=5:18.09.9~3-0~ubuntu-bionic docker-ce-cli=5:18.09.9~3-0~ubuntu-bionic containerd.io=1.2.10-3
+user:~$ sudo apt-mark hold docker-ce docker-ce-cli
 user:~$ sudo usermod -aG docker $USER
 
 # Update swap & sysctl settings for Kubernetes networking ------------------------
@@ -272,6 +273,7 @@ deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 root:~$ apt update
 root:~$ apt install -y kubelet=1.15.7-00 kubeadm=1.15.7-00 kubectl=1.15.7-00
+user:~$ sudo apt-mark hold kubelet kubeadm kubectl
 
 ###########################################################################
 # Setting Up Kubernetes Master
