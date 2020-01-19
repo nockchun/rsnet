@@ -14,6 +14,14 @@ RUN sed -i 's/archive.ubuntu.com/ftp.harukasan.org/g' /etc/apt/sources.list \
  && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
  && locale-gen
 
+# Install Fonts
+RUN apt install unzip fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts-nanum fonts-nanum-coding fonts-nanum-extra \
+ && wget https://github.com/naver/d2codingfont/releases/download/VER1.21/D2Coding-1.2.zip \
+ && mkdir /usr/share/fonts/truetype/D2Coding \
+ && unzip D2Coding-1.2.zip -d /usr/share/fonts/truetype/D2Coding/ \
+ && rm -rf /usr/share/fonts/truetype/D2Coding/__MACOSX \
+ && fc-cache -f -v
+
 # Configure environment
 ENV CONDA_DIR=/opt/conda \
     SHELL=/bin/bash \
