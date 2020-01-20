@@ -18,7 +18,8 @@ user:~$ sudo dpkg -i cuda-repo-ubuntu1810-10-1-local-10.1.168-418.67_1.0-1_amd64
 
 # Install cuDNN
 > dowonload from "https://developer.nvidia.com/rdp/cudnn-download"
-user:~$ sudo dpkg -i libcudnn7_7.6.2.24-1+cuda10.1_amd64.deb
+user:~$ sudo dpkg -i libcudnn7_7.6.5.32-1+cuda10.1_amd64.deb
+
 
 ###########################################################################
 # Docker Install Ubuntu
@@ -48,8 +49,8 @@ user:~$ vi /etc/docker/daemon.json
 	    }
 	  }
 	}
-user:~$ systemctl daemon-reload
-user:~$ systemctl restart docker
+user:~$ sudo systemctl daemon-reload
+user:~$ sudo systemctl restart docker
 
 
 ###########################################################################
@@ -79,6 +80,7 @@ user:~$ conda create -n tf2 python=3.6 cudnn cudatoolkit=10.0
 user:~$ conda config --set proxy_servers.http http://id:pw@address:port
 user:~$ conda config --set proxy_servers.https https://id:pw@address:port
 
+
 ###########################################################################
 # Simple Iptables command
 # Deny All ports
@@ -103,3 +105,4 @@ user:~$ sudo mkdir /iptables_rule
 user:~$ sudo iptables-save > /iptables_rule/iptables.rules
 user:~$ sudo vi /etc/network/interfaces
 	> add this : pre-up iptables-restore < /iptables_rule/iptables.rules
+
