@@ -1,0 +1,58 @@
+###########################################################################
+# Kubeflow Install
+user:~$ wget https://github.com/kubeflow/kfctl/releases/download/v1.0-rc.1/kfctl_v1.0-rc.1-0-g963c787_linux.tar.gz
+user:~$ tar xfvz kfctl_v1.0-rc.1-0-g963c787_linux.tar.gz
+user:~$ sudo mv kfctl /usr/local/bin/
+user:~$ export KF_NAME=asaflow
+user:~$ export BASE_DIR=/opt
+user:~$ export KF_DIR=${BASE_DIR}/${KF_NAME}
+user:~$ export CONFIG_URI="https://raw.githubusercontent.com/kubeflow/manifests/v0.7-branch/kfdef/kfctl_k8s_istio.0.7.1.yaml"
+user:~$ sudo mkdir -p ${KF_DIR}
+user:~$ sudo chown user.user ${KF_DIR}
+user:~$ cd ${KF_DIR}
+user:~$ kfctl apply -V -f ${CONFIG_URI}
+user:~$ kubectl get all -n kubeflow
+
+# Delete Kubeflow
+user:~$ export CONFIG_FILE=${KF_DIR}/kfctl_k8s_istio.0.7.1.yaml
+user:~$ cd ${KF_DIR}
+user:~$ kfctl delete -f ${CONFIG_FILE}
+
+
+###########################################################################
+# Kubernetes Dashboard
+user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-rc2/aio/deploy/recommended.yaml
+user:~$ nohup kubectl proxy &
+user:~$ http://127.0.0.1:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login
+
+# Service Accoutn 생성
+user:~$ cat <<EOF | kubectl create -f -
+ apiVersion: v1
+ kind: ServiceAccount
+ metadata:
+   name: admin-user
+   namespace: kube-system
+EOF
+
+# ClusterRoleBinding 생성
+user:~$ cat <<EOF | kubectl create -f -
+ apiVersion: rbac.authorization.k8s.io/v1
+ kind: ClusterRoleBinding
+ metadata:
+   name: admin-user
+ roleRef:
+   apiGroup: rbac.authorization.k8s.io
+   kind: ClusterRole
+   name: cluster-admin
+ subjects:
+ - kind: ServiceAccount
+   name: admin-user
+   namespace: kube-system
+EOF
+
+# 토큰 생성
+user:~$ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
+
+
+
+
