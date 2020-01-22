@@ -35,4 +35,4 @@ VOLUME ["/etc/nginx", "/var/log/nginx", "/www"]
 EXPOSE 80 443
 
 # Entry point
-# ENTRYPOINT ["/usr/sbin/nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/usr/sbin/nginx", "-g", "daemon off;"]
