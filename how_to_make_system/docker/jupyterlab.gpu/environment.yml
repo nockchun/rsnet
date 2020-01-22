@@ -110,15 +110,12 @@ dependencies:
         - jupyterlab_code_formatter
         - pytest-ipynb
         - tensorflow-datasets
+        - dask-tensorflow
         - youtokentome
-        - hb-config
+        - sentencepiece
         - flashtext
         - fasttext
-        - imread
         - JSAnimation
         - gym
         - gym[atari]
-        - filelock
-        - modin
-        - modin[ray]
 

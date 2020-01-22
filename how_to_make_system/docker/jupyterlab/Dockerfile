@@ -14,6 +14,14 @@ RUN sed -i 's/archive.ubuntu.com/ftp.harukasan.org/g' /etc/apt/sources.list \
  && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
  && locale-gen
 
+# Install Fonts
+RUN apt install unzip fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts-nanum fonts-nanum-coding fonts-nanum-extra \
+ && wget https://github.com/naver/d2codingfont/releases/download/VER1.21/D2Coding-1.2.zip \
+ && mkdir /usr/share/fonts/truetype/D2Coding \
+ && unzip D2Coding-1.2.zip -d /usr/share/fonts/truetype/D2Coding/ \
+ && rm -rf /usr/share/fonts/truetype/D2Coding/__MACOSX \
+ && fc-cache -f -v
+
 # Configure environment
 ENV CONDA_DIR=/opt/conda \
     SHELL=/bin/bash \
@@ -29,7 +37,7 @@ ENV PATH=$CONDA_DIR/bin:$PATH \
 RUN groupadd -g $NB_UID $NB_USER \
  && useradd -m -s /bin/bash -p $NB_USER -g $NB_USER -N -u $NB_UID $NB_USER \
  && mkdir -p $CONDA_DIR \
- && chown -R $NB_USER:$NB_USER $CONDA_DIR \
+ && chown -R $NB_USER.$NB_USER $CONDA_DIR \
  && adduser $NB_USER sudo \
  && echo 'rsnet ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
@@ -37,29 +45,30 @@ USER $NB_USER
 WORKDIR $HOME
 
 # Install conda
-#ENV MINICONDA_VERSION=4.3.21 \
-#    CONDA_VERSION=4.7.5 \
 ENV MINICONDA_VERSION=latest \
     CONDA_VERSION=4.7.12
 RUN mkdir -p .conda
 
-ADD environment.tf2.yml environment.yml
+# Create Tensorflow 2 Environments as Base
 RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
  && /bin/bash Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p $CONDA_DIR \
  && rm Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
  && conda config --system --prepend channels conda-forge \
- && conda config --system --set auto_update_conda false \
+ && conda config --system --set auto_update_conda true \
  && conda config --system --set show_channel_urls true \
- && conda install -y python=3.7 tini=0.18.0 \
- && conda install --quiet --yes conda="${CONDA_VERSION%.*}.*" \
+ && conda install -y tini=0.18.0 \
+ && conda update -n base -c defaults conda \
+ && conda update --all -y \
+ && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc \
  && conda install -c conda-forge --yes notebook jupyterhub jupyterlab \
- && conda update --all -y
-
-RUN jupyter notebook --generate-config \
- && conda update -n base conda -y \
- && conda env update \
- && rm environment.yml \
+ && jupyter notebook --generate-config \
  && conda install -c plotly jupyterlab-dash -y
+
+ADD environment.tf2.yml environment.yml
+RUN conda update -y pip setuptools \
+ && python -m pip install --upgrade pip setuptools \
+ && conda env update --name base --file environment.yml \
+ && rm environment.yml
 
 RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
  && jupyter labextension install @jupyter-widgets/jupyterlab-manager \
@@ -73,17 +82,17 @@ RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
     @jupyterlab/tooltip-extension @jupyterlab/help-extension @jupyterlab/running-extension \
     @jupyterlab/inspector-extension @jupyterlab/pdf-extension @jupyterlab/mathjax2-extension \
     @jupyterlab/vdom-extension @jupyterlab/hub-extension @jupyterlab/latex \
-    @jupyterlab/fasta-extension @jupyterlab/katex-extension
-    # @ryantam626/jupyterlab_code_formatter \
- # && jupyter serverextension enable --py jupyterlab_code_formatter
+    @jupyterlab/fasta-extension @jupyterlab/katex-extension \
+    @ryantam626/jupyterlab_code_formatter \
+ && jupyter serverextension enable --py jupyterlab_code_formatter
 
 # Create Tensorflow 1 Environments
-# ADD environment.tf.yml environment.yml
-# RUN conda env update \
-#  && rm environment.yml
-# RUN ["/bin/bash" , "-c", "source activate tf2 && \
-#     ipython kernel install --user --name tf2 --display-name 'Tensorflow 2' && \
-#     conda deactivate"]
+ADD environment.yml environment.yml
+RUN conda env update --name tf1 --file environment.yml \
+ && rm environment.yml
+RUN ["/bin/bash" , "-c", "source activate tf1 && \
+    ipython kernel install --user --name tf1 --display-name 'Tensorflow 1' && \
+    conda deactivate"]
 
 # Setting Up JupyterLab Environments
 USER root
@@ -91,9 +100,9 @@ EXPOSE 8888
 EXPOSE 6006
 EXPOSE 22
 VOLUME /notebooks
-VOLUME /tensorboard
-RUN chown -R $NB_USER /notebooks \
- && chown -R $NB_USER /tensorboard
+VOLUME /notebooks/ml_data
+VOLUME /notebooks/tensorboard
+RUN chown -R $NB_USER /notebooks
 
 # Setting up container startup
 ENTRYPOINT ["tini", "-g", "--"]

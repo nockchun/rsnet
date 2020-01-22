@@ -1,7 +1,9 @@
-name: tf2
+name: base
 channels:
-    - conda-forge
     - anaconda
+    - conda-forge
+    - bioconda
+    - powerai
 dependencies:
     - bcolz
     - beautifulsoup4
@@ -70,6 +72,8 @@ dependencies:
     - sqlalchemy
     - statsmodels
     - sympy
+    - tensorflow-gpu
+    - tensorflow-hub
     - theano
     - toolz
     - tqdm
@@ -89,20 +93,29 @@ dependencies:
     - pyopengl
     - re2
     - rstr
+    - cython
+    - parmap
+    - opencv
+    - ray
+    - ray[rllib]
+    - sentencepiece
     - pip
     - pip:
+        - ipykernel
         - jdc
+        - tables
+        - sklearn-pandas
         - jupyterlab_code_formatter
         - pytest-ipynb
-        - sklearn-pandas
-        - tables
         - tensorflow-datasets
-        - tensorflow==2.0.0rc1
-        - dask-tensorflow
         - youtokentome
-        - sentencepiece
+        - hb-config
         - flashtext
         - fasttext
+        - imread
         - JSAnimation
         - gym
         - gym[atari]
+        - filelock
+        - modin
+        - modin[ray]

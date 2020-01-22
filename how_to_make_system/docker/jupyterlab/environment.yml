@@ -1,7 +1,9 @@
-name: base
+name: tf1
 channels:
-    - conda-forge
     - anaconda
+    - conda-forge
+    - bioconda
+    - powerai
 dependencies:
     - bcolz
     - beautifulsoup4
@@ -70,7 +72,7 @@ dependencies:
     - sqlalchemy
     - statsmodels
     - sympy
-    - tensorflow-gpu
+    - tensorflow-gpu=1.15
     - tensorflow-hub
     - theano
     - toolz
@@ -87,6 +89,12 @@ dependencies:
     - pyopengl
     - re2
     - rstr
+    - cython
+    - parmap
+    - opencv
+    - ray
+    - ray[rllib]
+    - sentencepiece
     - pip
     - pip:
         - ipykernel

@@ -100,11 +100,9 @@ EXPOSE 8888
 EXPOSE 6006
 EXPOSE 22
 VOLUME /notebooks
-VOLUME /notebooks/workspace
-VOLUME /notebooks/asa_data
-VOLUME /tensorboard
-RUN chown -R $NB_USER /notebooks \
- && chown -R $NB_USER /tensorboard
+VOLUME /notebooks/ml_data
+VOLUME /notebooks/tensorboard
+RUN chown -R $NB_USER /notebooks
 
 # Setting up container startup
 ENTRYPOINT ["tini", "-g", "--"]

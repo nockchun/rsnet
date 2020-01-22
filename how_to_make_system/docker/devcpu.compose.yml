@@ -7,19 +7,22 @@ services:
             dockerfile: Dockerfile
         image: jupyterlab.cpu
         container_name: jupyterlab.cpu
-        hostname: labcpu
+        hostname: jupyterlab
         restart: always
-        network_mode: host
+        # network_mode: host
         env_file:
             - ./jupyterlab/.env
         ports:
-            - "8889:8888"
-        #     - "8022:22"
-        #     - "6006:6006"
-        #     - "8786:8786"
-        #     - "8787:8787"
+            - "8888:8888"
+            - "6006:6006"
+            - "8786:8786"
+            - "8787:8787"
         volumes:
             - /data/notebooks:/notebooks
-            - /data/tensorboard:/tensorboard
+            - /data/notebooks/tensorboard:/tensorboard
         command:
             jupyter lab --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
+
+networks:
+    rsnet:
+        driver: bridge
