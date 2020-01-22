@@ -1,16 +1,38 @@
-FROM alpine
-LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
+FROM alpine:latest
+MAINTAINER RealStudy.NET <nockchun@gmail.com>
 
-# Install system packages
-RUN sed -i 's/archive.ubuntu.com/ftp.harukasan.org/g' /etc/apt/sources.list \
- && apt clean && apt update && apt install -yq --no-install-recommends apt-utils \
-      ca-certificates sudo bzip2 gcc g++ make git wget curl vim net-tools openssh-server \
-      sudo cmake \
- && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
- && locale-gen
+# Timezone
+ENV TIMEZONE Asia/Seoul
 
-# Setting up container startup
-ENTRYPOINT ["tini", "-g", "--"]
+# Install some tools in the container.
+RUN apk update && apk upgrade\
+    && apk add bind-tools curl wget nmap procps tcpdump busybox-extras mtr openssl nginx tzdata openssh-server openssh-client postgresql-client mysql-client rsync jq git iputils lftp netcat-openbsd socat iproute2 net-tools bash perl-net-telnet iperf3 ethtool apache2-utils nmap-ncat nmap-scripts \
+    && cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
+    && echo "${TIMEZONE}" > /etc/timezone \
+    && mkdir /etc/nginx/certificates \
+    && openssl req \
+		-x509 \
+		-newkey rsa:2048 \
+		-keyout /etc/nginx/certificates/key.pem \
+		-out /etc/nginx/certificates/cert.pem \
+		-days 365 \
+		-nodes \
+		-subj /CN=localhost \
+	&& mkdir /www \
+	&& mkdir /var/run/nginx \
+	&& apk del tzdata \
+	&& rm -rf /var/cache/apk/*
 
-USER $NB_USER
-WORKDIR /notebooks
+COPY conf/nginx.conf /etc/nginx/nginx.conf
+COPY conf/common.conf /etc/nginx/common.conf
+COPY conf/conf.d/default.conf /etc/nginx/conf.d/default.conf
+COPY conf/conf.d/ssl.conf /etc/nginx/conf.d/ssl.conf
+
+# Expose volumes
+VOLUME ["/etc/nginx", "/var/log/nginx", "/www"]
+
+# Expose ports
+EXPOSE 80 443
+
+# Entry point
+# ENTRYPOINT ["/usr/sbin/nginx", "-g", "daemon off;"]

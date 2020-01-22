@@ -1,4 +1,35 @@
 ###########################################################################
+# Public Docker-hub
+user:~$ docker login
+user:~$ docker build -t <dockerhub_id>/<image_name>:<version> .
+# example : docker build -t nockchun/docterm:v1 .
+user:~$ docker push <dockerhub_id>/<image_name>:<version>
+# example : docker push nockchun/docterm:v1 .
+
+
+###########################################################################
+# Private Docker-hub
+user:~$ docker pull registry
+user:~$ docker run -d --name docker-registry -p 5000:5000 registry
+
+# Push Image
+user:~$ docker tag myhello localhost:5000/myhello
+user:~$ docker push localhost:5000/myhello
+
+# if want to use private docker-hub without https
+root# vi /etc/docker/daemon.json
+    > {
+    >     "insecure-registries" : ["xx.xx.xx.xx:5000"]
+    > }
+root# systemctl restart docker
+
+# Image Check
+user:~$ curl -X GET http://xx.xx.xx.xx:5000/v2/_catalog
+# Tag Info Check
+user:~$ curl -X GET http://xx.xx.xx.xx:5000/v2/hello-world/tags/list
+
+
+###########################################################################
 # Kubeflow Install
 user:~$ wget https://github.com/kubeflow/kfctl/releases/download/v1.0-rc.1/kfctl_v1.0-rc.1-0-g963c787_linux.tar.gz
 user:~$ tar xfvz kfctl_v1.0-rc.1-0-g963c787_linux.tar.gz
