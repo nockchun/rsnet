@@ -54,6 +54,7 @@ dependencies:
     - pydot
     - pydotplus
     - pyodbc
+    - pyspark
     - pytables
     - pytest
     - python-graphviz
@@ -101,6 +102,7 @@ dependencies:
     - ray
     - ray[rllib]
     - sentencepiece
+    - openssl
     - pip
     - pip:
         - ipykernel

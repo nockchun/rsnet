@@ -101,6 +101,7 @@ dependencies:
     - ray
     - ray[rllib]
     - sentencepiece
+    - openssl
     - pip
     - pip:
         - ipykernel

@@ -1,5 +1,5 @@
 FROM nvidia/cuda:10.1-base-ubuntu18.04
-LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
+MAINTAINER RealStudy.NET <nockchun@gmail.com>
 
 ARG NB_USER="rsnet"
 ARG NB_UID="1000"
@@ -46,10 +46,10 @@ WORKDIR $HOME
 
 # Install conda
 ENV MINICONDA_VERSION=latest \
-    CONDA_VERSION=4.7.12
+    CONDA_VERSION=4.8.1
 RUN mkdir -p .conda
 
-# Create Tensorflow 2 Environments as Base
+# Create MiniConda Environments as Base
 RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
  && /bin/bash Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p $CONDA_DIR \
  && rm Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
@@ -64,35 +64,39 @@ RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERS
  && jupyter notebook --generate-config \
  && conda install -c plotly jupyterlab-dash -y
 
+# Create Tensorflow 2 Environments
 ADD environment.tf2.yml environment.yml
 RUN conda update -y pip setuptools \
  && python -m pip install --upgrade pip setuptools \
  && conda env update --name base --file environment.yml \
  && rm environment.yml
 
-RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
- && jupyter labextension install @jupyter-widgets/jupyterlab-manager \
-    jupyter-threejs jupyter-matplotlib \
-    @jupyterlab/vega3-extension @jupyterlab/vega4-extension @jupyterlab/vega5-extension \
-    ipysheet ipyvolume jupyterlab-dash jupyterlab-drawio \
-    @jupyterlab/toc @krassowski/jupyterlab_go_to_definition \
-    @jupyterlab/notebook-extension @jupyterlab/terminal-extension \
-    @jupyterlab/plotly-extension @jupyterlab/json-extension \
-    @jupyterlab/imageviewer-extension @jupyterlab/geojson-extension \
-    @jupyterlab/tooltip-extension @jupyterlab/help-extension @jupyterlab/running-extension \
-    @jupyterlab/inspector-extension @jupyterlab/pdf-extension @jupyterlab/mathjax2-extension \
-    @jupyterlab/vdom-extension @jupyterlab/hub-extension @jupyterlab/latex \
-    @jupyterlab/fasta-extension @jupyterlab/katex-extension \
-    @ryantam626/jupyterlab_code_formatter \
- && jupyter serverextension enable --py jupyterlab_code_formatter
-
 # Create Tensorflow 1 Environments
 ADD environment.yml environment.yml
-RUN conda env update --name tf1 --file environment.yml \
+RUN conda update -y pip setuptools \
+ && python -m pip install --upgrade pip setuptools \
+ && conda env update --name tf1 --file environment.yml \
  && rm environment.yml
 RUN ["/bin/bash" , "-c", "source activate tf1 && \
     ipython kernel install --user --name tf1 --display-name 'Tensorflow 1' && \
     conda deactivate"]
+
+# Adding Jupyterlab Extensions
+RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
+ && jupyter labextension install @jupyter-widgets/jupyterlab-manager@1.1 \
+    @jupyterlab/application-extension @jupyterlab/apputils-extension @jupyterlab/codemirror-extension @jupyterlab/completer-extension \
+    @jupyterlab/console-extension @jupyterlab/csvviewer-extension @jupyterlab/docmanager-extension @jupyterlab/documentsearch-extension \
+    @jupyterlab/extensionmanager-extension @jupyterlab/filebrowser-extension @jupyterlab/fileeditor-extension @jupyterlab/help-extension \
+    @jupyterlab/htmlviewer-extension @jupyterlab/hub-extension @jupyterlab/imageviewer-extension @jupyterlab/inspector-extension \
+    @jupyterlab/javascript-extension @jupyterlab/json-extension @jupyterlab/launcher-extension @jupyterlab/logconsole-extension \
+    @jupyterlab/mainmenu-extension @jupyterlab/markdownviewer-extension @jupyterlab/mathjax2-extension @jupyterlab/notebook-extension \
+    @jupyterlab/pdf-extension @jupyterlab/rendermime-extension @jupyterlab/running-extension @jupyterlab/settingeditor-extension \
+    @jupyterlab/shortcuts-extension @jupyterlab/statusbar-extension @jupyterlab/tabmanager-extension @jupyterlab/terminal-extension \
+    @jupyterlab/theme-dark-extension @jupyterlab/theme-light-extension @jupyterlab/tooltip-extension @jupyterlab/ui-components-extension \
+    @jupyterlab/vdom-extension @jupyterlab/vega5-extension \
+ && jupyter labextension install jupyter-matplotlib jupyterlab-drawio @krassowski/jupyterlab_go_to_definition \
+    @jupyterlab/fasta-extension @jupyterlab/geojson-extension @jupyterlab/katex-extension \
+    @jupyterlab/mathjax3-extension @jupyterlab/vega2-extension @jupyterlab/vega3-extension @jupyterlab/plotly-extension
 
 # Setting Up JupyterLab Environments
 USER root

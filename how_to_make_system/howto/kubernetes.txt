@@ -30,6 +30,11 @@ user:~$ curl -X GET http://xx.xx.xx.xx:5000/v2/hello-world/tags/list
 
 
 ###########################################################################
+# Ingress Nginx
+user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.27.1/deploy/static/mandatory.yaml
+user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.27.1/deploy/static/provider/cloud-generic.yaml
+
+###########################################################################
 # Kubeflow Install
 user:~$ wget https://github.com/kubeflow/kfctl/releases/download/v1.0-rc.1/kfctl_v1.0-rc.1-0-g963c787_linux.tar.gz
 user:~$ tar xfvz kfctl_v1.0-rc.1-0-g963c787_linux.tar.gz
