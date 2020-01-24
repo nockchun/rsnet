@@ -21,8 +21,8 @@ services:
             - rsnet
         volumes:
             - /data/notebooks:/notebooks
-            - /data/notebooks/ml_data:/notebooks/ml_data
-            - /data/notebooks/tensorboard:/notebooks/tensorboard
+            - /data/notebooks/ml_data:/ml_data
+            - /data/notebooks/tensorboard:/tensorboard
         command:
             jupyter lab --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
 

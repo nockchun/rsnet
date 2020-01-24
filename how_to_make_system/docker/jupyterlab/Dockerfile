@@ -100,14 +100,14 @@ RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
     @jupyterlab/mathjax3-extension @jupyterlab/vega2-extension @jupyterlab/vega3-extension @jupyterlab/plotly-extension
 
 # Setting Up JupyterLab Environments
-USER root
+#USER root
 EXPOSE 8888
 EXPOSE 6006
 EXPOSE 22
 VOLUME /notebooks
-VOLUME /notebooks/ml_data
-VOLUME /notebooks/tensorboard
-RUN chown -R $NB_USER.$NB_USER /notebooks
+VOLUME /ml_data
+VOLUME /tensorboard
+RUN sudo chown -R $NB_USER.$NB_USER /notebooks
 
 # Setting up container startup
 ENTRYPOINT ["tini", "-g", "--"]
