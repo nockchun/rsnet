@@ -97,7 +97,9 @@ RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
     @jupyterlab/vdom-extension @jupyterlab/vega5-extension \
  && jupyter labextension install jupyter-matplotlib jupyterlab-drawio @krassowski/jupyterlab_go_to_definition \
     @jupyterlab/fasta-extension @jupyterlab/geojson-extension @jupyterlab/katex-extension \
-    @jupyterlab/mathjax3-extension @jupyterlab/vega2-extension @jupyterlab/vega3-extension @jupyterlab/plotly-extension
+    @jupyterlab/mathjax3-extension @jupyterlab/vega2-extension @jupyterlab/vega3-extension @jupyterlab/plotly-extension \
+    @jupyterlab/toc @jupyterlab/hdf5 jupyterlab-spreadsheet jupyterlab-cpustatus @kaggle/jupyterlab \
+    jupyterlab-topbar-extension jupyterlab-system-monitor @lckr/jupyterlab_variableinspector
 
 # Setting Up JupyterLab Environments
 #USER root

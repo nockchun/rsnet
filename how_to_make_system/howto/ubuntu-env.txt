@@ -7,6 +7,11 @@ user:~$ sudo apt-get remove --purge gconf2 && sudo apt-get install gconf2
 
 
 ###########################################################################
+# Drivers
+user:~$ sudo add-apt-repository ppa:bluetooth/bluez
+
+
+###########################################################################
 # Change Booting mode
 user:~$ sudo systemctl set-default multi-user.target
 user:~$ sudo systemctl set-default graphical.target 

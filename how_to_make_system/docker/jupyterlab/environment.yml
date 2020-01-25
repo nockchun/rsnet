@@ -119,3 +119,5 @@ dependencies:
         - JSAnimation
         - gym
         - gym[atari]
+        - nbresuse
+        - jupyterlab_hdf

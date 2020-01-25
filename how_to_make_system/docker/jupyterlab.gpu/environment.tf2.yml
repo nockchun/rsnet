@@ -123,4 +123,6 @@ dependencies:
         - filelock
         - modin
         - modin[ray]
+        - nbresuse
+        - jupyterlab_hdf
 
