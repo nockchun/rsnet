@@ -39,7 +39,7 @@ RUN groupadd -g $NB_UID $NB_USER \
  && mkdir -p $CONDA_DIR \
  && chown -R $NB_USER.$NB_USER $CONDA_DIR \
  && adduser $NB_USER sudo \
- && echo 'rsnet ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+ && echo '$NB_USER ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 USER $NB_USER
 WORKDIR $HOME
