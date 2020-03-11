@@ -61,7 +61,7 @@ RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERS
  && conda update -n base -c defaults conda \
  && conda update --all -y \
  && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc \
- && conda install -c conda-forge --yes notebook jupyterhub jupyterlab \
+ && conda install -c conda-forge --yes notebook jupyterhub jupyterlab==2 \
  && jupyter notebook --generate-config \
  && conda install -c plotly jupyterlab-dash -y
 
@@ -72,19 +72,9 @@ RUN conda update -y pip setuptools \
  && conda env update --name base --file environment.yml \
  && rm environment.yml
 
-# Create Tensorflow 1 Environments
-ADD environment.yml environment.yml
-RUN conda update -y pip setuptools \
- && python -m pip install --upgrade pip setuptools \
- && conda env update --name tf1 --file environment.yml \
- && rm environment.yml
-RUN ["/bin/bash" , "-c", "source activate tf1 && \
-    ipython kernel install --user --name tf1 --display-name 'Tensorflow 1' && \
-    conda deactivate"]
-
 # Adding Jupyterlab Extensions
 RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
- && jupyter labextension install @jupyter-widgets/jupyterlab-manager@1.1 \
+ && jupyter labextension install @jupyter-widgets/jupyterlab-manager@2 \
     @jupyterlab/application-extension @jupyterlab/apputils-extension @jupyterlab/codemirror-extension @jupyterlab/completer-extension \
     @jupyterlab/console-extension @jupyterlab/csvviewer-extension @jupyterlab/docmanager-extension @jupyterlab/documentsearch-extension \
     @jupyterlab/extensionmanager-extension @jupyterlab/filebrowser-extension @jupyterlab/fileeditor-extension @jupyterlab/help-extension \
@@ -94,11 +84,19 @@ RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
     @jupyterlab/pdf-extension @jupyterlab/rendermime-extension @jupyterlab/running-extension @jupyterlab/settingeditor-extension \
     @jupyterlab/shortcuts-extension @jupyterlab/statusbar-extension @jupyterlab/tabmanager-extension @jupyterlab/terminal-extension \
     @jupyterlab/theme-dark-extension @jupyterlab/theme-light-extension @jupyterlab/tooltip-extension @jupyterlab/ui-components-extension \
-    @jupyterlab/vdom-extension @jupyterlab/vega5-extension \
- && jupyter labextension install jupyter-matplotlib jupyterlab-drawio @krassowski/jupyterlab_go_to_definition \
-    @jupyterlab/fasta-extension @jupyterlab/geojson-extension @jupyterlab/katex-extension @jupyterlab/toc \
-    @jupyterlab/mathjax3-extension @jupyterlab/vega2-extension @jupyterlab/vega3-extension @jupyterlab/plotly-extension \
-    @jupyterlab/hdf5 jupyterlab-spreadsheet @lckr/jupyterlab_variableinspector
+    @jupyterlab/vdom-extension @jupyterlab/vega5-extension
+RUN jupyter labextension install jupyter-matplotlib @jupyterlab/fasta-extension @jupyterlab/toc @jupyterlab/mathjax3-extension \
+    @jupyterlab/geojson-extension @jupyterlab/katex-extension @lckr/jupyterlab_variableinspector
+
+# Create Tensorflow 1 Environments
+ADD environment.yml environment.yml
+RUN conda update -y pip setuptools \
+ && python -m pip install --upgrade pip setuptools \
+ && conda env update --name tf1 --file environment.yml \
+ && rm environment.yml
+RUN ["/bin/bash" , "-c", "source activate tf1 && \
+    ipython kernel install --user --name tf1 --display-name 'Tensorflow 1' && \
+    conda deactivate"]
 
 # Setting Up JupyterLab Environments
 #USER root

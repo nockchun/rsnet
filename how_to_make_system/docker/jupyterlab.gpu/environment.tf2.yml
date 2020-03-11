@@ -72,7 +72,7 @@ dependencies:
     - sqlalchemy
     - statsmodels
     - sympy
-    - tensorflow-gpu
+    - tensorflow-gpu=2
     - tensorflow-hub
     - theano
     - toolz
