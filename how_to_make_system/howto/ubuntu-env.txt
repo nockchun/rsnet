@@ -16,8 +16,10 @@ user:~$ sudo add-apt-repository ppa:bluetooth/bluez
 user:~$ sudo systemctl set-default multi-user.target
 user:~$ sudo systemctl set-default graphical.target 
 
-
 ###########################################################################
+# Basic Library
+sudo apt install build-essential
+
 # Install Fonts
 * Nanum & Common Fonts Install
 user# sudo apt-get install fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts-nanum fonts-nanum-coding fonts-nanum-extra
@@ -29,6 +31,8 @@ user:~$ sudo unzip D2Coding-1.2.zip -d /usr/share/fonts/truetype/D2Coding/
 user:~$ sudo rm -rf /usr/share/fonts/truetype/D2Coding/__MACOSX
 user:~$ sudo fc-cache -f -v
 
+# MAC Them
+url : https://manjaro.site/make-linux-mint-19-looks-like-mac-os-x-mojave/
 
 ###########################################################################
 * Vi Editor (~/.vimrc)
@@ -75,7 +79,7 @@ user:~$ sudo apt-get update
 user:~$ sudo apt-get install sublime-text sublime-merge
 
 * Setting Up Sublime Text 3 Plugins
-1. SideBarEnhancements
+1. SideBarEnhanceinsments
 	> site : https://github.com/titoBouzout/SideBarEnhancements
 	> Sidebar에 대해 확장기능 플러그인.
 
@@ -176,8 +180,8 @@ user:~$ sudo apt install obs-studio
 # Kdenlive
 user:~$ sudo add-apt-repository ppa:kdenlive/kdenlive-stable
 user:~$ sudo apt update
-user:~$ sudo apt install kdenlive
 user:~$ sudo apt install frei0r-plugins dvgrab recordmydesktop dvdauthor mkisofs vlc
+user:~$ sudo apt install kdenlive
 
 
 ###########################################################################
@@ -230,12 +234,12 @@ EOF
 
 ###########################################################################
 # Docker Install Ubuntu
-# docker-ce-18.09.8 : Kubernetes 1.15 : kubeflow 0.7
+# kubeflow 1.0 >> docker-ce-18.09.8 : Kubernetes 1.15
 # change version : sudo aptitude install docker-ce=5:18.09.9~3-0~ubuntu-bionic docker-ce-cli=5:18.09.9~3-0~ubuntu-bionic
 user:~$ sudo apt install apt-transport-https ca-certificates curl software-properties-common
 user:~$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-#user:~$ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
-user:~? sudo echo -e "\ndeb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" | sudo tee -a /etc/apt/sources.list
+user:~$ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+#user:~? sudo echo -e "\ndeb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" | sudo tee -a /etc/apt/sources.list
 user:~$ sudo apt update
 user:~$ sudo apt install -y docker-ce=5:18.09.9~3-0~ubuntu-bionic docker-ce-cli=5:18.09.9~3-0~ubuntu-bionic containerd.io=1.2.10-3
 user:~$ sudo apt-mark hold docker-ce docker-ce-cli
