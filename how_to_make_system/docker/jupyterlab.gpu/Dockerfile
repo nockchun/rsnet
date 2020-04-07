@@ -6,7 +6,7 @@ ARG NB_UID="1000"
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install system packages
-RUN sed -i 's/archive.ubuntu.com/ftp.harukasan.org/g' /etc/apt/sources.list \
+RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
  && apt clean && apt update && apt install -yq --no-install-recommends apt-utils \
     ca-certificates sudo locales fonts-liberation bzip2 gcc g++ make git graphviz libgl1-mesa-glx libhdf5-dev openmpi-bin wget curl npm \
     vim net-tools openssh-server sudo cmake zlib1g-dev libjpeg-dev xvfb xorg-dev xcftools \
@@ -46,8 +46,7 @@ USER $NB_USER
 WORKDIR $HOME
 
 # Install conda
-ENV MINICONDA_VERSION=latest \
-    CONDA_VERSION=4.8.1
+ENV MINICONDA_VERSION=latest
 RUN mkdir -p .conda
 
 # Create MiniConda Environments as Base
@@ -70,7 +69,8 @@ ADD environment.tf2.yml environment.yml
 RUN conda update -y pip setuptools \
  && python -m pip install --upgrade pip setuptools \
  && conda env update --name base --file environment.yml \
- && rm environment.yml
+ && rm environment.yml \
+ && conda update -n base --all -y
 
 # Adding Jupyterlab Extensions
 RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
