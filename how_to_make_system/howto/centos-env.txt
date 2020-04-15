@@ -167,6 +167,12 @@ user:~$ docker-compose version
 
 
 ###########################################################################
+# Install Nvidia-Docker on CentOS 7
+user:~$ wget http://developer.download.nvidia.com/compute/cuda/10.2/Prod/local_installers/cuda_10.2.89_440.33.01_linux.run
+user:~$ sudo sh cuda_10.2.89_440.33.01_linux.run
+
+
+###########################################################################
 ###########################################################################
 # Install Kubernetes
 # Master & Node HOST File Setting -----------------------------------------

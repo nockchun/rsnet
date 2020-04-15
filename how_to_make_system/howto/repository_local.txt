@@ -1,0 +1,24 @@
+###########################################################################
+### YUM Local Repository ##################################################
+* Install basic application
+root:~$ yum install createrepo
+
+* Download rpms for repository(/data/centos)
+root:~$ yum update -y --downloadonly --downloaddir=/data/centos
+root:~$ yum install -y --downloadonly --downloaddir=/data/centos createrepo
+
+* Create local repository
+root:~$ createrepo /data/centos
+
+* Offline install
+root:~$ cd /etc/yum.repo.d
+root:~$ mkdir old_repo
+root:~$ mv *.repo old_repo
+root:~$ vi Local.repo
+[local-repo]
+name = local-repository
+baseurl = file:///data/centos
+enabled = 1
+gpgcheck = 0
+
+root:~$ yum repolist
