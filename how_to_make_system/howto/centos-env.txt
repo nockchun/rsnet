@@ -168,8 +168,26 @@ user:~$ docker-compose version
 
 ###########################################################################
 # Install Nvidia-Docker on CentOS 7
-user:~$ wget http://developer.download.nvidia.com/compute/cuda/10.2/Prod/local_installers/cuda_10.2.89_440.33.01_linux.run
-user:~$ sudo sh cuda_10.2.89_440.33.01_linux.run
+* Download Nvidia Driver & Install ----------------------------------------
+Site: https://www.nvidia.co.kr/Download/index.aspx?lang=kr
+root:~$ wget http://kr.download.nvidia.com/tesla/440.64.00/NVIDIA-Linux-x86_64-440.64.00.run
+root:~$ sudo sh NVIDIA-Linux-x86_64-440.64.00.run
+root:~$ yum install -y kernel kernel-devel gcc make dkms
+root:~$ echo 'blacklist nouveau' >> /etc/modprobe.d/blacklist.conf
+root:~$ rpm -e xorg-x11-drivers xorg-x11-drv-nouveau
+
+* nouveau driver off ------------------------------------------------------
+root:~$ vi /etc/default/grub
+GRUB_CMDLINE_LINUX="~~ rd.driver.blacklist=nouveau"
+
+> BIOS USER run this
+root:~$ grub2-mkconfig -o /boot/grub2/grub.cfg
+> UEFI USER run this
+root:~$ grub2-mkconfig -o /boot/efi/EFI/centos/grub.cfg
+
+* Reboot and check nouveau driver status ---------------------------------
+root:~$ reboot
+root:~$ lsmod | grep nouveau
 
 
 ###########################################################################
