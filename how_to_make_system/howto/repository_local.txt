@@ -21,4 +21,5 @@ baseurl = file:///data/centos
 enabled = 1
 gpgcheck = 0
 
+root:~$ yum clean all
 root:~$ yum repolist

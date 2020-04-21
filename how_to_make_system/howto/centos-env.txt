@@ -168,15 +168,11 @@ user:~$ docker-compose version
 
 ###########################################################################
 # Install Nvidia-Docker on CentOS 7
-* Download Nvidia Driver & Install ----------------------------------------
-Site: https://www.nvidia.co.kr/Download/index.aspx?lang=kr
-root:~$ wget http://kr.download.nvidia.com/tesla/440.64.00/NVIDIA-Linux-x86_64-440.64.00.run
-root:~$ sudo sh NVIDIA-Linux-x86_64-440.64.00.run
+* nouveau driver off ------------------------------------------------------
+root:~$ yum update
 root:~$ yum install -y kernel kernel-devel gcc make dkms
 root:~$ echo 'blacklist nouveau' >> /etc/modprobe.d/blacklist.conf
 root:~$ rpm -e xorg-x11-drivers xorg-x11-drv-nouveau
-
-* nouveau driver off ------------------------------------------------------
 root:~$ vi /etc/default/grub
 GRUB_CMDLINE_LINUX="~~ rd.driver.blacklist=nouveau"
 
@@ -189,6 +185,15 @@ root:~$ grub2-mkconfig -o /boot/efi/EFI/centos/grub.cfg
 root:~$ reboot
 root:~$ lsmod | grep nouveau
 
+* Download Nvidia Driver & Install ----------------------------------------
+Site: https://www.nvidia.co.kr/Download/index.aspx?lang=kr
+root:~$ wget http://kr.download.nvidia.com/tesla/440.64.00/NVIDIA-Linux-x86_64-440.64.00.run
+root:~$ sudo sh NVIDIA-Linux-x86_64-440.64.00.run
+
+* Install Nvidia-Docker2 --------------------------------------------------
+root:~$ distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+root:~$ curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.repo | sudo tee /etc/yum.repos.d/nvidia-docker.repo
+root:~$ yum install nvidia-docker2
 
 ###########################################################################
 ###########################################################################
