@@ -1,9 +1,32 @@
 ###########################################################################
 ###                              Cheet Sheet                            ###
 ###########################################################################
-* namespace 
-# 해당 컨텍스트에서 모든 후속 kubectl 커맨드에 대한 네임스페이스를 영구적으로 저장한다
+* namespace ---------------------------------------------------------------
+> create name space with yaml
+user:~$ cat >> custom-namespace.yaml << EOF
+apiVersion: v1
+  kind: Namespace
+  metadata:
+    name:custom-namespace
+EOF
+user:~$ kubectl create -f custom-namespace.yaml
+
+> create name space with command
+user:~$ kubectl create namespace {namespace}
+
+> 해당 컨텍스트에서 모든 후속 kubectl 커맨드에 대한 네임스페이스를 영구적으로 저장한다
 user:~$ kubectl config set-context --current --namespace=my-namespace
+
+> To delete everything from the current namespace
+user:~$ kubectl delete all --all
+
+> To delete everything from a certain namespace you use the -n flag:
+user:~$ kubectl delete all --all -n {namespace}
+
+> You can also delete a namespace and re-create it. This will delete everything that belongs to it:
+user:~$ kubectl delete all --all -n {namespace}
+kubectl delete namespace {namespace}
+
 
 ###########################################################################
 # Ingress Nginx
