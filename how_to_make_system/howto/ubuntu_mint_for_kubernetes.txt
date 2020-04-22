@@ -61,8 +61,8 @@ user:~$ sudo systemctl set-default graphical.target
 user:~$ wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
 user:~$ sudo apt-get install apt-transport-https
 user:~$ echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
-user:~$ sudo apt-get update
-user:~$ sudo apt-get install sublime-text sublime-merge
+user:~$ sudo apt update
+user:~$ sudo apt install sublime-text sublime-merge
 
 
 * Setting Up Sublime Text 3 Plugins ---------------------------------------
@@ -254,7 +254,7 @@ user:~$ sudo kubeadm init --apiserver-advertise-address=10.10.1.101 --pod-networ
 user:~$ mkdir ~/.kube
 user:~$ sudo cp /etc/kubernetes/admin.conf ~/.kube/config
 user:~$ sudo chown -R user.user ~/.kube
-user:~$ kubectl create -f https://docs.projectcalico.org/v3.11/manifests/calico.yaml
+user:~$ kubectl create -f https://docs.projectcalico.org/v3.13/manifests/calico.yaml
 user:~$ kubeadm token create --print-join-command
 
 
@@ -287,7 +287,6 @@ user:~$ cat >> ~/.bashrc << EOF
 alias kc="kubectl"
 alias ka="kubeadm"
 complete -F __start_kubectl kc
-complete -F __start_kubeadm ka
 
 source <(kubectl completion bash)
 EOF
