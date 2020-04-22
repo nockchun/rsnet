@@ -1,4 +1,11 @@
 ###########################################################################
+###                              Cheet Sheet                            ###
+###########################################################################
+* namespace 
+# 해당 컨텍스트에서 모든 후속 kubectl 커맨드에 대한 네임스페이스를 영구적으로 저장한다
+user:~$ kubectl config set-context --current --namespace=my-namespace
+
+###########################################################################
 # Ingress Nginx
 user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.27.1/deploy/static/mandatory.yaml
 user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.27.1/deploy/static/provider/cloud-generic.yaml

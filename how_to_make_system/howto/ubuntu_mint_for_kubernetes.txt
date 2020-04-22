@@ -257,12 +257,13 @@ user:~$ sudo chown -R user.user ~/.kube
 user:~$ kubectl create -f https://docs.projectcalico.org/v3.11/manifests/calico.yaml
 user:~$ kubeadm token create --print-join-command
 
+
 * Install GPU Node Plugin -------------------------------------------------
   > URL: https://github.com/NVIDIA/k8s-device-plugin
-user:~$ kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta4/nvidia-device-plugin.yml
+user:~$ kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta5/nvidia-device-plugin.yml
 user:~$ kubectl get nodes -o=custom-columns=NAME:.metadata.name,GPUs:.status.capacity.'nvidia\.com/gpu'
 
-* using gpu example:
+> using gpu example:
 apiVersion: v1
 kind: Pod
 metadata:
@@ -279,6 +280,18 @@ spec:
       resources:
         limits:
           nvidia.com/gpu: 2 # requesting 2 GPUs
+
+
+* bash setting for command ------------------------------------------------
+user:~$ cat >> ~/.bashrc << EOF
+alias kc="kubectl"
+alias ka="kubeadm"
+complete -F __start_kubectl kc
+complete -F __start_kubeadm ka
+
+source <(kubectl completion bash)
+EOF
+user:~$ . ~/.bashrc
 
 
 ###########################################################################
