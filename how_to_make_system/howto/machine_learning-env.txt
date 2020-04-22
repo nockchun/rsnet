@@ -22,38 +22,6 @@ user:~$ sudo dpkg -i libcudnn7_7.6.5.32-1+cuda10.1_amd64.deb
 
 
 ###########################################################################
-# Docker Install Ubuntu
-user:~$ sudo apt install apt-transport-https ca-certificates curl software-properties-common
-user:~$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-user:~$ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
-user:~$ sudo apt update
-user:~$ sudo apt install -y docker-ce docker-compose
-
-# Nvidia-Docker Install Ubuntu
-user:~$ curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
-user:~$ sudo vi /etc/apt/sources.list.d/nvidia-docker.list
-	> deb https://nvidia.github.io/libnvidia-container/ubuntu18.04/$(ARCH) /
-	> deb https://nvidia.github.io/nvidia-container-runtime/ubuntu18.04/$(ARCH) /
-	> deb https://nvidia.github.io/nvidia-docker/ubuntu18.04/$(ARCH) /
-user:~$ sudo apt update
-user:~$ sudo apt-get install nvidia-docker2
-
-# Setting Docker
-user:~$ vi /etc/docker/daemon.json
-	{
-	  "default-runtime": "nvidia",
-	  "runtimes": {
-	    "nvidia": {
-	      "path": "/usr/bin/nvidia-container-runtime",
-	      "runtimeArgs": []
-	    }
-	  }
-	}
-user:~$ sudo systemctl daemon-reload
-user:~$ sudo systemctl restart docker
-
-
-###########################################################################
 # Create Conda Virtual Environments & Jupyterlab Kernel
 * create "environment.yml" like below...
 name: tf2
