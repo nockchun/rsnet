@@ -1,5 +1,5 @@
 ###########################################################################
-###                              Cheet Sheet                            ###
+###                        Working With Namespace                       ###
 ###########################################################################
 * namespace ---------------------------------------------------------------
 > create name space with yaml
@@ -16,6 +16,7 @@ user:~$ kubectl create namespace {namespace}
 
 > 해당 컨텍스트에서 모든 후속 kubectl 커맨드에 대한 네임스페이스를 영구적으로 저장한다
 user:~$ kubectl config set-context --current --namespace=my-namespace
+user:~$ kubectl config view
 
 > To delete everything from the current namespace
 user:~$ kubectl delete all --all
