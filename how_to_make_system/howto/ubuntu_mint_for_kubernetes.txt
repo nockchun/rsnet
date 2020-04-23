@@ -45,13 +45,38 @@ root:~$ cat >> /etc/hosts << EOF
 EOF
 
 
+* Change Booting mode -----------------------------------------------------
+user:~$ sudo systemctl set-default multi-user.target
+user:~$ sudo systemctl set-default graphical.target 
+
+
 * MAC Them ----------------------------------------------------------------
 URL : https://manjaro.site/make-linux-mint-19-looks-like-mac-os-x-mojave
 
 
-* Change Booting mode -----------------------------------------------------
-user:~$ sudo systemctl set-default multi-user.target
-user:~$ sudo systemctl set-default graphical.target 
+* Terminal Them With Powerline --------------------------------------------
+user:~$ sudo apt install powerline python-pip fonts-powerline
+user:~$ sudo pip install powerline-shell
+user:~$ vi ~/.bashrc
+function _update_ps1() {
+    PS1=$(powerline-shell $? 2> /dev/null)
+}
+
+if [[ $TERM != linux && ! $PROMPT_COMMAND =~ _update_ps1 ]]; then
+    PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+fi
+
+user:~$ mkdir -p ~/.config/powerline-shell && powerline-shell --generate-config > ~/.config/powerline-shell/config.json
+user:~$ vi ~/.config/powerline-shell/config.json
+{
+  "segments": ["username", "hostname", "cwd", "root"],
+  "mode": "flat",
+  "cwd": {
+    "mode": "plain",
+    "max_depth": 3
+  },
+  "theme": "default"
+}
 
 
 ###########################################################################
