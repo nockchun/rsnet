@@ -8,7 +8,11 @@ user:~$ sudo apt-get remove --purge gconf2 && sudo apt-get install gconf2
 
 ###########################################################################
 # Drivers
+* bluetooth repogitory ----------------------------------------------------
 user:~$ sudo add-apt-repository ppa:bluetooth/bluez
+
+* iOS connect drivers -----------------------------------------------------
+user:~$ sudo apt install libimobiledevice-dev  libimobiledevice-utils libgpod-dev
 
 
 ###########################################################################
