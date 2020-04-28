@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: empty-local
+spec:
+  volumes:
+  - name: vol-empty
+    emptyDir: {}
+  - name: vol-mem
+    emptyDir:
+      medium: "Memory"
+  - name: vol-host
+    hostPath:
+      path: /data/share_docker
+      type: Directory
+
+  containers:
+  - name: docterm
+    image: nockchun/docterm:latest
+    volumeMounts:
+    - mountPath: /data
+      name: vol-host
+
+  - name: ubuntu
+    image: ubuntu:14.04
+    command: ["tail", "-f", "/dev/null"]
+    volumeMounts:
+    - mountPath: /data
+      name: vol-host
+
+  nodeSelector:
+    kubernetes.io/hostname: node18
