@@ -30,6 +30,43 @@ kubectl delete namespace {namespace}
 
 
 ###########################################################################
+###                         Kubernetes Dashboard                        ###
+###########################################################################
+* Deploy Dashboard To k8s -------------------------------------------------
+user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+user:~$ nohup kubectl proxy --port=8001 --address=xx.xx.xx.xx --accept-hosts='^*$' &
+user:~$ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+
+* Creating sample Accout -------------------------------------------------
+user:~$ cat <<EOF | kubectl create -f -
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+EOF
+
+* Create sample ClusterRoleBinding ----------------------------------------
+user:~$ cat <<EOF | kubectl create -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kubernetes-dashboard
+EOF
+
+# Create Bearer Token ------------------------------------------------------
+user:~$ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+
+
+###########################################################################
 # Ingress Nginx
 user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.27.1/deploy/static/mandatory.yaml
 user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.27.1/deploy/static/provider/cloud-generic.yaml
@@ -83,37 +120,4 @@ user:~$ cd ${KF_DIR}
 user:~$ kfctl delete -f ${CONFIG_FILE}
 
 
-###########################################################################
-# Kubernetes Dashboard
-user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-rc2/aio/deploy/recommended.yaml
-user:~$ nohup kubectl proxy &
-user:~$ http://127.0.0.1:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login
-
-# Service Accoutn 생성
-user:~$ cat <<EOF | kubectl create -f -
- apiVersion: v1
- kind: ServiceAccount
- metadata:
-   name: admin-user
-   namespace: kube-system
-EOF
-
-# ClusterRoleBinding 생성
-user:~$ cat <<EOF | kubectl create -f -
- apiVersion: rbac.authorization.k8s.io/v1
- kind: ClusterRoleBinding
- metadata:
-   name: admin-user
- roleRef:
-   apiGroup: rbac.authorization.k8s.io
-   kind: ClusterRole
-   name: cluster-admin
- subjects:
- - kind: ServiceAccount
-   name: admin-user
-   namespace: kube-system
-EOF
-
-# 토큰 생성
-user:~$ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
 
