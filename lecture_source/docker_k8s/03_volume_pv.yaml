@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: PersistentVolume
+
+metadata:
+  name: vol-pv
+
+spec:
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteMany
+  storageClassName: myvol-01
+  persistentVolumeReclaimPolicy: Delete
+  hostPath:
+    path: /tmp/log_backup
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+
+metadata:
+  name: vol-path-01
+
+spec:
+  accessModes:
+  - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: myvol-01
