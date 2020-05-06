@@ -71,7 +71,7 @@ user:~$ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-
 ###########################################################################
 user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.27.1/deploy/static/mandatory.yaml
 user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.27.1/deploy/static/provider/cloud-generic.yaml
-user:~$ kubectl patch svc ingress-nginx -n ingress-nginx -p '{"spec": {"type": "LoadBalancer", "externalIPs":["10.10.1.101"]}}'
+user:~$ kubectl patch svc ingress-nginx -n ingress-nginx -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
 
 # Installing Cert-Manager
 user:~$ kubectl create namespace cert-manager
@@ -84,18 +84,18 @@ metadata:
  namespace: cert-manager
 spec:
  acme:
-   # The ACME server URL
-   server: https://acme-staging-v02.api.letsencrypt.org/directory
-   # Email address used for ACME registration
-   email: your_email_address_here
-   # Name of a secret used to store the ACME account private key
-   privateKeySecretRef:
-     name: letsencrypt-staging
-   # Enable the HTTP-01 challenge provider
-   solvers:
-   - http01:
-       ingress:
-         class:  nginx
+  # The ACME server URL
+  server: https://acme-staging-v02.api.letsencrypt.org/directory
+  # Email address used for ACME registration
+  email: your_email_address_here
+  # Name of a secret used to store the ACME account private key
+  privateKeySecretRef:
+   name: letsencrypt-staging
+  # Enable the HTTP-01 challenge provider
+  solvers:
+  - http01:
+     ingress:
+       class:  nginx
 EOF
 user:~$ kubectl create -f staging_issuer.yaml
 
@@ -105,14 +105,14 @@ user:~$ kubectl create -f staging_issuer.yaml
 ###########################################################################
 * Kubeflow Install --------------------------------------------------------
 user:~$ wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz
-user:~$ tar xfvz kfctl_v1.0.2-0-ga476281_linux.tar.gz
+user:~$ tar xfv kfctl_v1.0.2-0-ga476281_linux.tar.gz
 user:~$ sudo mv kfctl /usr/local/bin/
-user:~$ export KF_NAME=asaflow
+user:~$ export KF_NAME=kubeflow
 user:~$ export BASE_DIR=/opt
 user:~$ export KF_DIR=${BASE_DIR}/${KF_NAME}
 user:~$ export CONFIG_URI="https://raw.githubusercontent.com/kubeflow/manifests/v1.0-branch/kfdef/kfctl_k8s_istio.v1.0.2.yaml"
 user:~$ sudo mkdir -p ${KF_DIR}
-user:~$ sudo chown user.user ${KF_DIR}
+user:~$ sudo chown $USER.$GROUP ${KF_DIR}
 user:~$ cd ${KF_DIR}
 user:~$ kfctl apply -V -f ${CONFIG_URI}
 user:~$ kubectl get all -n kubeflow
