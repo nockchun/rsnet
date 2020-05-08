@@ -275,18 +275,24 @@ root:~$ apt-mark hold kubelet kubeadm kubectl
 ###                   Setting Kubernetes Master Node                    ###
 ###########################################################################
 * Completely Remove Kubernetes Environments -------------------------------
+user:~$ sudo kubectl drain <node name> --delete-local-data --force --ignore-daemonsets
+user:~$ sudo kubectl delete node <node name>
 user:~$ sudo kubeadm reset
+user:~$ sudo rm -rf /var/lib/cni/ /var/lib/calico/ /var/lib/kubelet/ /var/lib/etcd/ /etc/kubernetes/ /etc/cni/
 user:~$ docker system prune -a -f
 user:~$ sudo rm -rf ~/.kube
 user:~$ docker system df
+user:~$ sudo iptables -F && sudo iptables -t nat -F && sudo iptables -t mangle -F && sudo iptables -X
+user:~$ sudo reboot
 
 
 * Setting Up For Master ---------------------------------------------------
-user:~$ sudo kubeadm init --apiserver-advertise-address=192.168.0.101 --pod-network-cidr=10.244.0.0/16
+user:~$ sudo kubeadm init --pod-network-cidr=10.244.0.0/16
 user:~$ mkdir ~/.kube
-user:~$ sudo cp /etc/kubernetes/admin.conf ~/.kube/config
-user:~$ sudo chown -R $USER.$GROUP ~/.kube
-user:~$ kubectl create -f https://docs.projectcalico.org/v3.13/manifests/calico.yaml
+user:~$ sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config
+user:~$ sudo chown -R $(id -u):$(id -g) ~/.kube
+user:~$ kubectl apply -f https://docs.projectcalico.org/v3.11/manifests/calico.yaml
+user:~$ kubectl taint nodes --all node-role.kubernetes.io/master-
 user:~$ kubeadm token create --print-join-command
 
 

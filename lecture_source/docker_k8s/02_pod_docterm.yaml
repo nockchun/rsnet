@@ -2,7 +2,21 @@ apiVersion: v1
 kind: Pod
 
 metadata:
-  name: docterm
+  name: docterm01
+
+spec:
+  containers:
+  - name: docterm
+    image: nockchun/docterm:latest
+    ports:
+    - containerPort: 80
+
+---
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: docterm02
 
 spec:
   containers:
