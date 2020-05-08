@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: docterm
+
+spec:
+  containers:
+  - name: docterm
+    image: nockchun/docterm:latest
+    ports:
+    - containerPort: 80

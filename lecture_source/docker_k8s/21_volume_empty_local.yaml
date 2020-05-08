@@ -21,13 +21,13 @@ spec:
     image: nockchun/docterm:latest
     volumeMounts:
     - mountPath: /data
-      name: vol-host
+      name: vol-empty
   - name: ubuntu
     image: ubuntu:14.04
     command: ["tail", "-f", "/dev/null"]
     volumeMounts:
     - mountPath: /data
-      name: vol-host
+      name: vol-empty
 
-  nodeSelector:
-    kubernetes.io/hostname: node18
+  # nodeSelector:
+  #   kubernetes.io/hostname: node18

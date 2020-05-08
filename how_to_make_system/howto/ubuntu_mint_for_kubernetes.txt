@@ -274,12 +274,18 @@ root:~$ apt-mark hold kubelet kubeadm kubectl
 ###########################################################################
 ###                   Setting Kubernetes Master Node                    ###
 ###########################################################################
+* Completely Remove Kubernetes Environments -------------------------------
+user:~$ sudo kubeadm reset
+user:~$ docker system prune -a -f
+user:~$ sudo rm -rf ~/.kube
+user:~$ docker system df
+
+
 * Setting Up For Master ---------------------------------------------------
+user:~$ sudo kubeadm init --apiserver-advertise-address=192.168.0.101 --pod-network-cidr=10.244.0.0/16
 user:~$ mkdir ~/.kube
 user:~$ sudo cp /etc/kubernetes/admin.conf ~/.kube/config
 user:~$ sudo chown -R $USER.$GROUP ~/.kube
-
-user:~$ sudo kubeadm init --apiserver-advertise-address=192.168.0.101 --pod-network-cidr=10.244.0.0/16
 user:~$ kubectl create -f https://docs.projectcalico.org/v3.13/manifests/calico.yaml
 user:~$ kubeadm token create --print-join-command
 
@@ -320,6 +326,7 @@ user:~$ . ~/.bashrc
 
 
 * Install Helm 3 ----------------------------------------------------------
+user:~$ sudo rm -rf /usr/local/bin/helm
 user:~$ curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
 user:~$ chmod 700 get_helm.sh
 user:~$ ./get_helm.sh
@@ -327,13 +334,6 @@ user:~$ ./get_helm.sh
 user:~$ helm repo add stable https://kubernetes-charts.storage.googleapis.com
 user:~$ helm repo update
 user:~$ helm search repo stable
-
-
-* Completely Remove Kubernetes Environments -------------------------------
-user:~$ sudo kubeadm reset
-user:~$ docker system prune -a -f
-user:~$ sudo rm -rf ~/.kube
-user:~$ docker system df
 
 
 ###########################################################################
