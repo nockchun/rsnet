@@ -1,13 +1,13 @@
-###########################################################################
-###                       Drivers & Basic Settings                      ###
-###########################################################################
-* Add Nvidia Driver Repository --------------------------------------------
+#########################################################################################
+###                              Drivers & Basic Settings                             ###
+#########################################################################################
+* Add Nvidia Driver Repository ----------------------------------------------------------
 user:~$ sudo add-apt-repository ppa:graphics-drivers/ppa
 user:~$ curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
 user:~$ sudo apt update
 
 
-* Install Basic Library & Fons --------------------------------------------
+* Install Basic Library & Fons ----------------------------------------------------------
 user:~$ sudo apt install vim openssh-server build-essential
 
 user# sudo apt-get install fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts-nanum fonts-nanum-coding fonts-nanum-extra
@@ -19,7 +19,7 @@ user:~$ sudo rm -rf /usr/share/fonts/truetype/D2Coding/__MACOSX
 user:~$ sudo fc-cache -f -v
 
 
-* Vi Editor (~/.vimrc) ----------------------------------------------------
+* Vi Editor (~/.vimrc) ------------------------------------------------------------------
 user:~$ cat > ~/.vimrc << EOF
 set number
 set tabstop=4
@@ -36,7 +36,7 @@ syntax on
 EOF
 
 
-* Change Host Name & Hosts Info -------------------------------------------
+* Change Host Name & Hosts Info ---------------------------------------------------------
 root:~$ hostnamectl set-hostname node19
 root:~$ cat >> /etc/hosts << EOF
 10.10.1.101 master.lab master
@@ -45,16 +45,16 @@ root:~$ cat >> /etc/hosts << EOF
 EOF
 
 
-* Change Booting mode -----------------------------------------------------
+* Change Booting mode -------------------------------------------------------------------
 user:~$ sudo systemctl set-default multi-user.target
 user:~$ sudo systemctl set-default graphical.target 
 
 
-* MAC Them ----------------------------------------------------------------
+* MAC Them ------------------------------------------------------------------------------
 URL : https://manjaro.site/make-linux-mint-19-looks-like-mac-os-x-mojave
 
 
-* Terminal Them With Powerline --------------------------------------------
+* Terminal Them With Powerline ----------------------------------------------------------
 user:~$ sudo apt install powerline python-pip fonts-powerline
 user:~$ sudo pip install powerline-shell
 user:~$ vi ~/.bashrc
@@ -79,10 +79,10 @@ user:~$ vi ~/.config/powerline-shell/config.json
 }
 
 
-###########################################################################
-###                           Sublime Text 3                            ###
-###########################################################################
-* Install Sublime Text 3 --------------------------------------------------
+#########################################################################################
+###                                  Sublime Text 3                                   ###
+#########################################################################################
+* Install Sublime Text 3 ----------------------------------------------------------------
 user:~$ wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
 user:~$ sudo apt-get install apt-transport-https
 user:~$ echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
@@ -90,7 +90,7 @@ user:~$ sudo apt update
 user:~$ sudo apt install sublime-text sublime-merge
 
 
-* Setting Up Sublime Text 3 Plugins ---------------------------------------
+* Setting Up Sublime Text 3 Plugins -----------------------------------------------------
 1. SideBarEnhanceinsments
     > site : https://github.com/titoBouzout/SideBarEnhancements
     > Sidebar에 대해 확장기능 플러그인.
@@ -173,14 +173,14 @@ user:~$ sudo apt install sublime-text sublime-merge
         "indent_guide_options": [ "draw_normal", "draw_active" ]
 
 
-###########################################################################
-###                              Terminator                             ###
-###########################################################################
-* Install -----------------------------------------------------------------
+#########################################################################################
+###                                     Terminator                                    ###
+#########################################################################################
+* Install -------------------------------------------------------------------------------
 user:~$ sudo apt install -y terminator
 
 
-* Useage ------------------------------------------------------------------
+* Useage --------------------------------------------------------------------------------
 Toggle fullscreen                          : F11.
 Split terminals horizontally               : Ctrl + Shift + O.
 Split terminals vertically                 : Ctrl + Shift + E.
@@ -190,14 +190,13 @@ Move to the terminal above the current one : Alt + ↑
 Move to the terminal below the current one : Alt + ↓
 
 
-###########################################################################
-###               Docker, Nvidia-Docker2 For Kubeflow 1.0               ###
-###########################################################################
+#########################################################################################
+###                      Docker, Nvidia-Docker2 For Kubeflow 1.0                      ###
+#########################################################################################
 ※ Kuberflow 1.0 system requirements
   > kubeflow 1.0 == docker-ce-18.09.8 + Kubernetes 1.15
 
-
-* Docker & Docker-Compose Install -----------------------------------------
+* Docker & Docker-Compose Install -------------------------------------------------------
 user:~$ sudo apt install apt-transport-https ca-certificates curl software-properties-common
 user:~$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 user:~$ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
@@ -208,7 +207,7 @@ user:~$ sudo usermod -aG docker $USER
 user:~$ sudo apt install -y docker-compose
 
 
-* Nvidia-Docker Install --------------------------------------------------
+* Nvidia-Docker Install ----------------------------------------------------------------
 user:~$ curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
 user:~$ sudo vi /etc/apt/sources.list.d/nvidia-docker.list
 deb https://nvidia.github.io/libnvidia-container/ubuntu18.04/$(ARCH) /
@@ -218,7 +217,7 @@ user:~$ sudo apt update
 user:~$ sudo apt install -y nvidia-docker2
 
 
-* Setting Docker For nvidia gpu ------------------------------------------
+* Setting Docker For nvidia gpu --------------------------------------------------------
 user:~$ sudo vi /etc/docker/daemon.json
 {
     "default-runtime": "nvidia",
@@ -233,10 +232,10 @@ user:~$ sudo systemctl daemon-reload
 user:~$ sudo systemctl restart docker
 
 
-###########################################################################
-###                     Kubernetes For Kubeflow 1.0                     ###
-###########################################################################
-* swap & sysctl settings for Kubernetes networking ------------------------
+#########################################################################################
+###                            Kubernetes For Kubeflow 1.0                            ###
+#########################################################################################
+* swap & sysctl settings for Kubernetes networking --------------------------------------
 root:~$ swapoff -a
 root:~$ sed -i '/swap/d' /etc/fstab
 root:~$ cat >>/etc/sysctl.d/kubernetes.conf<<EOF
@@ -261,7 +260,7 @@ root# systemctl daemon-reload
 root# systemctl restart docker
 
 
-* Install Kubernetes ------------------------------------------------------
+* Install Kubernetes --------------------------------------------------------------------
 root:~$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 root:~$ cat <<EOF > /etc/apt/sources.list.d/kubernetes.list
 deb http://apt.kubernetes.io/ kubernetes-xenial main
@@ -271,10 +270,10 @@ root:~$ apt install -y kubelet=1.15.7-00 kubeadm=1.15.7-00 kubectl=1.15.7-00
 root:~$ apt-mark hold kubelet kubeadm kubectl
 
 
-###########################################################################
-###                   Setting Kubernetes Master Node                    ###
-###########################################################################
-* Completely Remove Kubernetes Environments -------------------------------
+#########################################################################################
+###                          Setting Kubernetes Master Node                           ###
+#########################################################################################
+* Completely Cleaning up Kubernetes Environments ----------------------------------------
 user:~$ sudo kubectl drain <node name> --delete-local-data --force --ignore-daemonsets
 user:~$ sudo kubectl delete node <node name>
 user:~$ sudo kubeadm reset
@@ -286,17 +285,18 @@ user:~$ sudo iptables -F && sudo iptables -t nat -F && sudo iptables -t mangle -
 user:~$ sudo reboot
 
 
-* Setting Up For Master ---------------------------------------------------
-user:~$ sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+* Setting Up For Master -----------------------------------------------------------------
+user:~$ sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.0.101
 user:~$ mkdir ~/.kube
 user:~$ sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config
 user:~$ sudo chown -R $(id -u):$(id -g) ~/.kube
-user:~$ kubectl apply -f https://docs.projectcalico.org/v3.11/manifests/calico.yaml
+user:~$ kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+user:~$ watch kubectl get pods --all-namespaces
 user:~$ kubectl taint nodes --all node-role.kubernetes.io/master-
 user:~$ kubeadm token create --print-join-command
 
 
-* Install GPU Node Plugin -------------------------------------------------
+* Install GPU Node Plugin ---------------------------------------------------------------
   > URL: https://github.com/NVIDIA/k8s-device-plugin
 user:~$ kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta5/nvidia-device-plugin.yml
 user:~$ kubectl get nodes -o=custom-columns=NAME:.metadata.name,GPUs:.status.capacity.'nvidia\.com/gpu'
@@ -320,7 +320,7 @@ spec:
           nvidia.com/gpu: 2 # requesting 2 GPUs
 
 
-* bash setting for command ------------------------------------------------
+* bash setting for command --------------------------------------------------------------
 user:~$ cat >> ~/.bashrc << EOF
 alias kc="kubectl"
 alias ka="kubeadm"
@@ -331,7 +331,7 @@ EOF
 user:~$ . ~/.bashrc
 
 
-* Install Helm 3 ----------------------------------------------------------
+* Install Helm 3 ------------------------------------------------------------------------
 user:~$ sudo rm -rf /usr/local/bin/helm
 user:~$ curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
 user:~$ chmod 700 get_helm.sh
@@ -342,34 +342,63 @@ user:~$ helm repo update
 user:~$ helm search repo stable
 
 
-###########################################################################
-###                     NGINX Ingress Using Helm 3                      ###
-###########################################################################
-* Install using Helm 3 ----------------------------------------------------
-user:~$ helm install nginx-ingress stable/nginx-ingress --set controller.publishService.enabled=true
-
-* Watch the status --------------------------------------------------------
-user:~$ kubectl get services -o wide -w nginx-ingress-controller
-
-
-
-
-
+#########################################################################################
+###                            NGINX Ingress Using Helm 3                             ###
+#########################################################################################
+* Install using Helm 3 ------------------------------------------------------------------
 user:~$ helm repo add nginx-stable https://helm.nginx.com/stable
 user:~$ helm repo update
-user:~$ helm install nginx-ingress nginx-stable/nginx-ingress --set controller.publishService.enabled=true
-user:~$ kubectl get services -o wide -w nginx-ingress-nginx-ingress
+user:~$ helm install rsnet nginx-stable/nginx-ingress --set controller.publishService.enabled=true
+user:~$ kubectl patch svc rsnet-nginx-ingress -n default -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
+
+* Watch the status ----------------------------------------------------------------------
+user:~$ kubectl get services -o wide -w rsnet-nginx-ingress
 
 
+#########################################################################################
+###                                Kubernetes Dashboard                               ###
+#########################################################################################
+* Deploy Dashboard To k8s ---------------------------------------------------------------
+user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+user:~$ nohup kubectl proxy --port=8001 --address=xx.xx.xx.xx --accept-hosts='^*$' &
+user:~$ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 
 
+* Creating sample Accout ---------------------------------------------------------------
+user:~$ cat <<EOF | kubectl create -f -
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+EOF
 
 
+* Create sample ClusterRoleBinding ------------------------------------------------------
+user:~$ cat <<EOF | kubectl create -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kubernetes-dashboard
+EOF
 
-###########################################################################
-###                      Cert-Manager Using Helm 3                      ###
-###########################################################################
-* Install cert-manager with Helm 3 ----------------------------------------
+
+# Create Bearer Token --------------------------------------------------------------------
+user:~$ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+
+
+#########################################################################################
+###                             Cert-Manager Using Helm 3                             ###
+#########################################################################################
+* Install cert-manager with Helm 3 ------------------------------------------------------
 user:~$ kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.0/cert-manager.crds.yaml
 user:~$ kubectl create namespace cert-manager
 user:~$ kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
@@ -379,10 +408,10 @@ user:~$ helm install cert-manager --version v0.15.0 --namespace cert-manager jet
 user:~$ kubectl get pods --namespace cert-manager
 
 
-###########################################################################
-###                        Rancher Using Helm 3                         ###
-###########################################################################
-* Install Rancher with Helm 3 ---------------------------------------------
+#########################################################################################
+###                               Rancher Using Helm 3                                ###
+#########################################################################################
+* Install Rancher with Helm 3 -----------------------------------------------------------
 user:~$ helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
 user:~$ helm repo update
 user:~$ kubectl create namespace cattle-system
@@ -390,33 +419,48 @@ user:~$ helm install rancher rancher-stable/rancher --namespace cattle-system --
 user:~$ kubectl -n cattle-system rollout status deploy/rancher
 
 
-###########################################################################
-###                               Kubeflow                              ###
-###########################################################################
-* Kubeflow Install --------------------------------------------------------
+#########################################################################################
+###                                      Kubeflow                                     ###
+#########################################################################################
+* Service Account Token Volume Projection -----------------------------------------------
+user:~$ sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
+- --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
+- --service-account-issuer=api
+- --service-account-api-audiences=api,vault
+
+* Dynamic volume provisioner ------------------------------------------------------------
+user:~$ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+user:~$ kubectl get storageclass
+user:~$ kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+user:~$ kubectl get sc
+
+* Kubeflow Install ----------------------------------------------------------------------
 user:~$ wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz
 user:~$ tar xfv kfctl_v1.0.2-0-ga476281_linux.tar.gz
 user:~$ sudo mv kfctl /usr/local/bin/
 user:~$ export KF_NAME=kubeflow
 user:~$ export BASE_DIR=/opt
 user:~$ export KF_DIR=${BASE_DIR}/${KF_NAME}
-user:~$ export CONFIG_URI="https://raw.githubusercontent.com/kubeflow/manifests/v1.0-branch/kfdef/kfctl_k8s_istio.v1.0.2.yaml"
+
+#user:~$ export CONFIG_URI="https://raw.githubusercontent.com/kubeflow/manifests/v1.0-branch/kfdef/kfctl_k8s_istio.v1.0.2.yaml"
+user:~$ export CONFIG_URI="https://raw.githubusercontent.com/kubeflow/manifests/v1.0-branch/kfdef/kfctl_istio_dex.v1.0.2.yaml"
+
 user:~$ sudo mkdir -p ${KF_DIR}
 user:~$ sudo chown $USER.$GROUP ${KF_DIR}
 user:~$ cd ${KF_DIR}
 user:~$ kfctl apply -V -f ${CONFIG_URI}
 user:~$ kubectl get all -n kubeflow
 
-* Delete Kubeflow ---------------------------------------------------------
+* Delete Kubeflow -----------------------------------------------------------------------
 user:~$ export CONFIG_FILE=${KF_DIR}/kfctl_k8s_istio.0.7.1.yaml
 user:~$ cd ${KF_DIR}
 user:~$ kfctl delete -f ${CONFIG_FILE}
 
 
-###########################################################################
-###                   Docker Hub For Public & Private                   ###
-###########################################################################
-* Public Docker-hub Usage -------------------------------------------------
+#########################################################################################
+###                          Docker Hub For Public & Private                          ###
+#########################################################################################
+* Public Docker-hub Usage ---------------------------------------------------------------
 user:~$ docker login
 user:~$ docker build -t <dockerhub_id>/<image_name>:<version> .
   > ex: docker build -t nockchun/docterm:v1 .
@@ -424,12 +468,12 @@ user:~$ docker push <dockerhub_id>/<image_name>:<version>
   > ex: docker push nockchun/docterm:v1 .
 
 
-* Private Docker-hub Install ----------------------------------------------
+* Private Docker-hub Install ------------------------------------------------------------
 user:~$ docker pull registry
 user:~$ docker run -d --name docker-registry --restart=always -p 5000:5000 registry
 
 
-* Using Private Docker-Hub ------------------------------------------------
+* Using Private Docker-Hub --------------------------------------------------------------
 > Settings For use without https 
 user:~$ sudo vi /etc/docker/daemon.json
     > {

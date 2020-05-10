@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: hello-kubernetes-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    # kubernetes.io/ingress.class: nginx
+spec:
+  tls:
+  - hosts:
+    - ig1.realstudy.net
+    - ig2.realstudy.net
+    secretName: hello-kubernetes-tls
+  rules:
+  - host: ig1.realstudy.net
+    http:
+      paths:
+      - backend:
+          serviceName: hello-kubernetes-first
+          servicePort: 80
+  - host: ig2.realstudy.net
+    http:
+      paths:
+      - backend:
+          serviceName: hello-kubernetes-second
+          servicePort: 80
