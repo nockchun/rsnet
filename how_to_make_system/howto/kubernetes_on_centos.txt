@@ -1,6 +1,43 @@
 #########################################################################################
-###                              Drivers & Basic Settings                             ###
+###                    Network & Drivers & Basic Settings                             ###
 #########################################################################################
+* Network Setting -----------------------------------------------------------------------
+vi /etc/sysconfig/network-scripts/ifcfg-eth0
+BOOTPROTO=static
+ONBOOT=yes
+IPADDR=192.168.0.100
+GATEWAY=192.168.0.1
+NETMASK=255.255.255.0
+DNS1=168.126.63.1
+DNS2=8.8.8.8
+
+* Bash auto completion ------------------------------------------------------------------
+root# yum install -y epel-release
+root# yum install -y bash-completion
+
+* Python ------------------------------------------------------------------
+root# yum install -y epel-release
+
+
+
+
+* Powerline Bash ------------------------------------------------------------------------
+root# yum install -y wget sysstat lrzsz lsof bzip2 unzip iftop python3 python3-pip  git fontconfig
+root# 
+root# 
+root# 
+root# 
+root# 
+root# 
+root# 
+root# 
+root# 
+
+
+
+
+
+
 * Add Nvidia Driver Repository ----------------------------------------------------------
 user:~$ sudo add-apt-repository ppa:graphics-drivers/ppa
 user:~$ curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
@@ -333,8 +370,8 @@ user:~$ . ~/.bashrc
 
 * Install Helm 3 ------------------------------------------------------------------------
 user:~$ sudo rm -rf /usr/local/bin/helm
-user:~$ curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
-user:~$ chmod 700 get_helm.sh
+user:~$ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+user:~$ chmod u+x get_helm.sh
 user:~$ ./get_helm.sh
 
 user:~$ helm repo add stable https://kubernetes-charts.storage.googleapis.com
@@ -348,11 +385,52 @@ user:~$ helm search repo stable
 * Install using Helm 3 ------------------------------------------------------------------
 user:~$ helm repo add nginx-stable https://helm.nginx.com/stable
 user:~$ helm repo update
-user:~$ helm install rsnet nginx-stable/nginx-ingress --set controller.publishService.enabled=true
+user:~$ helm install rsnet nginx-stable/nginx-ingress --namespace ingress-nginx --set controller.publishService.enabled=true
 user:~$ kubectl patch svc rsnet-nginx-ingress -n default -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
 
 * Watch the status ----------------------------------------------------------------------
 user:~$ kubectl get services -o wide -w rsnet-nginx-ingress
+
+
+https://kauri.io/38-install-and-configure-a-kubernetes-cluster-with/418b3bc1e0544fbc955a4bbba6fff8a9/a
+https://www.youtube.com/watch?v=xYiYIjlAgHY&list=PL34sAs7_26wNBRWM6BDhnonoA5FMERax0&index=48
+
+
+#########################################################################################
+###                             Cert-Manager Using Helm 3                             ###
+#########################################################################################
+* Install cert-manager with Helm 3 ------------------------------------------------------
+user:~$ kubectl create namespace cert-manager
+user:~$ helm repo add jetstack https://charts.jetstack.io
+user:~$ helm repo update
+user:~$ kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.0/cert-manager.crds.yaml
+user:~$ kubectl label namespace ingress-nginx cert-manager.io/disable-validation=true
+user:~$ helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v0.15.0 --set createCustomResource=true
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+
+
+user:~$ kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.0/cert-manager.crds.yaml
+user:~$ kubectl create namespace cert-manager
+user:~$ kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
+user:~$ helm repo add jetstack https://charts.jetstack.io
+user:~$ helm repo update
+user:~$ helm install cert-manager --version v0.15.0 --namespace cert-manager jetstack/cert-manager
+user:~$ kubectl get pods --namespace cert-manager
+
+
+
+
+
+
+
+
+
 
 
 #########################################################################################
@@ -395,17 +473,31 @@ EOF
 user:~$ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
 
 
-#########################################################################################
-###                             Cert-Manager Using Helm 3                             ###
-#########################################################################################
-* Install cert-manager with Helm 3 ------------------------------------------------------
-user:~$ kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.0/cert-manager.crds.yaml
-user:~$ kubectl create namespace cert-manager
-user:~$ kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
-user:~$ helm repo add jetstack https://charts.jetstack.io
-user:~$ helm repo update
-user:~$ helm install cert-manager --version v0.15.0 --namespace cert-manager jetstack/cert-manager
-user:~$ kubectl get pods --namespace cert-manager
+
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/whitelist-source-range: 0.0.0.0
+spec:
+  rules:
+  - host: kubeboard.asa
+    http:
+      paths:
+      - backend:
+          serviceName: kubernetes-dashboard
+          servicePort: 80
+  
+
+
+
+
+
+
 
 
 #########################################################################################
