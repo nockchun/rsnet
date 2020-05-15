@@ -19,23 +19,6 @@ user:~$ sudo rm -rf /usr/share/fonts/truetype/D2Coding/__MACOSX
 user:~$ sudo fc-cache -f -v
 
 
-* Vi Editor (~/.vimrc) ------------------------------------------------------------------
-user:~$ cat > ~/.vimrc << EOF
-set number
-set tabstop=4
-set shiftwidth=4
-set showmatch
-set title
-set hlsearch
-set fileencodings=utf-8,euc-kr
-set ruler
-set title
-set statusline=\ %<%l:%v\ [%P]%=%a\ %h%m%r\ %F\
-
-syntax on
-EOF
-
-
 * Change Host Name & Hosts Info ---------------------------------------------------------
 root:~$ hostnamectl set-hostname node19
 root:~$ cat >> /etc/hosts << EOF
@@ -46,8 +29,8 @@ EOF
 
 
 * Change Booting mode -------------------------------------------------------------------
-user:~$ sudo systemctl set-default multi-user.target
-user:~$ sudo systemctl set-default graphical.target 
+root:~$ systemctl set-default multi-user.target
+root:~$ systemctl set-default graphical.target 
 
 
 * MAC Them ------------------------------------------------------------------------------
@@ -55,28 +38,38 @@ URL : https://manjaro.site/make-linux-mint-19-looks-like-mac-os-x-mojave
 
 
 * Terminal Them With Powerline ----------------------------------------------------------
-user:~$ sudo apt install powerline python-pip fonts-powerline
-user:~$ sudo pip install powerline-shell
-user:~$ vi ~/.bashrc
-function _update_ps1() {
-    PS1=$(powerline-shell $? 2> /dev/null)
-}
+root:~$ sudo apt install powerline python-pip python-setuptools fonts-powerline fontconfig
+root:~$ pip install git+git://github.com/Lokaltog/powerline
+root:~$ wget https://github.com/Lokaltog/powerline/raw/develop/font/PowerlineSymbols.otf 
+root:~$ wget https://github.com/Lokaltog/powerline/raw/develop/font/10-powerline-symbols.conf
+root:~$ mv PowerlineSymbols.otf /usr/share/fonts/
+root:~$ fc-cache -vf
+root:~$ mv 10-powerline-symbols.conf /etc/fonts/conf.d/
 
-if [[ $TERM != linux && ! $PROMPT_COMMAND =~ _update_ps1 ]]; then
-    PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+root:~$ vi /etc/bash.bashrc
+if [ -f /usr/local/lib/python2.7/dist-packages/powerline/bindings/bash/powerline.sh ]; then
+    source /usr/local/lib/python2.7/dist-packages/powerline/bindings/bash/powerline.sh
 fi
 
-user:~$ mkdir -p ~/.config/powerline-shell && powerline-shell --generate-config > ~/.config/powerline-shell/config.json
-user:~$ vi ~/.config/powerline-shell/config.json
-{
-  "segments": ["username", "hostname", "cwd", "root"],
-  "mode": "flat",
-  "cwd": {
-    "mode": "plain",
-    "max_depth": 3
-  },
-  "theme": "default"
-}
+
+* Vi Editor (~/.vimrc) ------------------------------------------------------------------
+root:~$ cat > /etc/vim/vimrc << EOF
+set number
+set tabstop=4
+set shiftwidth=4
+set showmatch
+set title
+set hlsearch
+set fileencodings=utf-8,euc-kr
+set ruler
+set title
+set statusline=\ %<%l:%v\ [%P]%=%a\ %h%m%r\ %F\
+set rtp+=/usr/local/lib/python2.7/dist-packages/powerline/bindings/vim/
+set laststatus=2
+set t_Co=256
+
+syntax on
+EOF
 
 
 #########################################################################################
@@ -343,12 +336,37 @@ user:~$ helm search repo stable
 
 
 #########################################################################################
+###                                      MetalLB                                      ###
+#########################################################################################
+* Install MetalLB -----------------------------------------------------------------------
+user:~$ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/namespace.yaml
+user:~$ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/metallb.yaml
+user:~$ kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
+
+* Layer 2 Configuration -----------------------------------------------------------------
+user:~$ cat <<EOF | kubectl create -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: metallb-system
+  name: config
+data:
+  config: |
+    address-pools:
+    - name: default
+      protocol: layer2
+      addresses:
+      - 10.10.1.240-10.10.1.250
+EOF
+
+
+#########################################################################################
 ###                            NGINX Ingress Using Helm 3                             ###
 #########################################################################################
 * Install using Helm 3 ------------------------------------------------------------------
 user:~$ helm repo add nginx-stable https://helm.nginx.com/stable
 user:~$ helm repo update
-user:~$ helm install rsnet nginx-stable/nginx-ingress --namespace ingress-nginx --set controller.publishService.enabled=true
+user:~$ helm install rsnet nginx-stable/nginx-ingress --set controller.publishService.enabled=true
 user:~$ kubectl patch svc rsnet-nginx-ingress -n default -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
 
 * Watch the status ----------------------------------------------------------------------
