@@ -40,7 +40,7 @@ URL : https://manjaro.site/make-linux-mint-19-looks-like-mac-os-x-mojave
 * Terminal Them With Powerline ----------------------------------------------------------
 root:~$ sudo apt install powerline python-pip python-setuptools fonts-powerline fontconfig
 root:~$ pip install git+git://github.com/Lokaltog/powerline
-root:~$ wget https://github.com/Lokaltog/powerline/raw/develop/font/PowerlineSymbols.otf 
+root:~$ wget https://github.com/Lokaltog/powerline/raw/develop/font/PowerlineSymbols.otf
 root:~$ wget https://github.com/Lokaltog/powerline/raw/develop/font/10-powerline-symbols.conf
 root:~$ mv PowerlineSymbols.otf /usr/share/fonts/
 root:~$ fc-cache -vf
@@ -284,7 +284,7 @@ user:~$ mkdir ~/.kube
 user:~$ sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config
 user:~$ sudo chown -R $(id -u):$(id -g) ~/.kube
 user:~$ kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
-user:~$ watch kubectl get pods --all-namespaces
+user:~$ watch kubectl get all --all-namespaces -o wide
 user:~$ kubectl taint nodes --all node-role.kubernetes.io/master-
 user:~$ kubeadm token create --print-join-command
 
@@ -363,55 +363,32 @@ EOF
 #########################################################################################
 ###                            NGINX Ingress Using Helm 3                             ###
 #########################################################################################
+* Create default namespace for my system ------------------------------------------------
+user:~$ kubectl create namespace rs-system
+
 * Install using Helm 3 ------------------------------------------------------------------
-user:~$ helm repo add nginx-stable https://helm.nginx.com/stable
-user:~$ helm repo update
-user:~$ helm install rsnet nginx-stable/nginx-ingress --set controller.publishService.enabled=true
-user:~$ kubectl patch svc rsnet-nginx-ingress -n default -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
-
-* Watch the status ----------------------------------------------------------------------
-user:~$ kubectl get services -o wide -w rsnet-nginx-ingress
-
-
-https://kauri.io/38-install-and-configure-a-kubernetes-cluster-with/418b3bc1e0544fbc955a4bbba6fff8a9/a
-https://www.youtube.com/watch?v=xYiYIjlAgHY&list=PL34sAs7_26wNBRWM6BDhnonoA5FMERax0&index=48
+user:~$ helm install rs stable/nginx-ingress \
+    --namespace rs-system \
+    --set controller.replicaCount=2 \
+    --set controller.publishService.enabled=true \
+    --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
+    --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux
+user:~$ kubectl get service -l app=nginx-ingress --namespace rs-system
+user:~$ kubectl patch svc rs-nginx-ingress-controller -n rs-system \
+    -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
 
 
 #########################################################################################
 ###                             Cert-Manager Using Helm 3                             ###
 #########################################################################################
-* Install cert-manager with Helm 3 ------------------------------------------------------
-user:~$ kubectl create namespace cert-manager
+user:~$ kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.0/cert-manager.crds.yaml
+user:~$ kubectl label namespace rs-system certmanager.k8s.io/disable-validation=true
 user:~$ helm repo add jetstack https://charts.jetstack.io
 user:~$ helm repo update
-user:~$ kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.0/cert-manager.crds.yaml
-user:~$ kubectl label namespace ingress-nginx cert-manager.io/disable-validation=true
-user:~$ helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v0.15.0 --set createCustomResource=true
-user:~$ 
-user:~$ 
-user:~$ 
-user:~$ 
-user:~$ 
-user:~$ 
-user:~$ 
-
-
-user:~$ kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.0/cert-manager.crds.yaml
-user:~$ kubectl create namespace cert-manager
-user:~$ kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
-user:~$ helm repo add jetstack https://charts.jetstack.io
-user:~$ helm repo update
-user:~$ helm install cert-manager --version v0.15.0 --namespace cert-manager jetstack/cert-manager
-user:~$ kubectl get pods --namespace cert-manager
-
-
-
-
-
-
-
-
-
+user:~$ helm install cert-manager jetstack/cert-manager \
+    --namespace rs-system \
+    --version v0.15.0
+user:~$ kubectl get pods --namespace rs-system
 
 
 #########################################################################################
@@ -419,11 +396,7 @@ user:~$ kubectl get pods --namespace cert-manager
 #########################################################################################
 * Deploy Dashboard To k8s ---------------------------------------------------------------
 user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
-user:~$ nohup kubectl proxy --port=8001 --address=xx.xx.xx.xx --accept-hosts='^*$' &
-user:~$ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 
-
-* Creating sample Accout ---------------------------------------------------------------
 user:~$ cat <<EOF | kubectl create -f -
 apiVersion: v1
 kind: ServiceAccount
@@ -432,8 +405,6 @@ metadata:
   namespace: kubernetes-dashboard
 EOF
 
-
-* Create sample ClusterRoleBinding ------------------------------------------------------
 user:~$ cat <<EOF | kubectl create -f -
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -449,36 +420,12 @@ subjects:
   namespace: kubernetes-dashboard
 EOF
 
-
 # Create Bearer Token --------------------------------------------------------------------
+user:~$ nohup kubectl proxy --port=8001 &
 user:~$ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
 
-
-
-
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  name: kubernetes-dashboard
-  namespace: kubernetes-dashboard
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/whitelist-source-range: 0.0.0.0
-spec:
-  rules:
-  - host: kubeboard.asa
-    http:
-      paths:
-      - backend:
-          serviceName: kubernetes-dashboard
-          servicePort: 80
-  
-
-
-
-
-
-
+* SSH-Tunneling at client ----------------------------------------------------------------
+user:~$ ssh -f -N rsnet@master -L8001:localhost:8001
 
 
 #########################################################################################
@@ -497,9 +444,9 @@ user:~$ kubectl -n cattle-system rollout status deploy/rancher
 #########################################################################################
 * Service Account Token Volume Projection -----------------------------------------------
 user:~$ sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
-- --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
-- --service-account-issuer=api
-- --service-account-api-audiences=api,vault
+    - --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
+    - --service-account-issuer=api
+    - --service-account-api-audiences=api,vault
 
 * Dynamic volume provisioner ------------------------------------------------------------
 user:~$ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
