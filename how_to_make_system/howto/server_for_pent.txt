@@ -1,8 +1,12 @@
 * Simple Private DNS/DHCP Server
 root# apt install dnsmasq
+root# systemctl enable dnsmasq
 root# vi /etc/hosts
     > 10.0.2.11     wfp1.pent.lab
     > 10.0.2.12     wfp2.pent.lab
+root# vi /etc/dnsmasq.d/wild-dev
+    > address=/example.com/192.168.0.201
+
 root# vi /etc/resolv.conf
     > nameserver 127.0.0.1
     > nameserver 8.8.8.8
