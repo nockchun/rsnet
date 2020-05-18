@@ -435,9 +435,7 @@ kind: ServiceAccount
 metadata:
   name: admin-user
   namespace: kubernetes-dashboard
-EOF
-
-user:~$ cat <<EOF | kubectl create -f -
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
