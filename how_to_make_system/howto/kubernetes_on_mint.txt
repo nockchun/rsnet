@@ -99,7 +99,7 @@ root:~$ apt install software-properties-common
 root:~$ add-apt-repository ppa:gluster/glusterfs-6
 root:~$ apt-get update
 root:~$ apt install glusterfs-server
-root:~$ mkdir -p /opt/gluster/fs1
+root:~$ mkdir -p /opt/gluster
 
 * At One Distibut Volume Node To the others ---------------------------------------------
 root:~$ gluster peer probe <other node ip>
@@ -107,26 +107,26 @@ root:~$ gluster peer status
 root:~$ gluster pool list
 
 * Create & Start Volume -----------------------------------------------------------------
-root:~$ gluster volume create vol replica 2 transport tcp \
-    192.168.0.211:/opt/gluster/fs1 \
-    192.168.0.212:/opt/gluster/fs1 force
-root:~$ gluster volume start vol
-root:~$ gluster volume info vol
+root:~$ gluster volume create gvol replica 2 transport tcp \
+    node01:/opt/gluster \
+    node02:/opt/gluster force
+root:~$ gluster volume start gvol
+root:~$ gluster volume info gvol
 
 * Mount At Client -----------------------------------------------------------------------
 user:~$ sudo apt install software-properties-common
 user:~$ sudo add-apt-repository ppa:gluster/glusterfs-6
 user:~$ sudo apt update
 user:~$ sudo apt install glusterfs-client
-user:~$ sudo mkdir -p /mnt/gluster
-user:~$ sudo mount -t glusterfs gfs1:/vol /mnt/gluster
+user:~$ sudo mkdir -p /distvol
+user:~$ sudo mount -t glusterfs node01:/gvol /distvol
 
 * Accecontrol ---------------------------------------------------------------------------
 root:~$ gluster volume set vol auth.allow 127.0.0.1
 
 * fstab ---------------------------------------------------------------------------------
 root:~$ vi /etc/fstab
-gfs1:/vol /mnt/gluster glusterfs defaults,_netdev 0 0
+node01:/vol /mnt/gluster glusterfs defaults,_netdev 0 0
 root:~$ mount -a
 
 

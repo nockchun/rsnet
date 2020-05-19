@@ -1,9 +1,8 @@
 apiVersion: v1
 kind: Pod
-
 metadata:
   name: docterm01
-
+  namespace: rsnet-demo
 spec:
   containers:
   - name: docterm
@@ -14,10 +13,9 @@ spec:
 ---
 apiVersion: v1
 kind: Pod
-
 metadata:
   name: docterm02
-
+  namespace: rsnet-demo
 spec:
   containers:
   - name: docterm
