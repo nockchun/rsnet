@@ -68,7 +68,7 @@ dependencies:
     - scipy
     - seaborn
     - snakeviz
-    - spacy
+    - spacy=2
     - sqlalchemy
     - statsmodels
     - sympy
@@ -111,11 +111,9 @@ dependencies:
         - sklearn-pandas
         - jupyterlab_code_formatter
         - pytest-ipynb
-        - tensorflow-datasets
         - youtokentome
         - hb-config
         - flashtext
-        - fasttext
         - imread
         - JSAnimation
         - gym
@@ -124,5 +122,8 @@ dependencies:
         - modin
         - modin[ray]
         - nbresuse
+        - tensorflow-gpu==2.1
+        - tensorflow-datasets
         - jupyterlab_hdf
         - kubeflow-kale
+        - tfx==0.21

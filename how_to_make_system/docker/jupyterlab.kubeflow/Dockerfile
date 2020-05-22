@@ -1,4 +1,4 @@
-FROM nvidia/cuda:10.1-base-ubuntu18.04
+FROM nvidia/cuda:10.2-base-ubuntu18.04
 LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
 
 ARG NB_USER="asa"
