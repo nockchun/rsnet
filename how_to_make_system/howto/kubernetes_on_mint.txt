@@ -569,7 +569,41 @@ metadata:
 data:
   key: AQDnaspeswckMxAAwHJ5kMijLgHqEn9t6s7IBQ==
 
+user:~$ vi ceph-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-admin-secret
+data:
+  key: AQDnaspeswckMxAAwHJ5kMijLgHqEn9t6s7IBQ==
 
+user:~$ kubectl create -f ceph-user-secret.yaml
+user:~$ kubectl create -f ceph-admin-secret.yaml
+
+user:~$ vi ceph-storageclass.yaml
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: ceph
+  annotations:
+provisioner: kubernetes.io/rbd
+parameters:
+  monitors: 192.168.0.201:6789
+  adminId: admin 
+  adminSecretName: ceph-admin-secret 
+  adminSecretNamespace: kube-system 
+  pool: kube  
+  userId: kube  
+  userSecretName: ceph-user-secret
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
 
 
 
