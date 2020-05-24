@@ -47,7 +47,7 @@ spec:
     - ReadWriteMany
   glusterfs:
     endpoints: glusterfs-cluster 
-    path: gvol 
+    path: vol_gluster 
     readOnly: false
   persistentVolumeReclaimPolicy: Retain
 ---

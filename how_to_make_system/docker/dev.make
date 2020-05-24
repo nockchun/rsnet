@@ -142,7 +142,7 @@ hubtag: ##@Other Tags List of t=<image name>
 	@curl -X GET http://$(HUB)/v2/$(t)/tags/list
 
 v ?= latest
-push: ##@Other Push to private registry. t=<image name> v=<version>
-	@$(DK) tag $(t) $(HUB)/$(t):$(v)
-	@$(DK) push $(HUB)/$(t):$(v)
-	@$(DK) image rm $(HUB)/$(t):$(v)
+push: ##@Other Push to private registry. t=<image name> n=<tag name> v=<version>
+	@$(DK) tag $(t) $(HUB)/$(n):$(v)
+	@$(DK) push $(HUB)/$(n):$(v)
+	@$(DK) image rm $(HUB)/$(n):$(v)

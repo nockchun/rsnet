@@ -76,19 +76,19 @@ EOF
 ###                                        NFS                                        ###
 #########################################################################################
 * At Server ----------------------------------------------------------------
-root:~$ apt-get install nfs-common nfs-kernel-server rpcbind portmap
-root:~$ mkdir /mnt/data
-root:~$ chmod -R 777 /mnt/data
+root:~$ apt install nfs-common nfs-kernel-server rpcbind portmap
+root:~$ mkdir -p /data/vol_nfs
+root:~$ chmod -R 777 /data/vol_nfs
 root:~$ vi /etc/exports
-/mnt/data 172.31.0.0/16(rw,sync,no_subtree_check)
+/data/vol_nfs 192.168.0.0/24(rw,sync,no_subtree_check)
 root:~$ exportfs -a
 root:~$ systemctl restart nfs-kernel-server
 root:~$ systemctl enable nfs-kernel-server
 
 * At Client ----------------------------------------------------------------
-root:~$ apt-get install nfs-common
-root:~$ mkdir /public_data
-root:~$ mount 172.31.2.2:/mnt/data /public_data
+root:~$ apt install nfs-common
+root:~$ mkdir /vol_nfs
+root:~$ mount 192.168.0.211:/data/vol_nfs /vol_nfs
 
 
 #########################################################################################
@@ -96,10 +96,11 @@ root:~$ mount 172.31.2.2:/mnt/data /public_data
 #########################################################################################
 * At All Distibut Volume Node -----------------------------------------------------------
 root:~$ apt install software-properties-common
-root:~$ add-apt-repository ppa:gluster/glusterfs-6
+root:~$ add-apt-repository ppa:gluster/glusterfs-7
 root:~$ apt-get update
 root:~$ apt install glusterfs-server
-root:~$ mkdir -p /opt/gluster
+root:~$ mkdir -p /data/vol_gluster
+root:~$ chmod -R 777 /data/vol_gluster
 
 * At One Distibut Volume Node To the others ---------------------------------------------
 root:~$ gluster peer probe <other node ip>
@@ -107,19 +108,21 @@ root:~$ gluster peer status
 root:~$ gluster pool list
 
 * Create & Start Volume -----------------------------------------------------------------
-root:~$ gluster volume create gvol replica 2 transport tcp \
-    node01:/opt/gluster \
-    node02:/opt/gluster force
-root:~$ gluster volume start gvol
-root:~$ gluster volume info gvol
+root:~$ gluster volume create vol_gluster replica 2 transport tcp \
+    node01:/data/vol_gluster \
+    node02:/data/vol_gluster \
+    node03:/data/vol_gluster \
+    node04:/data/vol_gluster force
+root:~$ gluster volume start vol_gluster
+root:~$ gluster volume info vol_gluster
 
 * Mount At Client -----------------------------------------------------------------------
 user:~$ sudo apt install software-properties-common
-user:~$ sudo add-apt-repository ppa:gluster/glusterfs-6
+user:~$ sudo add-apt-repository ppa:gluster/glusterfs-7
 user:~$ sudo apt update
 user:~$ sudo apt install glusterfs-client
-user:~$ sudo mkdir -p /distvol
-user:~$ sudo mount -t glusterfs node01:/gvol /distvol
+user:~$ sudo mkdir -p /vol_gluster
+user:~$ sudo mount -t glusterfs node01:/vol_gluster /vol_gluster
 
 * Accecontrol ---------------------------------------------------------------------------
 root:~$ gluster volume set vol auth.allow 127.0.0.1
@@ -128,6 +131,83 @@ root:~$ gluster volume set vol auth.allow 127.0.0.1
 root:~$ vi /etc/fstab
 node01:/vol /mnt/gluster glusterfs defaults,_netdev 0 0
 root:~$ mount -a
+
+
+#########################################################################################
+###                                       Ceph                                        ###
+#########################################################################################
+※ SITE : https://ssup2.github.io/record/Ceph_%EC%84%A4%EC%B9%98_%EC%8B%A4%ED%96%89_ceph-deploy_Ubuntu_18.04/
+
+* At All Distibut Volume Node -----------------------------------------------------------
+user:~$ sudo apt install ntp
+user:~$ sudo apt install python
+user:~$ sudo adduser cephnode
+user:~$ echo "cephnode ALL = (root) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/cephnode
+user:~$ sudo chmod 0440 /etc/sudoers.d/cephnode
+user:~$ sudo chown -R user.user /etc/ceph
+
+* At Deploy Node ------------------------------------------------------------------------
+user:~$ sudo vi /etc/hosts
+192.168.0.211 node01
+192.168.0.212 node02
+192.168.0.213 node03
+192.168.0.214 node04
+
+user:~$ wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
+user:~$ echo deb https://download.ceph.com/debian-luminous/ bionic main | sudo tee /etc/apt/sources.list.d/ceph.list
+user:~$ sudo apt update
+user:~$ sudo apt install ceph-deploy
+user:~$ ssh-keygen
+user:~$ for i in node01 node02 node03;
+do
+    ssh-copy-id cephnode@$i
+done
+
+user:~$ vi .ssh/config
+Host node01
+   Hostname node01
+   User cephnode
+Host node02
+   Hostname node02
+   User cephnode
+Host node03
+   Hostname node03
+   User cephnode
+
+user:~$ mkdir ceph-cluster && cd ceph-cluster
+user:ceph-cluster$ ceph-deploy purge node01 node02 node03
+user:ceph-cluster$ ceph-deploy purgedata node01 node02 node03
+user:ceph-cluster$ ceph-deploy forgetkeys
+user:ceph-cluster$ rm ceph*
+user:ceph-cluster$ ceph-deploy new node01
+user:ceph-cluster$ ceph-deploy install node01 node02 node03
+user:ceph-cluster$ ceph-deploy mon create-initial
+user:ceph-cluster$ ceph-deploy admin node01 node02 node03
+user:ceph-cluster$ ceph-deploy mgr create node01
+user:ceph-cluster$ for i in node01 node02 node03;
+do
+    ceph-deploy osd create --data /dev/sdb $i
+done
+
+user:ceph-cluster$ ceph-deploy mds create node01
+user:ceph-cluster$ ceph-deploy rgw create node01
+user:ceph-cluster$ ceph auth get client.admin
+
+* At distibut node Create block storage ---------------------------------------------
+user:~$ ceph -s
+user:~$ ceph osd pool create rbd 16
+user:~$ rbd pool init rbd
+user:~$ rbd create foo --size 4096 --image-feature layering
+user:~$ sudo rbd map foo --name client.admin
+
+* At distibut node Create file storage ---------------------------------------------
+user:~$ ceph osd pool create cephfs_data 16
+user:~$ ceph osd pool create cephfs_metadata 16
+user:~$ ceph fs new filesystem cephfs_metadata cephfs_data
+root:~$ vi /root/admin.secret
+AQDnaspeswckMxAAwHJ5kMijLgHqEn9t6s7IBQ==
+root:~$ mkdir /mnt/ceph
+root:~$ mount -t ceph 192.168.0.211:6789:/ /mnt/ceph/ -o name=admin,secretfile=/root/admin.secret
 
 
 #########################################################################################
@@ -343,7 +423,6 @@ user:~$ sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config
 user:~$ sudo chown -R $(id -u):$(id -g) ~/.kube
 user:~$ kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 user:~$ watch kubectl get all --all-namespaces -o wide
-user:~$ kubectl taint nodes --all node-role.kubernetes.io/master-
 user:~$ kubeadm token create --print-join-command
 
 
@@ -419,10 +498,24 @@ EOF
 
 
 #########################################################################################
+###                            NGINX Ingress Using Helm 3                             ###
+#########################################################################################
+* Install using Helm 3 ------------------------------------------------------------------
+user:~$ helm install rs stable/nginx-ingress \
+    --namespace kube-system \
+    --set controller.replicaCount=2 \
+    --set controller.publishService.enabled=true \
+    --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
+    --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux
+user:~$ kubectl get service -l app=nginx-ingress --namespace kube-system
+user:~$ kubectl patch svc rs-nginx-ingress-controller -n kube-system -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
+
+
+#########################################################################################
 ###                                Kubernetes Dashboard                               ###
 #########################################################################################
 * Deploy Dashboard To k8s ---------------------------------------------------------------
-user:~$ wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+user:~$ wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.1/aio/deploy/recommended.yaml
 user:~$ vi recommended.yaml
       nodeSelector:
         node-role.kubernetes.io/master: ""
@@ -462,18 +555,34 @@ user:~$ ssh -f -N rsnet@master -L9901:localhost:8001
 
 
 #########################################################################################
-###                            NGINX Ingress Using Helm 3                             ###
+###                               Cephfs For Kubernetes                               ###
 #########################################################################################
-* Install using Helm 3 ------------------------------------------------------------------
-user:~$ helm install rs stable/nginx-ingress \
-    --namespace kube-system \
-    --set controller.replicaCount=2 \
-    --set controller.publishService.enabled=true \
-    --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
-    --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux
-user:~$ kubectl get service -l app=nginx-ingress --namespace kube-system
-user:~$ kubectl patch svc rs-nginx-ingress-controller -n kube-system \
-    -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
+
+* Admin Key Check at dist cluster -------------------------------------------------------
+user:~$ ceph auth get client.admin
+
+user:~$ vi ceph-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-secret
+data:
+  key: AQDnaspeswckMxAAwHJ5kMijLgHqEn9t6s7IBQ==
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #########################################################################################
@@ -505,14 +614,14 @@ user:~$ sudo mkdir -p ${KF_DIR}
 user:~$ sudo chown $USER.$GROUP ${KF_DIR}
 user:~$ cd ${KF_DIR}
 user:~$ kfctl apply -V -f ${CONFIG_URI}
-user:~$ kubectl get all -n kubeflow
+user:~$ watch kubectl get all -n kubeflow
 user:~$ nohup kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80 &
 
 
 * SSH-Tunneling at client ----------------------------------------------------------------
-user:~$ ssh -f -N rsnet@master -L8080:localhost:8080
+user:~$ ssh -f -N rsnet@master -L9902:localhost:8080
 >>> Connection
-  > URL : http://localhost:8080
+  > URL : http://localhost:9902
   > ID/PASS : admin@kubeflow.org / 12341234
 
 
@@ -520,6 +629,33 @@ user:~$ ssh -f -N rsnet@master -L8080:localhost:8080
 user:~$ export CONFIG_FILE=${KF_DIR}/kfctl_k8s_istio.0.7.1.yaml
 user:~$ cd ${KF_DIR}
 user:~$ kfctl delete -f ${CONFIG_FILE}
+
+
+#########################################################################################
+###                                   Elasticsearch                                   ###
+#########################################################################################
+* Install elasticsearch -----------------------------------------------------------------
+user:~$ helm repo add elastic https://helm.elastic.co
+user:~$ helm repo update
+user:~$ helm search hub elasticsearch
+user:~$ helm install elasticsearch elastic/elasticsearch
+user:~$ kubectl port-forward svc/elasticsearch-master 9200:9200 &
+user:~$ curl http://localhost:9200/
+
+* Install Filebeat -----------------------------------------------------------------
+user:~$ helm install filebeat elastic/filebeat
+user:~$ curl http://localhost:9200/_cat/indices
+
+* Install Kibana -----------------------------------------------------------------
+user:~$ helm install kibana elastic/kibana
+user:~$ kubectl port-forward svc/kibana-kibana 5601:5601 &
+
+* SSH-Tunneling at client ----------------------------------------------------------------
+user:~$ ssh -f -N rsnet@master -L9903:localhost:5601
+>>> Connection
+  > URL : http://localhost:9903
+
+
 
 
 #########################################################################################
