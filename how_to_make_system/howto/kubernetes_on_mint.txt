@@ -431,7 +431,8 @@ user:~$ mkdir ~/.kube \
      && sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config \
      && sudo chown -R $(id -u):$(id -g) ~/.kube \
      && kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml \
-     && watch kubectl get all --all-namespaces
+     && watch kubectl get all --all-namespaces -o wide
+user:~$ kubectl taint nodes --all node-role.kubernetes.io/master-
 user:~$ kubeadm token create --print-join-command
 
 
@@ -568,14 +569,17 @@ user:~$ ssh -f -N rsnet@master -L9901:localhost:8001
 #########################################################################################
 ※ REF SITE : https://rook.io/docs/rook/v1.1/ceph-filesystem.html
 
-user:~$ git clone https://github.com/rook/rook \
+user:~$ rm -rf rook \
+     && git clone https://github.com/rook/rook \
      && cd rook/cluster/examples/kubernetes/ceph/ \
      && kc apply -f common.yaml \
      && kc apply -f operator.yaml \
-     && kc apply -f cluster.yaml \
-     && kc apply -f filesystem.yaml \
+     && watch kubectl get pod -n rook-ceph -o wide
+user:~$ kc apply -f cluster.yaml \
+     && watch kubectl get pod -n rook-ceph -o wide
+user:~$ kc apply -f filesystem.yaml \
      && kc apply -f toolbox.yaml \
-     && watch kubectl get pod -n rook-ceph
+     && watch kubectl get all -n rook-ceph
 user:~$ kubectl -n rook-ceph get pod -l app=rook-ceph-mds
 user:~$ kc exec -n rook-ceph rook-ceph-tools-58df7d6b5c-z77wv -it bash
      >> ceph status
@@ -594,7 +598,7 @@ user:~$ sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
 - --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
 - --service-account-issuer=api
 - --service-account-api-audiences=api,vault
-
+user:~$ watch kubectl get pod --all-namespaces
 
 * Kubeflow Install ----------------------------------------------------------------------
 user:~$ wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz \
