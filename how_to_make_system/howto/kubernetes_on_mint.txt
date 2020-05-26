@@ -416,22 +416,22 @@ root:~$ apt-mark hold kubelet kubeadm kubectl
 * Cleaning up Kubernetes Environments Completely ----------------------------------------
 user:~$ sudo kubectl drain <node name> --delete-local-data --force --ignore-daemonsets
 user:~$ sudo kubectl delete node <node name>
-user:~$ sudo kubeadm reset
-user:~$ sudo rm -rf /var/lib/cni/ /var/lib/calico/ /var/lib/kubelet/ /var/lib/etcd/ /etc/kubernetes/ /etc/cni/
-user:~$ docker system prune -a -f
-user:~$ sudo rm -rf ~/.kube
-user:~$ docker system df
-user:~$ sudo iptables -F && sudo iptables -t nat -F && sudo iptables -t mangle -F && sudo iptables -X
+user:~$ sudo kubeadm reset \
+     && sudo rm -rf /var/lib/cni/ /var/lib/calico/ /var/lib/kubelet/ /var/lib/etcd/ /etc/kubernetes/ /etc/cni/ /var/lib/rook/ \
+     && docker system prune -a -f \
+     && sudo rm -rf ~/.kube \
+     && sudo iptables -F && sudo iptables -t nat -F && sudo iptables -t mangle -F && sudo iptables -X \
+     && docker system df
 user:~$ sudo reboot
 
 
 * Setting Up For Master -----------------------------------------------------------------
 user:~$ sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.0.101
-user:~$ mkdir ~/.kube
-user:~$ sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config
-user:~$ sudo chown -R $(id -u):$(id -g) ~/.kube
-user:~$ kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
-user:~$ watch kubectl get all --all-namespaces -o wide
+user:~$ mkdir ~/.kube \
+     && sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config \
+     && sudo chown -R $(id -u):$(id -g) ~/.kube \
+     && kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml \
+     && watch kubectl get all --all-namespaces
 user:~$ kubeadm token create --print-join-command
 
 
@@ -574,7 +574,8 @@ user:~$ git clone https://github.com/rook/rook \
      && kc apply -f operator.yaml \
      && kc apply -f cluster.yaml \
      && kc apply -f filesystem.yaml \
-     && kc apply -f toolbox.yaml
+     && kc apply -f toolbox.yaml \
+     && watch kubectl get pod -n rook-ceph
 user:~$ kubectl -n rook-ceph get pod -l app=rook-ceph-mds
 user:~$ kc exec -n rook-ceph rook-ceph-tools-58df7d6b5c-z77wv -it bash
      >> ceph status
