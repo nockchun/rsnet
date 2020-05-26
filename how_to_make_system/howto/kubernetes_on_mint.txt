@@ -140,11 +140,17 @@ root:~$ mount -a
 
 * At All Distibut Volume Node -----------------------------------------------------------
 user:~$ sudo apt install ntp
+user:~$ sudo vi /etc/ntp.conf
+server 1.kr.pool.ntp.org
+server 1.asia.pool.ntp.org
+server time.bora.net
+
+user:~$ sudo systemctl enable ntp && sudo systemctl restart ntp
+user:~$ sudo ntpq -p
 user:~$ sudo apt install python
 user:~$ sudo adduser cephnode
 user:~$ echo "cephnode ALL = (root) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/cephnode
 user:~$ sudo chmod 0440 /etc/sudoers.d/cephnode
-user:~$ sudo chown -R user.user /etc/ceph
 
 * At Deploy Node ------------------------------------------------------------------------
 user:~$ sudo vi /etc/hosts
@@ -156,7 +162,7 @@ user:~$ sudo vi /etc/hosts
 user:~$ wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
 user:~$ echo deb https://download.ceph.com/debian-luminous/ bionic main | sudo tee /etc/apt/sources.list.d/ceph.list
 user:~$ sudo apt update
-user:~$ sudo apt install ceph-deploy
+user:~$ sudo apt install ceph-common ceph-deploy
 user:~$ ssh-keygen
 user:~$ for i in node01 node02 node03;
 do
@@ -191,9 +197,9 @@ done
 
 user:ceph-cluster$ ceph-deploy mds create node01
 user:ceph-cluster$ ceph-deploy rgw create node01
-user:ceph-cluster$ ceph auth get client.admin
 
 * At distibut node Create block storage ---------------------------------------------
+user:~$ sudo chown -R rsnet.rsnet /etc/ceph
 user:~$ ceph -s
 user:~$ ceph osd pool create rbd 16
 user:~$ rbd pool init rbd
@@ -204,8 +210,11 @@ user:~$ sudo rbd map foo --name client.admin
 user:~$ ceph osd pool create cephfs_data 16
 user:~$ ceph osd pool create cephfs_metadata 16
 user:~$ ceph fs new filesystem cephfs_metadata cephfs_data
+user:~$ ceph auth get client.admin
+
+* Using distibut node at client ---------------------------------------------
 root:~$ vi /root/admin.secret
-AQDnaspeswckMxAAwHJ5kMijLgHqEn9t6s7IBQ==
+AQB9Sctey0pxLxAAfTRtV8TLe3IbXXOkID131w==
 root:~$ mkdir /mnt/ceph
 root:~$ mount -t ceph 192.168.0.211:6789:/ /mnt/ceph/ -o name=admin,secretfile=/root/admin.secret
 
@@ -555,68 +564,25 @@ user:~$ ssh -f -N rsnet@master -L9901:localhost:8001
 
 
 #########################################################################################
-###                               Cephfs For Kubernetes                               ###
+###                                  Rook For Cephfs                                  ###
 #########################################################################################
+※ REF SITE : https://rook.io/docs/rook/v1.1/ceph-filesystem.html
 
-* Admin Key Check at dist cluster -------------------------------------------------------
-user:~$ ceph auth get client.admin
+user:~$ git clone https://github.com/rook/rook \
+     && cd rook/cluster/examples/kubernetes/ceph/ \
+     && kc apply -f common.yaml \
+     && kc apply -f operator.yaml \
+     && kc apply -f cluster.yaml \
+     && kc apply -f filesystem.yaml \
+     && kc apply -f toolbox.yaml
+user:~$ kubectl -n rook-ceph get pod -l app=rook-ceph-mds
+user:~$ kc exec -n rook-ceph rook-ceph-tools-58df7d6b5c-z77wv -it bash
+     >> ceph status
+     >> ceph osd status
+user:~$ kc apply -f csi/cephfs/storageclass.yaml \
+     && kc apply -f csi/cephfs/kube-registry.yaml
 
-user:~$ vi ceph-secret.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: ceph-secret
-data:
-  key: AQDnaspeswckMxAAwHJ5kMijLgHqEn9t6s7IBQ==
-
-user:~$ vi ceph-secret.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: ceph-admin-secret
-data:
-  key: AQDnaspeswckMxAAwHJ5kMijLgHqEn9t6s7IBQ==
-
-user:~$ kubectl create -f ceph-user-secret.yaml
-user:~$ kubectl create -f ceph-admin-secret.yaml
-
-user:~$ vi ceph-storageclass.yaml
-apiVersion: storage.k8s.io/v1beta1
-kind: StorageClass
-metadata:
-  name: ceph
-  annotations:
-provisioner: kubernetes.io/rbd
-parameters:
-  monitors: 192.168.0.201:6789
-  adminId: admin 
-  adminSecretName: ceph-admin-secret 
-  adminSecretNamespace: kube-system 
-  pool: kube  
-  userId: kube  
-  userSecretName: ceph-user-secret
-user:~$ 
-user:~$ 
-user:~$ 
-user:~$ 
-user:~$ 
-user:~$ 
-user:~$ 
-user:~$ 
-user:~$ 
-
-
-
-
-
-
-
-
-
-
-
-
-
+user:~$ kubectl patch storageclass rook-cephfs -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 
 
 #########################################################################################
@@ -629,25 +595,19 @@ user:~$ sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
 - --service-account-api-audiences=api,vault
 
 
-* Local Path Provisioner ----------------------------------------------------------------
-user:~$ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
-user:~$ kubectl get storageclass
-user:~$ kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-user:~$ kubectl get sc
-
-
 * Kubeflow Install ----------------------------------------------------------------------
-user:~$ wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz
-user:~$ tar xfv kfctl_v1.0.2-0-ga476281_linux.tar.gz
-user:~$ sudo mv kfctl /usr/local/bin/
-user:~$ export KF_NAME=kubeflow
-user:~$ export BASE_DIR=/opt
-user:~$ export KF_DIR=${BASE_DIR}/${KF_NAME}
-user:~$ export CONFIG_URI="https://raw.githubusercontent.com/kubeflow/manifests/v1.0-branch/kfdef/kfctl_istio_dex.v1.0.2.yaml"
-user:~$ sudo mkdir -p ${KF_DIR}
-user:~$ sudo chown $USER.$GROUP ${KF_DIR}
-user:~$ cd ${KF_DIR}
-user:~$ kfctl apply -V -f ${CONFIG_URI}
+user:~$ wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz \
+     && tar xfv kfctl_v1.0.2-0-ga476281_linux.tar.gz \
+     && sudo mv kfctl /usr/local/bin/ \
+     && export KF_NAME=kubeflow \
+     && export BASE_DIR=/opt \
+     && export KF_DIR=${BASE_DIR}/${KF_NAME} \
+     && export CONFIG_URI="https://raw.githubusercontent.com/kubeflow/manifests/v1.0-branch/kfdef/kfctl_istio_dex.v1.0.2.yaml" \
+     && sudo mkdir -p ${KF_DIR} \
+     && sudo chown $USER.$GROUP ${KF_DIR} \
+     && cd ${KF_DIR} \
+     && rm -rf * \
+     && kfctl apply -V -f ${CONFIG_URI}
 user:~$ watch kubectl get all -n kubeflow
 user:~$ nohup kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80 &
 
@@ -660,7 +620,7 @@ user:~$ ssh -f -N rsnet@master -L9902:localhost:8080
 
 
 * Delete Kubeflow -----------------------------------------------------------------------
-user:~$ export CONFIG_FILE=${KF_DIR}/kfctl_k8s_istio.0.7.1.yaml
+user:~$ export CONFIG_FILE=${KF_DIR}/kfctl_istio_dex.v1.0.2.yaml
 user:~$ cd ${KF_DIR}
 user:~$ kfctl delete -f ${CONFIG_FILE}
 
@@ -676,11 +636,11 @@ user:~$ helm install elasticsearch elastic/elasticsearch
 user:~$ kubectl port-forward svc/elasticsearch-master 9200:9200 &
 user:~$ curl http://localhost:9200/
 
-* Install Filebeat -----------------------------------------------------------------
+* Install Filebeat ----------------------------------------------------------------------
 user:~$ helm install filebeat elastic/filebeat
 user:~$ curl http://localhost:9200/_cat/indices
 
-* Install Kibana -----------------------------------------------------------------
+* Install Kibana ------------------------------------------------------------------------
 user:~$ helm install kibana elastic/kibana
 user:~$ kubectl port-forward svc/kibana-kibana 5601:5601 &
 
@@ -688,8 +648,6 @@ user:~$ kubectl port-forward svc/kibana-kibana 5601:5601 &
 user:~$ ssh -f -N rsnet@master -L9903:localhost:5601
 >>> Connection
   > URL : http://localhost:9903
-
-
 
 
 #########################################################################################
@@ -716,6 +674,19 @@ user:~$ helm repo update
 user:~$ kubectl create namespace cattle-system
 user:~$ helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=rancher.realstudy.net
 user:~$ kubectl -n cattle-system rollout status deploy/rancher
+
+
+
+
+#########################################################################################
+###                               Local Path Provisioner                              ###
+#########################################################################################
+* Install -------------------------------------------------------------------------------
+user:~$ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml \
+     && kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' \
+     && kubectl get storageclass
+
+
 
 
 #########################################################################################
