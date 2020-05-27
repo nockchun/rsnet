@@ -473,52 +473,13 @@ user:~$ . ~/.bashrc
 
 * Install Helm 3 ------------------------------------------------------------------------
 user:~$ sudo rm -rf /usr/local/bin/helm
-user:~$ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-user:~$ chmod u+x get_helm.sh
-user:~$ ./get_helm.sh
+user:~$ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 \
+     && chmod u+x get_helm.sh \
+     && ./get_helm.sh
 
-user:~$ helm repo add stable https://kubernetes-charts.storage.googleapis.com
-user:~$ helm repo update
-user:~$ helm search repo stable
-
-
-#########################################################################################
-###                                      MetalLB                                      ###
-#########################################################################################
-* Install MetalLB -----------------------------------------------------------------------
-user:~$ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/namespace.yaml
-user:~$ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/metallb.yaml
-user:~$ kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
-
-* Layer 2 Configuration -----------------------------------------------------------------
-user:~$ cat <<EOF | kubectl create -f -
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  namespace: metallb-system
-  name: config
-data:
-  config: |
-    address-pools:
-    - name: default
-      protocol: layer2
-      addresses:
-      - 10.10.1.240-10.10.1.250
-EOF
-
-
-#########################################################################################
-###                            NGINX Ingress Using Helm 3                             ###
-#########################################################################################
-* Install using Helm 3 ------------------------------------------------------------------
-user:~$ helm install rs stable/nginx-ingress \
-    --namespace kube-system \
-    --set controller.replicaCount=2 \
-    --set controller.publishService.enabled=true \
-    --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
-    --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux
-user:~$ kubectl get service -l app=nginx-ingress --namespace kube-system
-user:~$ kubectl patch svc rs-nginx-ingress-controller -n kube-system -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
+user:~$ helm repo add stable https://kubernetes-charts.storage.googleapis.com \
+     && helm repo update \
+     && helm search repo stable
 
 
 #########################################################################################
@@ -562,6 +523,45 @@ user:~$ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-
 * SSH-Tunneling at client ---------------------------------------------------------------
 user:~$ ssh -f -N rsnet@master -L9901:localhost:8001
 >>> Connection URL : http://localhost:9901/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+
+
+#########################################################################################
+###                                      MetalLB                                      ###
+#########################################################################################
+* Install MetalLB -----------------------------------------------------------------------
+user:~$ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/namespace.yaml
+user:~$ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.3/manifests/metallb.yaml
+user:~$ kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
+
+* Layer 2 Configuration -----------------------------------------------------------------
+user:~$ cat <<EOF | kubectl create -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: metallb-system
+  name: config
+data:
+  config: |
+    address-pools:
+    - name: default
+      protocol: layer2
+      addresses:
+      - 10.10.1.240-10.10.1.250
+EOF
+
+
+#########################################################################################
+###                            NGINX Ingress Using Helm 3                             ###
+#########################################################################################
+* Install using Helm 3 ------------------------------------------------------------------
+user:~$ helm install rs stable/nginx-ingress \
+    --namespace kube-system \
+    --set controller.replicaCount=2 \
+    --set controller.publishService.enabled=true \
+    --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
+    --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux
+user:~$ kubectl get service -l app=nginx-ingress --namespace kube-system
+user:~$ kubectl patch svc rs-nginx-ingress-controller -n kube-system -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
 
 
 #########################################################################################
@@ -634,10 +634,10 @@ user:~$ kfctl delete -f ${CONFIG_FILE}
 ###                                   Elasticsearch                                   ###
 #########################################################################################
 * Install elasticsearch -----------------------------------------------------------------
-user:~$ helm repo add elastic https://helm.elastic.co
-user:~$ helm repo update
-user:~$ helm search hub elasticsearch
-user:~$ helm install elasticsearch elastic/elasticsearch
+user:~$ helm repo add elastic https://helm.elastic.co \
+     && helm repo update \
+     && helm search hub elasticsearch \
+     && helm install elasticsearch elastic/elasticsearch
 user:~$ kubectl port-forward svc/elasticsearch-master 9200:9200 &
 user:~$ curl http://localhost:9200/
 
