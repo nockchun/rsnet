@@ -546,8 +546,37 @@ data:
     - name: default
       protocol: layer2
       addresses:
-      - 10.10.1.240-10.10.1.250
+      - 192.168.0.180-192.168.0.199
 EOF
+
+* For Dashboard -----------------------------------------------------------------
+user:~$ mkdir certs; cd certs
+user:~$ openssl genrsa -des3 -passout pass:testpass -out dashboard.pass.key 2048
+user:~$ openssl rsa -passin pass:testpass -in dashboard.pass.key -out dashboard.key
+user:~$ rm dashboard.pass.key
+user:~$ openssl req -new -key dashboard.key -out dashboard.csr
+# Create SSL Certificate
+user:~$ openssl x509 -req -sha256 -days 365 -in dashboard.csr -signkey dashboard.key -out dashboard.crt
+# Create k8s secret
+user:~$ cd .. && kubectl create secret generic kubernetes-dashboard-certs --from-file=./certs -n kube-system
+user:~$ vi recommended.yaml
+ 32 kind: Service
+ 33 apiVersion: v1
+ 34 metadata:
+ 35   labels:
+ 36     k8s-app: kubernetes-dashboard
+ 37   name: kubernetes-dashboard
+ 38   namespace: kubernetes-dashboard
+ 39 spec:
+ 40   type: LoadBalancer <-- change here
+ 41   ports:
+ 42     - port: 443
+ 43       targetPort: 8443
+ 44   selector:
+ 45     k8s-app: kubernetes-dashboard
+
+user:~$ kubectl apply -f recommended.yaml
+user:~$ kubectl get svc --all-namespaces
 
 
 #########################################################################################
@@ -596,12 +625,12 @@ user:~$ kubectl patch storageclass rook-cephfs -p '{"metadata": {"annotations":{
 * Service Account Token Volume Projection -----------------------------------------------
 user:~$ sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
 - --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
-- --service-account-issuer=api
-- --service-account-api-audiences=api,vault
+- --service-account-issuer=kubernetes.default.svc
 user:~$ watch kubectl get pod --all-namespaces
 
 * Kubeflow Install ----------------------------------------------------------------------
-user:~$ wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz \
+user:~$ rm -rf kfctl* \
+     && wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz \
      && tar xfv kfctl_v1.0.2-0-ga476281_linux.tar.gz \
      && sudo mv kfctl /usr/local/bin/ \
      && export KF_NAME=kubeflow \
@@ -633,21 +662,24 @@ user:~$ kfctl delete -f ${CONFIG_FILE}
 #########################################################################################
 ###                                   Elasticsearch                                   ###
 #########################################################################################
+* Create Namespace ----------------------------------------------------------------------
+user:~$ kubectl create namespace elk
+
 * Install elasticsearch -----------------------------------------------------------------
 user:~$ helm repo add elastic https://helm.elastic.co \
      && helm repo update \
      && helm search hub elasticsearch \
-     && helm install elasticsearch elastic/elasticsearch
-user:~$ kubectl port-forward svc/elasticsearch-master 9200:9200 &
+     && helm install elasticsearch elastic/elasticsearch --namespace elk
+user:~$ kubectl port-forward -n elk svc/elasticsearch-master 9200:9200 &
 user:~$ curl http://localhost:9200/
 
 * Install Filebeat ----------------------------------------------------------------------
-user:~$ helm install filebeat elastic/filebeat
+user:~$ helm install filebeat elastic/filebeat --namespace elk
 user:~$ curl http://localhost:9200/_cat/indices
 
 * Install Kibana ------------------------------------------------------------------------
-user:~$ helm install kibana elastic/kibana
-user:~$ kubectl port-forward svc/kibana-kibana 5601:5601 &
+user:~$ helm install kibana elastic/kibana --namespace elk
+user:~$ kubectl port-forward -n elk svc/kibana-kibana 5601:5601 &
 
 * SSH-Tunneling at client ----------------------------------------------------------------
 user:~$ ssh -f -N rsnet@master -L9903:localhost:5601
