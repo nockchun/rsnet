@@ -38,7 +38,7 @@ URL : https://manjaro.site/make-linux-mint-19-looks-like-mac-os-x-mojave
 
 
 * Terminal Them With Powerline ----------------------------------------------------------
-root:~$ sudo apt install powerline python-pip python-setuptools fonts-powerline fontconfig
+root:~$ apt install powerline python-pip python-setuptools fonts-powerline fontconfig
 root:~$ pip install git+git://github.com/Lokaltog/powerline
 root:~$ wget https://github.com/Lokaltog/powerline/raw/develop/font/PowerlineSymbols.otf
 root:~$ wget https://github.com/Lokaltog/powerline/raw/develop/font/10-powerline-symbols.conf
