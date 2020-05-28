@@ -662,23 +662,31 @@ user:~$ kfctl delete -f ${CONFIG_FILE}
 #########################################################################################
 ###                                   Elasticsearch                                   ###
 #########################################################################################
+※ REF SITE : https://github.com/elastic/helm-charts
+
 * Create Namespace ----------------------------------------------------------------------
 user:~$ kubectl create namespace elk
 
 * Install elasticsearch -----------------------------------------------------------------
+user:~$ wget https://raw.githubusercontent.com/elastic/helm-charts/master/elasticsearch/values.yaml \
+     && mv values.yaml elastic_values.yaml
 user:~$ helm repo add elastic https://helm.elastic.co \
      && helm repo update \
      && helm search hub elasticsearch \
-     && helm install elasticsearch elastic/elasticsearch --namespace elk
+     && helm install elasticsearch elastic/elasticsearch -f elastic_values.yaml --namespace elk
 user:~$ kubectl port-forward -n elk svc/elasticsearch-master 9200:9200 &
 user:~$ curl http://localhost:9200/
 
 * Install Filebeat ----------------------------------------------------------------------
-user:~$ helm install filebeat elastic/filebeat --namespace elk
+user:~$ wget https://raw.githubusercontent.com/elastic/helm-charts/master/filebeat/values.yaml \
+     && mv values.yaml filebeat_values.yaml
+user:~$ helm install filebeat elastic/filebeat -f filebeat_values.yaml --namespace elk
 user:~$ curl http://localhost:9200/_cat/indices
 
 * Install Kibana ------------------------------------------------------------------------
-user:~$ helm install kibana elastic/kibana --namespace elk
+user:~$ wget https://raw.githubusercontent.com/elastic/helm-charts/master/kibana/values.yaml \
+     && mv values.yaml kibana_values.yaml
+user:~$ helm install kibana elastic/kibana -f kibana_values.yaml --namespace elk
 user:~$ kubectl port-forward -n elk svc/kibana-kibana 5601:5601 &
 
 * SSH-Tunneling at client ----------------------------------------------------------------
