@@ -1,4 +1,21 @@
 #########################################################################################
+###                                Command CheatSheet                                 ###
+#########################################################################################
+* Check Memory --------------------------------------------------------------------------
+user:~$ sudo free -m
+
+* Drop Memory Cache ---------------------------------------------------------------------
+user:~$ sudo sysctl vm.drop_caches=3
+
+
+* Change Booting mode -------------------------------------------------------------------
+root:~$ systemctl set-default multi-user.target
+root:~$ systemctl set-default graphical.target 
+
+
+
+
+#########################################################################################
 ###                              Drivers & Basic Settings                             ###
 #########################################################################################
 * Add Nvidia Driver Repository ----------------------------------------------------------
@@ -44,10 +61,6 @@ user:~$ sudo apt-get install fonts-unfonts-core fonts-unfonts-extra fonts-baekmu
      && sudo fc-cache -f -v
 
 
-* MAC Them ------------------------------------------------------------------------------
-URL : https://manjaro.site/make-linux-mint-19-looks-like-mac-os-x-mojave
-
-
 * Terminal Them With Powerline ----------------------------------------------------------
 root:~$ apt install powerline python-pip python-setuptools fonts-powerline fontconfig \
      && pip install git+git://github.com/Lokaltog/powerline \
@@ -57,10 +70,11 @@ root:~$ apt install powerline python-pip python-setuptools fonts-powerline fontc
      && fc-cache -vf \
      && mv 10-powerline-symbols.conf /etc/fonts/conf.d/
 
-root:~$ vi /etc/bash.bashrc
+root:~$ cat >> /etc/bash.bashrc << EOF
 if [ -f /usr/local/lib/python2.7/dist-packages/powerline/bindings/bash/powerline.sh ]; then
     source /usr/local/lib/python2.7/dist-packages/powerline/bindings/bash/powerline.sh
 fi
+EOF
 
 
 * Vi Editor (~/.vimrc) ------------------------------------------------------------------
@@ -83,6 +97,44 @@ syntax on
 EOF
 
 
+
+
+#########################################################################################
+###                                      MAC Them                                     ###
+#########################################################################################
+※ URL : https://manjaro.site/make-linux-mint-19-looks-like-mac-os-x-mojave
+
+* Install the Mac OS GTK3 Theme ---------------------------------------------------------
+root:~$ add-apt-repository ppa:noobslab/macbuntu \
+     && apt update \
+     && apt install -y macbuntu-os-icons-v1804 macbuntu-os-ithemes-v1804
+# System Settings > Thems change
+
+
+* Install Plank and Theme ---------------------------------------------------------------
+root:~$ apt install -y plank \
+     && add-apt-repository ppa:noobslab/macbuntu \
+     && apt update \
+     && apt install -y macbuntu-os-plank-theme-v1804
+root:~$ plank --preferences
+
+
+* Change Wallpaper & Start Menu Icon ----------------------------------------------------
+# Wallpaper : https://512pixels.net/projects/default-mac-wallpapers-in-5k/
+# Menu Icon : https://seeklogo.net/wp-content/uploads/2012/12/apple-classic-logo-vector-400x400.png
+
+
+* Install Mac Fonts ---------------------------------------------------------------------
+root:~$ wget -O mac-fonts.zip http://drive.noobslab.com/data/Mac/macfonts.zip \
+     && unzip mac-fonts.zip -d /usr/share/fonts \
+     && rm mac-fonts.zip \
+     && fc-cache -f -v
+
+
+* Install Slingscold Application Launcher -----------------------------------------------
+root:~$ add-apt-repository ppa:noobslab/macbuntu \
+     && apt update \
+     && apt install -y slingscold
 
 
 
@@ -112,12 +164,127 @@ root# systemctl restart sshd
 
 
 #########################################################################################
+###                                  Sublime Text 3                                   ###
+#########################################################################################
+* Install Sublime Text 3 ----------------------------------------------------------------
+user:~$ wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+user:~$ sudo apt-get install apt-transport-https
+user:~$ echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+user:~$ sudo apt update
+user:~$ sudo apt install sublime-text sublime-merge
+
+
+* Setting Up Sublime Text 3 Plugins -----------------------------------------------------
+1. SideBarEnhanceinsments
+    > site : https://github.com/titoBouzout/SideBarEnhancements
+    > Sidebar에 대해 확장기능 플러그인.
+
+2. Emmet
+    > site : https://github.com/sergeche/emmet-sublime
+    > HTML 및 CSS 작업을 도와주는 플러그인.
+
+3. SFTP
+    > site : http://wbond.net/sublime_packages/sftp
+    > sftp를 통해 서버와 파일 교환을 도와주는 플러그인.
+
+4. AutoBackups
+    > site : https://github.com/akalongman/sublimetext-autobackups
+    > 편집하는 문서들에 대해 자동으로 백업을 해 주는 플러그인.
+        {
+            "backup_dir": "/data/workspace/backup/sublime",
+        }
+
+5. SublimeCodeIntel
+    > site : https://github.com/SublimeCodeIntel/SublimeCodeIntel
+    > 소스코드에 intelligence 기능과 smart autocomplete 기능을 지원하는 플러그인.
+    > Key For Linux:
+        - Jump to definition = ``Super+Click``
+        - Jump to definition = ``Control+Super+Alt+Up``
+        - Go back = ``Control+Super+Alt+Left``
+        - Manual CodeIntel = ``Control+Shift+space``
+    > Key For Windows:
+        - Jump to definition = ``Alt+Click``
+        - Jump to definition = ``Control+Windows+Alt+Up``
+        - Go back = ``Control+Windows+Alt+Left``
+        - Manual CodeIntel = ``Control+Shift+space``
+
+6. DocBlockr
+    > site : https://github.com/spadgos/sublime-jsdocs
+    > 함수들의 주석문 template을 자동으로 생성.
+
+7. DocBlockr Python
+    > site : https://github.com/adambullmer/sublime_docblockr_python
+    > 함수들의 주석문 template을 자동으로 생성.
+
+8. AdvancedNewFile
+    > site : https://github.com/skuroda/Sublime-AdvancedNewFile
+    > 새파일을 만들게 해 주는 플러그인.
+
+9. Terminality & Terminal
+    > ctrl + alt + r : 터미널을 sublime text 안에서 열어 줌.
+    > ctrl + shift + t : 시스템 터미널을 현재 파일 디렉토리에서 열어 줌.
+
+10. Pretty JSON & HTML-CSS-JS Prettify
+    > 문서 포맷을 예쁘게 만들어 줌.
+
+11. Compare Side-By-Side
+    > 2개의 문서를 비교해서 틀린부분을 보여줌.
+
+12. GitSavvy
+    > git 사용을 도와주는 플러그인.
+    > 기본 설정.
+        - git config --global user.email "you@example.com"
+        - git config --global user.name "Your Name"
+
+13. materialize & soda
+    > site : https://github.com/saadq/Materialize
+    > UI 테마
+    > setting
+        "color_scheme": "Packages/Materialize/schemes/Material Monokai Soda.tmTheme",
+        "theme": "Soda Dark 3.sublime-theme",
+        "font_face": "D2Coding",
+        "font_size": 13,
+        "line_padding_bottom": 2,
+        "line_padding_top": 2,
+        "margin": 0,
+        "material_theme_compact_panel": true,
+        "material_theme_compact_sidebar": true,
+        "material_theme_contrast_mode": true,
+        "material_theme_small_statusbar": true,
+        "material_theme_small_tab": true,
+        "material_theme_tabs_autowidth": true,
+        "overlay_scroll_bars": "enabled",
+        "indent_guide_options": [ "draw_normal", "draw_active" ]
+
+
+
+
+#########################################################################################
+###                                     Terminator                                    ###
+#########################################################################################
+* Install -------------------------------------------------------------------------------
+user:~$ sudo apt install -y terminator
+
+
+* Useage --------------------------------------------------------------------------------
+Toggle fullscreen                          : F11.
+Split terminals horizontally               : Ctrl + Shift + O.
+Split terminals vertically                 : Ctrl + Shift + E.
+Close current Panel                        : Ctrl + Shift + W.
+Open new tab                               : Ctrl + Shift + T.
+Move to the terminal above the current one : Alt + ↑
+Move to the terminal below the current one : Alt + ↓
+
+
+
+
+#########################################################################################
 ###                                   Virtualbox 6                                    ###
 #########################################################################################
-user:~$ wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add - \
-     && echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian bionic contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list \
-     && sudo apt update
-user:~$ sudo apt install -y virtualbox-6.1
+root:~$ wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add - \
+     && echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian bionic contrib" | tee /etc/apt/sources.list.d/virtualbox.list \
+     && apt update
+root:~$ apt install -y virtualbox-6.1
 
 
 
@@ -125,10 +292,10 @@ user:~$ sudo apt install -y virtualbox-6.1
 #########################################################################################
 ###                                    OBS Studio                                     ###
 #########################################################################################
-user:~$ sudo add-apt-repository ppa:obsproject/obs-studio
-user:~$ sudo apt install ffmpeg
-user:~$ sudo apt update
-user:~$ sudo apt install obs-studio
+root:~$ add-apt-repository ppa:obsproject/obs-studio \
+     && apt install ffmpeg \
+     && apt update \
+     && apt install -y obs-studio
 
 
 
@@ -136,25 +303,171 @@ user:~$ sudo apt install obs-studio
 #########################################################################################
 ###                                     Kdenlive                                      ###
 #########################################################################################
-user:~$ sudo add-apt-repository ppa:kdenlive/kdenlive-stable
+root:~$ add-apt-repository ppa:kdenlive/kdenlive-stable \
+     && apt update \
+     && apt install -y frei0r-plugins dvgrab recordmydesktop dvdauthor mkisofs vlc \
+     && apt install -y kdenlive
+
+
+
+
+#########################################################################################
+###                                        NFS                                        ###
+#########################################################################################
+* At Server -----------------------------------------------------------------------------
+root:~$ apt install nfs-common nfs-kernel-server rpcbind portmap
+root:~$ mkdir -p /data/vol_nfs
+root:~$ chmod -R 777 /data/vol_nfs
+root:~$ vi /etc/exports
+/data/vol_nfs 192.168.0.0/24(rw,sync,no_subtree_check)
+root:~$ exportfs -a
+root:~$ systemctl restart nfs-kernel-server
+root:~$ systemctl enable nfs-kernel-server
+
+
+* At Client ----------------------------------------------------------------------------
+root:~$ apt install nfs-common
+root:~$ mkdir /vol_nfs
+root:~$ mount 192.168.0.211:/data/vol_nfs /vol_nfs
+
+
+
+
+#########################################################################################
+###                                     GlusterFS                                     ###
+#########################################################################################
+* At All Distibut Volume Node -----------------------------------------------------------
+root:~$ apt install software-properties-common
+root:~$ add-apt-repository ppa:gluster/glusterfs-7
+root:~$ apt-get update
+root:~$ apt install glusterfs-server
+root:~$ mkdir -p /data/vol_gluster
+root:~$ chmod -R 777 /data/vol_gluster
+
+
+* At One Distibut Volume Node To the others ---------------------------------------------
+root:~$ gluster peer probe <other node ip>
+root:~$ gluster peer status
+root:~$ gluster pool list
+
+
+* Create & Start Volume -----------------------------------------------------------------
+root:~$ gluster volume create vol_gluster replica 2 transport tcp \
+    node01:/data/vol_gluster \
+    node02:/data/vol_gluster \
+    node03:/data/vol_gluster \
+    node04:/data/vol_gluster force
+root:~$ gluster volume start vol_gluster
+root:~$ gluster volume info vol_gluster
+
+
+* Mount At Client -----------------------------------------------------------------------
+user:~$ sudo apt install software-properties-common
+user:~$ sudo add-apt-repository ppa:gluster/glusterfs-7
 user:~$ sudo apt update
-user:~$ sudo apt install frei0r-plugins dvgrab recordmydesktop dvdauthor mkisofs vlc
-user:~$ sudo apt install kdenlive
+user:~$ sudo apt install glusterfs-client
+user:~$ sudo mkdir -p /vol_gluster
+user:~$ sudo mount -t glusterfs node01:/vol_gluster /vol_gluster
+
+
+* Accecontrol ---------------------------------------------------------------------------
+root:~$ gluster volume set vol auth.allow 127.0.0.1
+
+
+* fstab ---------------------------------------------------------------------------------
+root:~$ vi /etc/fstab
+node01:/vol /mnt/gluster glusterfs defaults,_netdev 0 0
+root:~$ mount -a
 
 
 
 
 #########################################################################################
-###                                Command CheatSheet                                 ###
+###                                       Ceph                                        ###
 #########################################################################################
-* Check Memory --------------------------------------------------------------------------
-user:~$ sudo free -m
+※ SITE : https://ssup2.github.io/record/Ceph_%EC%84%A4%EC%B9%98_%EC%8B%A4%ED%96%89_ceph-deploy_Ubuntu_18.04/
 
-* Drop Memory Cache ---------------------------------------------------------------------
-user:~$ sudo sysctl vm.drop_caches=3
+* At All Distibut Volume Node -----------------------------------------------------------
+user:~$ sudo apt install ntp
+user:~$ sudo vi /etc/ntp.conf
+server 1.kr.pool.ntp.org
+server 1.asia.pool.ntp.org
+server time.bora.net
+
+user:~$ sudo systemctl enable ntp && sudo systemctl restart ntp
+user:~$ sudo ntpq -p
+user:~$ sudo apt install python
+user:~$ sudo adduser cephnode
+user:~$ echo "cephnode ALL = (root) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/cephnode
+user:~$ sudo chmod 0440 /etc/sudoers.d/cephnode
 
 
-* Change Booting mode -------------------------------------------------------------------
-root:~$ systemctl set-default multi-user.target
-root:~$ systemctl set-default graphical.target 
+* At Deploy Node ------------------------------------------------------------------------
+user:~$ sudo vi /etc/hosts
+192.168.0.211 node01
+192.168.0.212 node02
+192.168.0.213 node03
+192.168.0.214 node04
+
+user:~$ wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
+user:~$ echo deb https://download.ceph.com/debian-luminous/ bionic main | sudo tee /etc/apt/sources.list.d/ceph.list
+user:~$ sudo apt update
+user:~$ sudo apt install ceph-common ceph-deploy
+user:~$ ssh-keygen
+user:~$ for i in node01 node02 node03;
+do
+    ssh-copy-id cephnode@$i
+done
+
+user:~$ vi .ssh/config
+Host node01
+   Hostname node01
+   User cephnode
+Host node02
+   Hostname node02
+   User cephnode
+Host node03
+   Hostname node03
+   User cephnode
+
+user:~$ mkdir ceph-cluster && cd ceph-cluster
+user:ceph-cluster$ ceph-deploy purge node01 node02 node03
+user:ceph-cluster$ ceph-deploy purgedata node01 node02 node03
+user:ceph-cluster$ ceph-deploy forgetkeys
+user:ceph-cluster$ rm ceph*
+user:ceph-cluster$ ceph-deploy new node01
+user:ceph-cluster$ ceph-deploy install node01 node02 node03
+user:ceph-cluster$ ceph-deploy mon create-initial
+user:ceph-cluster$ ceph-deploy admin node01 node02 node03
+user:ceph-cluster$ ceph-deploy mgr create node01
+user:ceph-cluster$ for i in node01 node02 node03;
+do
+    ceph-deploy osd create --data /dev/sdb $i
+done
+
+user:ceph-cluster$ ceph-deploy mds create node01
+user:ceph-cluster$ ceph-deploy rgw create node01
+
+
+* At distibut node Create block storage ---------------------------------------------
+user:~$ sudo chown -R rsnet.rsnet /etc/ceph
+user:~$ ceph -s
+user:~$ ceph osd pool create rbd 16
+user:~$ rbd pool init rbd
+user:~$ rbd create foo --size 4096 --image-feature layering
+user:~$ sudo rbd map foo --name client.admin
+
+
+* At distibut node Create file storage ---------------------------------------------
+user:~$ ceph osd pool create cephfs_data 16
+user:~$ ceph osd pool create cephfs_metadata 16
+user:~$ ceph fs new filesystem cephfs_metadata cephfs_data
+user:~$ ceph auth get client.admin
+
+
+* Using distibut node at client ---------------------------------------------
+root:~$ vi /root/admin.secret
+AQB9Sctey0pxLxAAfTRtV8TLe3IbXXOkID131w==
+root:~$ mkdir /mnt/ceph
+root:~$ mount -t ceph 192.168.0.211:6789:/ /mnt/ceph/ -o name=admin,secretfile=/root/admin.secret
 

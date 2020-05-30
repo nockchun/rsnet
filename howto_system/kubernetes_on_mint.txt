@@ -10,262 +10,6 @@ root:~$ cat >> /etc/hosts << EOF
 EOF
 
 
-#########################################################################################
-###                                        NFS                                        ###
-#########################################################################################
-* At Server ----------------------------------------------------------------
-root:~$ apt install nfs-common nfs-kernel-server rpcbind portmap
-root:~$ mkdir -p /data/vol_nfs
-root:~$ chmod -R 777 /data/vol_nfs
-root:~$ vi /etc/exports
-/data/vol_nfs 192.168.0.0/24(rw,sync,no_subtree_check)
-root:~$ exportfs -a
-root:~$ systemctl restart nfs-kernel-server
-root:~$ systemctl enable nfs-kernel-server
-
-* At Client ----------------------------------------------------------------
-root:~$ apt install nfs-common
-root:~$ mkdir /vol_nfs
-root:~$ mount 192.168.0.211:/data/vol_nfs /vol_nfs
-
-
-#########################################################################################
-###                                     GlusterFS                                     ###
-#########################################################################################
-* At All Distibut Volume Node -----------------------------------------------------------
-root:~$ apt install software-properties-common
-root:~$ add-apt-repository ppa:gluster/glusterfs-7
-root:~$ apt-get update
-root:~$ apt install glusterfs-server
-root:~$ mkdir -p /data/vol_gluster
-root:~$ chmod -R 777 /data/vol_gluster
-
-* At One Distibut Volume Node To the others ---------------------------------------------
-root:~$ gluster peer probe <other node ip>
-root:~$ gluster peer status
-root:~$ gluster pool list
-
-* Create & Start Volume -----------------------------------------------------------------
-root:~$ gluster volume create vol_gluster replica 2 transport tcp \
-    node01:/data/vol_gluster \
-    node02:/data/vol_gluster \
-    node03:/data/vol_gluster \
-    node04:/data/vol_gluster force
-root:~$ gluster volume start vol_gluster
-root:~$ gluster volume info vol_gluster
-
-* Mount At Client -----------------------------------------------------------------------
-user:~$ sudo apt install software-properties-common
-user:~$ sudo add-apt-repository ppa:gluster/glusterfs-7
-user:~$ sudo apt update
-user:~$ sudo apt install glusterfs-client
-user:~$ sudo mkdir -p /vol_gluster
-user:~$ sudo mount -t glusterfs node01:/vol_gluster /vol_gluster
-
-* Accecontrol ---------------------------------------------------------------------------
-root:~$ gluster volume set vol auth.allow 127.0.0.1
-
-* fstab ---------------------------------------------------------------------------------
-root:~$ vi /etc/fstab
-node01:/vol /mnt/gluster glusterfs defaults,_netdev 0 0
-root:~$ mount -a
-
-
-#########################################################################################
-###                                       Ceph                                        ###
-#########################################################################################
-※ SITE : https://ssup2.github.io/record/Ceph_%EC%84%A4%EC%B9%98_%EC%8B%A4%ED%96%89_ceph-deploy_Ubuntu_18.04/
-
-* At All Distibut Volume Node -----------------------------------------------------------
-user:~$ sudo apt install ntp
-user:~$ sudo vi /etc/ntp.conf
-server 1.kr.pool.ntp.org
-server 1.asia.pool.ntp.org
-server time.bora.net
-
-user:~$ sudo systemctl enable ntp && sudo systemctl restart ntp
-user:~$ sudo ntpq -p
-user:~$ sudo apt install python
-user:~$ sudo adduser cephnode
-user:~$ echo "cephnode ALL = (root) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/cephnode
-user:~$ sudo chmod 0440 /etc/sudoers.d/cephnode
-
-* At Deploy Node ------------------------------------------------------------------------
-user:~$ sudo vi /etc/hosts
-192.168.0.211 node01
-192.168.0.212 node02
-192.168.0.213 node03
-192.168.0.214 node04
-
-user:~$ wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
-user:~$ echo deb https://download.ceph.com/debian-luminous/ bionic main | sudo tee /etc/apt/sources.list.d/ceph.list
-user:~$ sudo apt update
-user:~$ sudo apt install ceph-common ceph-deploy
-user:~$ ssh-keygen
-user:~$ for i in node01 node02 node03;
-do
-    ssh-copy-id cephnode@$i
-done
-
-user:~$ vi .ssh/config
-Host node01
-   Hostname node01
-   User cephnode
-Host node02
-   Hostname node02
-   User cephnode
-Host node03
-   Hostname node03
-   User cephnode
-
-user:~$ mkdir ceph-cluster && cd ceph-cluster
-user:ceph-cluster$ ceph-deploy purge node01 node02 node03
-user:ceph-cluster$ ceph-deploy purgedata node01 node02 node03
-user:ceph-cluster$ ceph-deploy forgetkeys
-user:ceph-cluster$ rm ceph*
-user:ceph-cluster$ ceph-deploy new node01
-user:ceph-cluster$ ceph-deploy install node01 node02 node03
-user:ceph-cluster$ ceph-deploy mon create-initial
-user:ceph-cluster$ ceph-deploy admin node01 node02 node03
-user:ceph-cluster$ ceph-deploy mgr create node01
-user:ceph-cluster$ for i in node01 node02 node03;
-do
-    ceph-deploy osd create --data /dev/sdb $i
-done
-
-user:ceph-cluster$ ceph-deploy mds create node01
-user:ceph-cluster$ ceph-deploy rgw create node01
-
-* At distibut node Create block storage ---------------------------------------------
-user:~$ sudo chown -R rsnet.rsnet /etc/ceph
-user:~$ ceph -s
-user:~$ ceph osd pool create rbd 16
-user:~$ rbd pool init rbd
-user:~$ rbd create foo --size 4096 --image-feature layering
-user:~$ sudo rbd map foo --name client.admin
-
-* At distibut node Create file storage ---------------------------------------------
-user:~$ ceph osd pool create cephfs_data 16
-user:~$ ceph osd pool create cephfs_metadata 16
-user:~$ ceph fs new filesystem cephfs_metadata cephfs_data
-user:~$ ceph auth get client.admin
-
-* Using distibut node at client ---------------------------------------------
-root:~$ vi /root/admin.secret
-AQB9Sctey0pxLxAAfTRtV8TLe3IbXXOkID131w==
-root:~$ mkdir /mnt/ceph
-root:~$ mount -t ceph 192.168.0.211:6789:/ /mnt/ceph/ -o name=admin,secretfile=/root/admin.secret
-
-
-#########################################################################################
-###                                  Sublime Text 3                                   ###
-#########################################################################################
-* Install Sublime Text 3 ----------------------------------------------------------------
-user:~$ wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
-user:~$ sudo apt-get install apt-transport-https
-user:~$ echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
-user:~$ sudo apt update
-user:~$ sudo apt install sublime-text sublime-merge
-
-
-* Setting Up Sublime Text 3 Plugins -----------------------------------------------------
-1. SideBarEnhanceinsments
-    > site : https://github.com/titoBouzout/SideBarEnhancements
-    > Sidebar에 대해 확장기능 플러그인.
-
-2. Emmet
-    > site : https://github.com/sergeche/emmet-sublime
-    > HTML 및 CSS 작업을 도와주는 플러그인.
-
-3. SFTP
-    > site : http://wbond.net/sublime_packages/sftp
-    > sftp를 통해 서버와 파일 교환을 도와주는 플러그인.
-
-4. AutoBackups
-    > site : https://github.com/akalongman/sublimetext-autobackups
-    > 편집하는 문서들에 대해 자동으로 백업을 해 주는 플러그인.
-        {
-            "backup_dir": "/data/workspace/backup/sublime",
-        }
-
-5. SublimeCodeIntel
-    > site : https://github.com/SublimeCodeIntel/SublimeCodeIntel
-    > 소스코드에 intelligence 기능과 smart autocomplete 기능을 지원하는 플러그인.
-    > Key For Linux:
-        - Jump to definition = ``Super+Click``
-        - Jump to definition = ``Control+Super+Alt+Up``
-        - Go back = ``Control+Super+Alt+Left``
-        - Manual CodeIntel = ``Control+Shift+space``
-    > Key For Windows:
-        - Jump to definition = ``Alt+Click``
-        - Jump to definition = ``Control+Windows+Alt+Up``
-        - Go back = ``Control+Windows+Alt+Left``
-        - Manual CodeIntel = ``Control+Shift+space``
-
-6. DocBlockr
-    > site : https://github.com/spadgos/sublime-jsdocs
-    > 함수들의 주석문 template을 자동으로 생성.
-
-7. DocBlockr Python
-    > site : https://github.com/adambullmer/sublime_docblockr_python
-    > 함수들의 주석문 template을 자동으로 생성.
-
-8. AdvancedNewFile
-    > site : https://github.com/skuroda/Sublime-AdvancedNewFile
-    > 새파일을 만들게 해 주는 플러그인.
-
-9. Terminality & Terminal
-    > ctrl + alt + r : 터미널을 sublime text 안에서 열어 줌.
-    > ctrl + shift + t : 시스템 터미널을 현재 파일 디렉토리에서 열어 줌.
-
-10. Pretty JSON & HTML-CSS-JS Prettify
-    > 문서 포맷을 예쁘게 만들어 줌.
-
-11. Compare Side-By-Side
-    > 2개의 문서를 비교해서 틀린부분을 보여줌.
-
-12. GitSavvy
-    > git 사용을 도와주는 플러그인.
-    > 기본 설정.
-        - git config --global user.email "you@example.com"
-        - git config --global user.name "Your Name"
-
-13. materialize & soda
-    > site : https://github.com/saadq/Materialize
-    > UI 테마
-    > setting
-        "color_scheme": "Packages/Materialize/schemes/Material Monokai Soda.tmTheme",
-        "theme": "Soda Dark 3.sublime-theme",
-        "font_face": "D2Coding",
-        "font_size": 13,
-        "line_padding_bottom": 2,
-        "line_padding_top": 2,
-        "margin": 0,
-        "material_theme_compact_panel": true,
-        "material_theme_compact_sidebar": true,
-        "material_theme_contrast_mode": true,
-        "material_theme_small_statusbar": true,
-        "material_theme_small_tab": true,
-        "material_theme_tabs_autowidth": true,
-        "overlay_scroll_bars": "enabled",
-        "indent_guide_options": [ "draw_normal", "draw_active" ]
-
-
-#########################################################################################
-###                                     Terminator                                    ###
-#########################################################################################
-* Install -------------------------------------------------------------------------------
-user:~$ sudo apt install -y terminator
-
-
-* Useage --------------------------------------------------------------------------------
-Toggle fullscreen                          : F11.
-Split terminals horizontally               : Ctrl + Shift + O.
-Split terminals vertically                 : Ctrl + Shift + E.
-Close current Panel                        : Ctrl + Shift + W.
-Open new tab                               : Ctrl + Shift + T.
-Move to the terminal above the current one : Alt + ↑
-Move to the terminal below the current one : Alt + ↓
 
 
 #########################################################################################
@@ -275,14 +19,14 @@ Move to the terminal below the current one : Alt + ↓
   > kubeflow 1.0 == docker-ce-18.09.8 + Kubernetes 1.15
 
 * Docker & Docker-Compose Install -------------------------------------------------------
-user:~$ sudo apt install apt-transport-https ca-certificates curl software-properties-common
-user:~$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-user:~$ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
-user:~$ sudo apt update
-user:~$ sudo apt install -y docker-ce=5:18.09.9~3-0~ubuntu-bionic docker-ce-cli=5:18.09.9~3-0~ubuntu-bionic containerd.io=1.2.10-3
-user:~$ sudo apt-mark hold docker-ce docker-ce-cli
-user:~$ sudo usermod -aG docker $USER
-user:~$ sudo apt install -y docker-compose
+user:~$ sudo apt install -y apt-transport-https ca-certificates curl software-properties-common \
+     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - \
+     && sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" \
+     && sudo apt update \
+     && sudo apt install -y docker-ce=5:18.09.9~3-0~ubuntu-bionic docker-ce-cli=5:18.09.9~3-0~ubuntu-bionic containerd.io=1.2.10-3 \
+     && sudo apt-mark hold docker-ce docker-ce-cli \
+     && sudo usermod -aG docker $USER \
+     && sudo apt install -y docker-compose
 
 
 * Nvidia-Docker Install ----------------------------------------------------------------
@@ -306,17 +50,19 @@ user:~$ sudo vi /etc/docker/daemon.json
         }
     }
 }
-user:~$ sudo systemctl daemon-reload
-user:~$ sudo systemctl restart docker
+user:~$ sudo systemctl daemon-reload \
+     && sudo systemctl restart docker
+
+
 
 
 #########################################################################################
 ###                            Kubernetes For Kubeflow 1.0                            ###
 #########################################################################################
 * swap & sysctl settings for Kubernetes networking --------------------------------------
-root:~$ swapoff -a
-root:~$ sed -i '/swap/d' /etc/fstab
-root:~$ cat >>/etc/sysctl.d/kubernetes.conf<<EOF
+root:~$ swapoff -a \
+     && sed -i '/swap/d' /etc/fstab \
+     && cat >>/etc/sysctl.d/kubernetes.conf<<EOF
 net.bridge.bridge-nf-call-iptables  = 1
 net.ipv4.ip_forward                 = 1
 net.bridge.bridge-nf-call-ip6tables = 1
@@ -333,9 +79,9 @@ root:~$ vi /etc/docker/daemon.json
     "storage-driver": "overlay2"
 }
 
-root# mkdir -p /etc/systemd/system/docker.service.d
-root# systemctl daemon-reload
-root# systemctl restart docker
+root:~$ mkdir -p /etc/systemd/system/docker.service.d \
+     && systemctl daemon-reload \
+     && systemctl restart docker
 
 
 * Install Kubernetes --------------------------------------------------------------------
@@ -343,9 +89,11 @@ root:~$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key 
 root:~$ cat <<EOF > /etc/apt/sources.list.d/kubernetes.list
 deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF
-root:~$ apt update
-root:~$ apt install -y kubelet=1.15.7-00 kubeadm=1.15.7-00 kubectl=1.15.7-00
-root:~$ apt-mark hold kubelet kubeadm kubectl
+root:~$ apt update \
+     && apt install -y kubelet=1.15.7-00 kubeadm=1.15.7-00 kubectl=1.15.7-00 \
+     && apt-mark hold kubelet kubeadm kubectl
+
+
 
 
 #########################################################################################
@@ -517,6 +265,8 @@ user:~$ kubectl apply -f recommended.yaml
 user:~$ kubectl get svc --all-namespaces
 
 
+
+
 #########################################################################################
 ###                            NGINX Ingress Using Helm 3                             ###
 #########################################################################################
@@ -529,6 +279,19 @@ user:~$ helm install rs stable/nginx-ingress \
     --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux
 user:~$ kubectl get service -l app=nginx-ingress --namespace kube-system
 user:~$ kubectl patch svc rs-nginx-ingress-controller -n kube-system -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
+
+
+
+
+#########################################################################################
+###                               Local Path Provisioner                              ###
+#########################################################################################
+* Install -------------------------------------------------------------------------------
+user:~$ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml \
+     && kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' \
+     && kubectl get storageclass
+
+
 
 
 #########################################################################################
@@ -557,6 +320,8 @@ user:~$ kc apply -f csi/cephfs/storageclass.yaml \
 user:~$ kubectl patch storageclass rook-cephfs -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 
 
+
+
 #########################################################################################
 ###                                      Kubeflow                                     ###
 #########################################################################################
@@ -565,6 +330,7 @@ user:~$ sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
 - --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
 - --service-account-issuer=kubernetes.default.svc
 user:~$ watch kubectl get pod --all-namespaces
+
 
 * Kubeflow Install ----------------------------------------------------------------------
 user:~$ rm -rf kfctl* \
@@ -580,7 +346,7 @@ user:~$ rm -rf kfctl* \
      && cd ${KF_DIR} \
      && rm -rf * \
      && kfctl apply -V -f ${CONFIG_URI}
-user:~$ watch kubectl get all -n kubeflow
+user:~$ watch kubectl get all -n kubeflow -o wide
 user:~$ nohup kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80 &
 
 
@@ -657,17 +423,6 @@ user:~$ helm repo update
 user:~$ kubectl create namespace cattle-system
 user:~$ helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=rancher.realstudy.net
 user:~$ kubectl -n cattle-system rollout status deploy/rancher
-
-
-
-
-#########################################################################################
-###                               Local Path Provisioner                              ###
-#########################################################################################
-* Install -------------------------------------------------------------------------------
-user:~$ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml \
-     && kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' \
-     && kubectl get storageclass
 
 
 
