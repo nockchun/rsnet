@@ -1,0 +1,160 @@
+#########################################################################################
+###                              Drivers & Basic Settings                             ###
+#########################################################################################
+* Add Nvidia Driver Repository ----------------------------------------------------------
+user:~$ sudo add-apt-repository ppa:graphics-drivers/ppa
+user:~$ curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+user:~$ sudo apt update
+
+
+* bluetooth repogitory ------------------------------------------------------------------
+user:~$ sudo add-apt-repository ppa:bluetooth/bluez
+
+
+* iOS connect drivers -------------------------------------------------------------------
+user:~$ sudo apt install libimobiledevice-dev libimobiledevice-utils libgpod-dev
+
+
+* Network Config : netPlan --------------------------------------------------------------
+root:~$ vi /etc/netplan/01-netcfg.yaml
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s3:
+      dhcp4: no
+      dhcp6: no
+      addresses: [10.10.1.101/24]
+      gateway4: 10.10.1.1
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
+root:~$ netplan apply
+
+
+* Install Basic Library -----------------------------------------------------------------
+user:~$ sudo apt install vim openssh-server build-essential
+
+
+* Install Fons --------------------------------------------------------------------------
+user:~$ sudo apt-get install fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts-nanum fonts-nanum-coding fonts-nanum-extra \
+     && wget https://github.com/naver/d2codingfont/releases/download/VER1.21/D2Coding-1.2.zip \
+     && sudo mkdir /usr/share/fonts/truetype/D2Coding \
+     && sudo unzip D2Coding-1.2.zip -d /usr/share/fonts/truetype/D2Coding/ \
+     && sudo rm -rf /usr/share/fonts/truetype/D2Coding/__MACOSX \
+     && sudo fc-cache -f -v
+
+
+* MAC Them ------------------------------------------------------------------------------
+URL : https://manjaro.site/make-linux-mint-19-looks-like-mac-os-x-mojave
+
+
+* Terminal Them With Powerline ----------------------------------------------------------
+root:~$ apt install powerline python-pip python-setuptools fonts-powerline fontconfig \
+     && pip install git+git://github.com/Lokaltog/powerline \
+     && wget https://github.com/Lokaltog/powerline/raw/develop/font/PowerlineSymbols.otf \
+     && wget https://github.com/Lokaltog/powerline/raw/develop/font/10-powerline-symbols.conf \
+     && mv PowerlineSymbols.otf /usr/share/fonts/ \
+     && fc-cache -vf \
+     && mv 10-powerline-symbols.conf /etc/fonts/conf.d/
+
+root:~$ vi /etc/bash.bashrc
+if [ -f /usr/local/lib/python2.7/dist-packages/powerline/bindings/bash/powerline.sh ]; then
+    source /usr/local/lib/python2.7/dist-packages/powerline/bindings/bash/powerline.sh
+fi
+
+
+* Vi Editor (~/.vimrc) ------------------------------------------------------------------
+root:~$ cat > /etc/vim/vimrc << EOF
+set number
+set tabstop=4
+set shiftwidth=4
+set showmatch
+set title
+set hlsearch
+set fileencodings=utf-8,euc-kr
+set ruler
+set title
+set statusline=\ %<%l:%v\ [%P]%=%a\ %h%m%r\ %F\
+set rtp+=/usr/local/lib/python2.7/dist-packages/powerline/bindings/vim/
+set laststatus=2
+set t_Co=256
+
+syntax on
+EOF
+
+
+
+
+
+
+#########################################################################################
+###                                   X11 Forwarding                                  ###
+#########################################################################################
+root# vi /etc/ssh/sshd_config
+X11Forwarding yes
+X11DisplayOffset 10
+X11UseLocalhost no
+
+PrintMotd no
+PrintLastLog yes
+TCPKeepAlive yes
+UseLogin no
+
+root# systemctl restart sshd
+
+# At Windows
+1. Xming Install
+2. putty
+   * SSH > X11 > Enable X11 forwarding (check)
+   * X display location : localhost:0.0
+
+
+
+
+#########################################################################################
+###                                   Virtualbox 6                                    ###
+#########################################################################################
+user:~$ wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add - \
+     && echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian bionic contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list \
+     && sudo apt update
+user:~$ sudo apt install -y virtualbox-6.1
+
+
+
+
+#########################################################################################
+###                                    OBS Studio                                     ###
+#########################################################################################
+user:~$ sudo add-apt-repository ppa:obsproject/obs-studio
+user:~$ sudo apt install ffmpeg
+user:~$ sudo apt update
+user:~$ sudo apt install obs-studio
+
+
+
+
+#########################################################################################
+###                                     Kdenlive                                      ###
+#########################################################################################
+user:~$ sudo add-apt-repository ppa:kdenlive/kdenlive-stable
+user:~$ sudo apt update
+user:~$ sudo apt install frei0r-plugins dvgrab recordmydesktop dvdauthor mkisofs vlc
+user:~$ sudo apt install kdenlive
+
+
+
+
+#########################################################################################
+###                                Command CheatSheet                                 ###
+#########################################################################################
+* Check Memory --------------------------------------------------------------------------
+user:~$ sudo free -m
+
+* Drop Memory Cache ---------------------------------------------------------------------
+user:~$ sudo sysctl vm.drop_caches=3
+
+
+* Change Booting mode -------------------------------------------------------------------
+root:~$ systemctl set-default multi-user.target
+root:~$ systemctl set-default graphical.target 
+

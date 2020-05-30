@@ -1,74 +1,12 @@
 #########################################################################################
-###                              Drivers & Basic Settings                             ###
+###                                  Basic Settings                                   ###
 #########################################################################################
-* Add Nvidia Driver Repository ----------------------------------------------------------
-user:~$ sudo add-apt-repository ppa:graphics-drivers/ppa
-user:~$ curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
-user:~$ sudo apt update
-
-
-* Install Basic Library & Fons ----------------------------------------------------------
-user:~$ sudo apt install vim openssh-server build-essential
-
-user# sudo apt-get install fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts-nanum fonts-nanum-coding fonts-nanum-extra
-
-user:~$ wget https://github.com/naver/d2codingfont/releases/download/VER1.21/D2Coding-1.2.zip
-user:~$ sudo mkdir /usr/share/fonts/truetype/D2Coding
-user:~$ sudo unzip D2Coding-1.2.zip -d /usr/share/fonts/truetype/D2Coding/
-user:~$ sudo rm -rf /usr/share/fonts/truetype/D2Coding/__MACOSX
-user:~$ sudo fc-cache -f -v
-
-
 * Change Host Name & Hosts Info ---------------------------------------------------------
 root:~$ hostnamectl set-hostname node19
 root:~$ cat >> /etc/hosts << EOF
 10.10.1.101 master.lab master
 10.10.1.111 node01.lab node01
 10.10.1.112 node02.lab node02
-EOF
-
-
-* Change Booting mode -------------------------------------------------------------------
-root:~$ systemctl set-default multi-user.target
-root:~$ systemctl set-default graphical.target 
-
-
-* MAC Them ------------------------------------------------------------------------------
-URL : https://manjaro.site/make-linux-mint-19-looks-like-mac-os-x-mojave
-
-
-* Terminal Them With Powerline ----------------------------------------------------------
-root:~$ apt install powerline python-pip python-setuptools fonts-powerline fontconfig
-root:~$ pip install git+git://github.com/Lokaltog/powerline
-root:~$ wget https://github.com/Lokaltog/powerline/raw/develop/font/PowerlineSymbols.otf
-root:~$ wget https://github.com/Lokaltog/powerline/raw/develop/font/10-powerline-symbols.conf
-root:~$ mv PowerlineSymbols.otf /usr/share/fonts/
-root:~$ fc-cache -vf
-root:~$ mv 10-powerline-symbols.conf /etc/fonts/conf.d/
-
-root:~$ vi /etc/bash.bashrc
-if [ -f /usr/local/lib/python2.7/dist-packages/powerline/bindings/bash/powerline.sh ]; then
-    source /usr/local/lib/python2.7/dist-packages/powerline/bindings/bash/powerline.sh
-fi
-
-
-* Vi Editor (~/.vimrc) ------------------------------------------------------------------
-root:~$ cat > /etc/vim/vimrc << EOF
-set number
-set tabstop=4
-set shiftwidth=4
-set showmatch
-set title
-set hlsearch
-set fileencodings=utf-8,euc-kr
-set ruler
-set title
-set statusline=\ %<%l:%v\ [%P]%=%a\ %h%m%r\ %F\
-set rtp+=/usr/local/lib/python2.7/dist-packages/powerline/bindings/vim/
-set laststatus=2
-set t_Co=256
-
-syntax on
 EOF
 
 
