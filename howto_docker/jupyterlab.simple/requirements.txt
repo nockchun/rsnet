@@ -1,5 +1,15 @@
 kfp
 tfx
+nodejs
+numexpr
+psutil
 matplotlib
+more-itertools
+statsmodels
 seaborn
 xlrd
+celery
+ray
+ray[rllib]
+modin
+modin[ray]

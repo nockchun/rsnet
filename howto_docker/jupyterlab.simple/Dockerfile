@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:2.2.0-gpu
+FROM tensorflow/tensorflow:2.1.0-gpu
 LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
 
 # Install system packages
@@ -19,7 +19,8 @@ RUN apt install -y unzip fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fo
  && fc-cache -f -v
 
 # Create Jupyterlab Environments
-RUN pip install --upgrade pip setuptools jupyterlab==1.2.0 \
+RUN pip install --upgrade pip setuptools pytest nodejs ipykernel ipympl ipysheet ipytest ipyvolume ipywidgets kubeflow-kale urllib3==1.24.3 \
+        nbformat==4.4.0 jupyterlab_code_formatter jupyter_contrib_nbextensions jupyter_nbextensions_configurator jupyterlab==1.2.0 \
  && jupyter notebook --generate-config \
  && jupyter serverextension enable --py jupyterlab --sys-prefix \
  && jupyter labextension install @jupyter-widgets/jupyterlab-manager \
@@ -32,7 +33,7 @@ RUN pip install --upgrade pip setuptools jupyterlab==1.2.0 \
     @jupyterlab/pdf-extension @jupyterlab/rendermime-extension @jupyterlab/running-extension @jupyterlab/settingeditor-extension \
     @jupyterlab/shortcuts-extension @jupyterlab/statusbar-extension @jupyterlab/tabmanager-extension @jupyterlab/terminal-extension \
     @jupyterlab/theme-dark-extension @jupyterlab/theme-light-extension @jupyterlab/tooltip-extension @jupyterlab/ui-components-extension \
-    @jupyterlab/vdom-extension @jupyterlab/vega5-extension
+    @jupyterlab/vdom-extension kubeflow-kale-launcher
 RUN jupyter labextension install jupyter-matplotlib @jupyterlab/fasta-extension @jupyterlab/toc @jupyterlab/mathjax3-extension \
     @jupyterlab/geojson-extension @jupyterlab/katex-extension @lckr/jupyterlab_variableinspector
 
