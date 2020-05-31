@@ -22,14 +22,18 @@ RUN apt install -y unzip fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fo
 RUN pip install --upgrade pip setuptools jupyterlab==1.2.0 \
  && jupyter notebook --generate-config \
  && jupyter serverextension enable --py jupyterlab --sys-prefix \
- && jupyter labextension install @jupyter-widgets/jupyterlab-manager @jupyterlab/application-extension @jupyterlab/apputils-extension \
+ && jupyter labextension install @jupyter-widgets/jupyterlab-manager@2 \
+    @jupyterlab/application-extension @jupyterlab/apputils-extension @jupyterlab/codemirror-extension @jupyterlab/completer-extension \
+    @jupyterlab/console-extension @jupyterlab/csvviewer-extension @jupyterlab/docmanager-extension @jupyterlab/documentsearch-extension \
     @jupyterlab/extensionmanager-extension @jupyterlab/filebrowser-extension @jupyterlab/fileeditor-extension @jupyterlab/help-extension \
-    @jupyterlab/imageviewer-extension @jupyterlab/inspector-extension @jupyterlab/json-extension @jupyterlab/launcher-extension @jupyterlab/logconsole-extension \
-    @jupyterlab/markdownviewer-extension @jupyterlab/mathjax2-extension @jupyterlab/pdf-extension @jupyterlab/settingeditor-extension \
+    @jupyterlab/htmlviewer-extension @jupyterlab/hub-extension @jupyterlab/imageviewer-extension @jupyterlab/inspector-extension \
+    @jupyterlab/javascript-extension @jupyterlab/json-extension @jupyterlab/launcher-extension @jupyterlab/logconsole-extension \
+    @jupyterlab/mainmenu-extension @jupyterlab/markdownviewer-extension @jupyterlab/mathjax2-extension @jupyterlab/notebook-extension \
+    @jupyterlab/pdf-extension @jupyterlab/rendermime-extension @jupyterlab/running-extension @jupyterlab/settingeditor-extension \
     @jupyterlab/shortcuts-extension @jupyterlab/statusbar-extension @jupyterlab/tabmanager-extension @jupyterlab/terminal-extension \
     @jupyterlab/theme-dark-extension @jupyterlab/theme-light-extension @jupyterlab/tooltip-extension @jupyterlab/ui-components-extension \
-    kubeflow-kale-launcher \
- && jupyter labextension install jupyter-matplotlib @jupyterlab/fasta-extension @jupyterlab/toc @jupyterlab/mathjax3-extension \
+    @jupyterlab/vdom-extension @jupyterlab/vega5-extension
+RUN jupyter labextension install jupyter-matplotlib @jupyterlab/fasta-extension @jupyterlab/toc @jupyterlab/mathjax3-extension \
     @jupyterlab/geojson-extension @jupyterlab/katex-extension @lckr/jupyterlab_variableinspector
 
 # Install Required Library
@@ -52,5 +56,5 @@ VOLUME /notebooks
 RUN chown -R $NB_USER.$NB_USER /notebooks
 
 USER $NB_USER
-ENTRYPOINT ["tini", "-g", "--"]
+# ENTRYPOINT ["tini", "-g", "--"]
 CMD ["sh","-c", "jupyter lab --notebook-dir=/home/jovyan --ip=0.0.0.0 --no-browser --allow-root --port=8888 --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.base_url=${NB_PREFIX}"]
