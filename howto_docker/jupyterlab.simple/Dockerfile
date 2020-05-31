@@ -22,7 +22,7 @@ RUN apt install -y unzip fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fo
 RUN pip install --upgrade pip setuptools jupyterlab==1.2.0 \
  && jupyter notebook --generate-config \
  && jupyter serverextension enable --py jupyterlab --sys-prefix \
- && jupyter labextension install @jupyter-widgets/jupyterlab-manager@2 \
+ && jupyter labextension install @jupyter-widgets/jupyterlab-manager \
     @jupyterlab/application-extension @jupyterlab/apputils-extension @jupyterlab/codemirror-extension @jupyterlab/completer-extension \
     @jupyterlab/console-extension @jupyterlab/csvviewer-extension @jupyterlab/docmanager-extension @jupyterlab/documentsearch-extension \
     @jupyterlab/extensionmanager-extension @jupyterlab/filebrowser-extension @jupyterlab/fileeditor-extension @jupyterlab/help-extension \
