@@ -432,10 +432,10 @@ user:~$ kubectl -n cattle-system rollout status deploy/rancher
 #########################################################################################
 * Public Docker-hub Usage ---------------------------------------------------------------
 user:~$ docker login
-user:~$ docker build -t <dockerhub_id>/<image_name>:<version> .
-  > ex: docker build -t nockchun/docterm:v1 .
+user:~$ docker tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]
+  > ex: docker tag docterm:last nockchun/docterm:1.0
 user:~$ docker push <dockerhub_id>/<image_name>:<version>
-  > ex: docker push nockchun/docterm:v1 .
+  > ex: docker push nockchun/docterm:1.0
 
 
 * Private Docker-hub Install ------------------------------------------------------------

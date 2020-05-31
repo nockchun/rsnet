@@ -1,5 +1,5 @@
 FROM nvidia/cuda:10.1-base-ubuntu18.04
-MAINTAINER RealStudy.NET <nockchun@gmail.com>
+LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
 
 ARG NB_USER="rsnet"
 ARG NB_UID="1000"

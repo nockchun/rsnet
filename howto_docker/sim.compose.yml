@@ -3,11 +3,11 @@ version: "3.4"
 services:
     jupyterlab:
         build:
-            context: ./jupyterlab.kubeflow
+            context: ./jupyterlab.simple
             dockerfile: Dockerfile
-        image: jupyterlab.kubeflow
+        image: jupyterlab.simple
         # image: 192.168.0.101:5000/jupyterlab:1.0
-        container_name: jupyterlab
+        container_name: jupyterlab.simple
         hostname: jupyterlab
         restart: always
         # network_mode: host
