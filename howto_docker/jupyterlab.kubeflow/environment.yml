@@ -3,12 +3,13 @@ channels:
   - anaconda
   - bioconda
 dependencies:
+  - matplotlib
+  - seaborn
   - celery
   - ray
   - ray[rllib]
-  - modin
-  - modin[ray]
-  # - pip
-  # - pip:
+  - pip:
+    - modin
+    - modin[ray]
   #   - gym
   #   - gym[atari]
