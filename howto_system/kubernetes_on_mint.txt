@@ -9,6 +9,16 @@ root:~$ cat >> /etc/hosts << EOF
 10.10.1.112 node02.lab node02
 EOF
 
+* Bash Function For ssh tunnel ----------------------------------------------------------
+user:~$ vi .bashrc
+tunnelfunction() {
+  pkill -9 -ef asa@master
+
+  ssh -f -N asa@master -L9901:localhost:8001
+  ssh -f -N asa@master -L9902:localhost:8080
+  ssh -f -N asa@master -L9903:localhost:5601
+}
+
 
 
 
