@@ -3,7 +3,8 @@ LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
 
 
 # Setup OS Base System Packages
-RUN apt update --fix-missing \
+RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
+ && apt update --fix-missing && apt clean && apt update \
  && apt install -y --no-install-recommends wget git curl bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 \
         sudo locales fonts-liberation vim net-tools openssh-client graphviz libgl1-mesa-glx libhdf5-dev openmpi-bin \
         autoconf automake dpkg-dev file g++ gcc imagemagick libbz2-dev libc6-dev libcurl4-openssl-dev libdb-dev cmake \
@@ -66,9 +67,11 @@ RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERS
 # Install Basic Conda Library
 RUN chown -R $NB_USER.$NB_USER $CONDA_DIR \
  && conda update -y pip setuptools \
- && conda install -c conda-forge --yes google-resumable-media==0.4.1 dill=0.3.0 pandas==0.25.3 httplib2==0.12.0 \
-                  ipykernel pyyaml==3.13 networkx python-graphviz pyflakes autopep8 ipywidgets tensorflow-gpu==2.1 kfp
-# && conda install -c pytorch --yes pytorch torchvision cudatoolkit=10.2
+ && conda install -c conda-forge --yes google-resumable-media dill pandas httplib2 \
+                  ipykernel pyyaml networkx python-graphviz pyflakes autopep8 ipywidgets tensorflow-gpu==2.1 kfp
+ # && conda install -c conda-forge --yes google-resumable-media==0.4.1 dill=0.3.0 pandas==0.25.3 httplib2==0.12.0 \
+ #                  ipykernel pyyaml==3.13 networkx python-graphviz pyflakes autopep8 ipywidgets tensorflow-gpu==2.1 kfp \
+ # && conda install -c pytorch --yes pytorch torchvision cudatoolkit=10.2
 RUN pip install -U --no-deps tfx==0.21.4 --ignore-installed PyYAML
 
 
