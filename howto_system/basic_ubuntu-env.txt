@@ -4,6 +4,7 @@
 * Check Memory --------------------------------------------------------------------------
 user:~$ sudo free -m
 
+
 * Drop Memory Cache ---------------------------------------------------------------------
 user:~$ sudo sysctl vm.drop_caches=3
 
@@ -12,6 +13,15 @@ user:~$ sudo sysctl vm.drop_caches=3
 root:~$ systemctl set-default multi-user.target
 root:~$ systemctl set-default graphical.target 
 
+
+* Change Default Python Version On Linux ------------------------------------------------
+root# update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+root# update-alternatives --install /usr/bin/python python /usr/bin/python3 2
+root# update-alternatives --config python
+
+
+* Repository Mirror Setting -------------------------------------------------------------
+sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list
 
 
 
