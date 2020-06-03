@@ -21,7 +21,7 @@ services:
         networks:
             - rsnet
         volumes:
-            - /data/notebooks:/home/jovyan/notebooks
+            - /data/notebooks:/home/jovyan
             - /data/notebooks/ml_data:/ml_data
             - /data/notebooks/tensorboard:/tensorboard
         command:
