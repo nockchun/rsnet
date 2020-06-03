@@ -373,6 +373,33 @@ user:~$ cd ${KF_DIR}
 user:~$ kfctl delete -f ${CONFIG_FILE}
 
 
+* Expose with a loadbalancer (istio-ingress) --------------------------------------------
+user:~$ kubectl patch service -n istio-system istio-ingressgateway -p '{"spec": {"type": "LoadBalancer", "externalIPs":["172.19.98.40"]}}'
+
+user:~$ cat <<EOF | kubectl apply -f -
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: istio-ingressgateway-certs
+  namespace: istio-system
+spec:
+  commonName: istio-ingressgateway.istio-system.svc
+  # Use ipAddresses if your LoadBalancer issues an IP
+  ipAddresses:
+  - <LoadBalancer IP>
+  # Use dnsNames if your LoadBalancer issues a hostname (eg on AWS)
+  dnsNames:
+  - <LoadBalancer HostName>
+  isCA: true
+  issuerRef:
+    kind: ClusterIssuer
+    name: kubeflow-self-signing-issuer
+  secretName: istio-ingressgateway-certs
+EOF
+
+
+
+
 #########################################################################################
 ###                                   Elasticsearch                                   ###
 #########################################################################################
