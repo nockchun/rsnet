@@ -469,7 +469,7 @@ user:~$ kubectl -n cattle-system rollout status deploy/rancher
 #########################################################################################
 * Public Docker-hub Usage ---------------------------------------------------------------
 user:~$ docker login
-user:~$ docker tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]
+user:~$ docker tag SOURCE_IMAGE[:TAG] DOCKER HUB ID/TARGET_IMAGE[:TAG]
   > ex: docker tag docterm:last nockchun/docterm:1.0
 user:~$ docker push <dockerhub_id>/<image_name>:<version>
   > ex: docker push nockchun/docterm:1.0
