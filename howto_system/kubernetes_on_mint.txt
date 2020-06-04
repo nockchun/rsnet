@@ -178,6 +178,87 @@ user:~$ helm repo add stable https://kubernetes-charts.storage.googleapis.com \
      && helm search repo stable
 
 
+
+
+#########################################################################################
+###                               Local Path Provisioner                              ###
+#########################################################################################
+* Install -------------------------------------------------------------------------------
+user:~$ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml \
+     && kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' \
+     && kubectl get storageclass
+
+
+
+
+#########################################################################################
+###                                      Kubeflow                                     ###
+#########################################################################################
+* Service Account Token Volume Projection -----------------------------------------------
+user:~$ sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
+- --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
+- --service-account-issuer=kubernetes.default.svc
+user:~$ watch kubectl get pod --all-namespaces
+
+
+* Kubeflow Install ----------------------------------------------------------------------
+user:~$ rm -rf kfctl* \
+     && wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz \
+     && tar xfv kfctl_v1.0.2-0-ga476281_linux.tar.gz \
+     && sudo mv kfctl /usr/local/bin/ \
+     && export KF_NAME=kubeflow \
+     && export BASE_DIR=/opt \
+     && export KF_DIR=${BASE_DIR}/${KF_NAME} \
+     && export CONFIG_URI="https://raw.githubusercontent.com/kubeflow/manifests/v1.0-branch/kfdef/kfctl_istio_dex.v1.0.2.yaml" \
+     && sudo mkdir -p ${KF_DIR} \
+     && sudo chown $USER.$GROUP ${KF_DIR} \
+     && cd ${KF_DIR} \
+     && rm -rf * \
+     && kfctl apply -V -f ${CONFIG_URI}
+user:~$ watch kubectl get all -n kubeflow -o wide
+user:~$ nohup kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80 &
+
+
+* SSH-Tunneling at client ----------------------------------------------------------------
+user:~$ ssh -f -N rsnet@master -L9902:localhost:8080
+>>> Connection
+  > URL : http://localhost:9902
+  > ID/PASS : admin@kubeflow.org / 12341234
+
+
+* Delete Kubeflow -----------------------------------------------------------------------
+user:~$ export CONFIG_FILE=${KF_DIR}/kfctl_istio_dex.v1.0.2.yaml
+user:~$ cd ${KF_DIR}
+user:~$ kfctl delete -f ${CONFIG_FILE}
+
+
+* Expose with a loadbalancer (istio-ingress) --------------------------------------------
+user:~$ kubectl patch service -n istio-system istio-ingressgateway -p '{"spec": {"type": "LoadBalancer", "externalIPs":["172.19.98.40"]}}'
+
+user:~$ cat <<EOF | kubectl apply -f -
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: istio-ingressgateway-certs
+  namespace: istio-system
+spec:
+  commonName: istio-ingressgateway.istio-system.svc
+  # Use ipAddresses if your LoadBalancer issues an IP
+  ipAddresses:
+  - <LoadBalancer IP>
+  # Use dnsNames if your LoadBalancer issues a hostname (eg on AWS)
+  dnsNames:
+  - <LoadBalancer HostName>
+  isCA: true
+  issuerRef:
+    kind: ClusterIssuer
+    name: kubeflow-self-signing-issuer
+  secretName: istio-ingressgateway-certs
+EOF
+
+
+
+
 #########################################################################################
 ###                                Kubernetes Dashboard                               ###
 #########################################################################################
@@ -281,25 +362,15 @@ user:~$ kubectl get svc --all-namespaces
 ###                            NGINX Ingress Using Helm 3                             ###
 #########################################################################################
 * Install using Helm 3 ------------------------------------------------------------------
-user:~$ helm install rs stable/nginx-ingress \
-    --namespace kube-system \
+user:~$ kubectl create namespace nginx-ingress
+user:~$ helm install rsingress stable/nginx-ingress \
+    --namespace nginx-ingress \
     --set controller.replicaCount=2 \
     --set controller.publishService.enabled=true \
     --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
     --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux
-user:~$ kubectl get service -l app=nginx-ingress --namespace kube-system
-user:~$ kubectl patch svc rs-nginx-ingress-controller -n kube-system -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
-
-
-
-
-#########################################################################################
-###                               Local Path Provisioner                              ###
-#########################################################################################
-* Install -------------------------------------------------------------------------------
-user:~$ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml \
-     && kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' \
-     && kubectl get storageclass
+user:~$ kubectl get service -l app=nginx-ingress --namespace nginx-ingress
+user:~$ kubectl patch svc rsingress-nginx-ingress-controller -n nginx-ingress -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
 
 
 
@@ -333,74 +404,6 @@ user:~$ kubectl patch storageclass rook-cephfs -p '{"metadata": {"annotations":{
 
 
 #########################################################################################
-###                                      Kubeflow                                     ###
-#########################################################################################
-* Service Account Token Volume Projection -----------------------------------------------
-user:~$ sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
-- --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
-- --service-account-issuer=kubernetes.default.svc
-user:~$ watch kubectl get pod --all-namespaces
-
-
-* Kubeflow Install ----------------------------------------------------------------------
-user:~$ rm -rf kfctl* \
-     && wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz \
-     && tar xfv kfctl_v1.0.2-0-ga476281_linux.tar.gz \
-     && sudo mv kfctl /usr/local/bin/ \
-     && export KF_NAME=kubeflow \
-     && export BASE_DIR=/opt \
-     && export KF_DIR=${BASE_DIR}/${KF_NAME} \
-     && export CONFIG_URI="https://raw.githubusercontent.com/kubeflow/manifests/v1.0-branch/kfdef/kfctl_istio_dex.v1.0.2.yaml" \
-     && sudo mkdir -p ${KF_DIR} \
-     && sudo chown $USER.$GROUP ${KF_DIR} \
-     && cd ${KF_DIR} \
-     && rm -rf * \
-     && kfctl apply -V -f ${CONFIG_URI}
-user:~$ watch kubectl get all -n kubeflow -o wide
-user:~$ nohup kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80 &
-
-
-* SSH-Tunneling at client ----------------------------------------------------------------
-user:~$ ssh -f -N rsnet@master -L9902:localhost:8080
->>> Connection
-  > URL : http://localhost:9902
-  > ID/PASS : admin@kubeflow.org / 12341234
-
-
-* Delete Kubeflow -----------------------------------------------------------------------
-user:~$ export CONFIG_FILE=${KF_DIR}/kfctl_istio_dex.v1.0.2.yaml
-user:~$ cd ${KF_DIR}
-user:~$ kfctl delete -f ${CONFIG_FILE}
-
-
-* Expose with a loadbalancer (istio-ingress) --------------------------------------------
-user:~$ kubectl patch service -n istio-system istio-ingressgateway -p '{"spec": {"type": "LoadBalancer", "externalIPs":["172.19.98.40"]}}'
-
-user:~$ cat <<EOF | kubectl apply -f -
-apiVersion: cert-manager.io/v1alpha2
-kind: Certificate
-metadata:
-  name: istio-ingressgateway-certs
-  namespace: istio-system
-spec:
-  commonName: istio-ingressgateway.istio-system.svc
-  # Use ipAddresses if your LoadBalancer issues an IP
-  ipAddresses:
-  - <LoadBalancer IP>
-  # Use dnsNames if your LoadBalancer issues a hostname (eg on AWS)
-  dnsNames:
-  - <LoadBalancer HostName>
-  isCA: true
-  issuerRef:
-    kind: ClusterIssuer
-    name: kubeflow-self-signing-issuer
-  secretName: istio-ingressgateway-certs
-EOF
-
-
-
-
-#########################################################################################
 ###                                   Elasticsearch                                   ###
 #########################################################################################
 ※ REF SITE : https://github.com/elastic/helm-charts
@@ -415,6 +418,7 @@ user:~$ helm repo add elastic https://helm.elastic.co \
      && helm repo update \
      && helm search hub elasticsearch \
      && helm install elasticsearch elastic/elasticsearch -f elastic_values.yaml --namespace elk
+user:~$ watch kubectl get all -n elk -o wide
 user:~$ kubectl port-forward -n elk svc/elasticsearch-master 9200:9200 &
 user:~$ curl http://localhost:9200/
 
@@ -468,14 +472,17 @@ user:~$ ssh -f -N rsnet@master -L9904:localhost:9080
 #########################################################################################
 ※ probably already installed if cuberflow was installed.
 
-user:~$ kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.0/cert-manager.crds.yaml
-user:~$ kubectl label namespace kube-system certmanager.k8s.io/disable-validation=true
-user:~$ helm repo add jetstack https://charts.jetstack.io
-user:~$ helm repo update
+user:~$ kubectl create namespace cert-manager
+
+user:~$ helm repo add jetstack https://charts.jetstack.io \
+     && helm repo update \
+     && kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.1/cert-manager.crds.yaml
 user:~$ helm install cert-manager jetstack/cert-manager \
-    --namespace kube-system \
-    --version v0.15.0
-user:~$ kubectl get pods --namespace kube-system
+    --namespace cert-manager \
+    --version v0.15.1
+user:~$ kubectl get pods --namespace cert-manager
+
+
 
 
 #########################################################################################

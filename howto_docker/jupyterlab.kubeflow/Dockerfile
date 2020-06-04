@@ -69,14 +69,10 @@ RUN chown -R $NB_USER.$NB_USER $CONDA_DIR \
  && conda update -y pip setuptools \
  && conda install -c conda-forge --yes google-resumable-media dill pandas httplib2 \
                   ipykernel pyyaml networkx python-graphviz pyflakes autopep8 ipywidgets tensorflow-gpu==2.1 kfp
- # && conda install -c conda-forge --yes google-resumable-media==0.4.1 dill=0.3.0 pandas==0.25.3 httplib2==0.12.0 \
- #                  ipykernel pyyaml==3.13 networkx python-graphviz pyflakes autopep8 ipywidgets tensorflow-gpu==2.1 kfp \
- # && conda install -c pytorch --yes pytorch torchvision cudatoolkit=10.2
-RUN pip install -U --no-deps tfx==0.21.4 --ignore-installed PyYAML
 
 
 # Create Jupyterlab Environments
-RUN conda install -c conda-forge --yes nodejs jupyterlab==2.1.3 \
+RUN conda install -c conda-forge --yes nodejs jupyterlab \
  && jupyter notebook --generate-config \
  && jupyter serverextension enable --py jupyterlab --sys-prefix \
  && jupyter labextension install @jupyter-widgets/jupyterlab-manager@2 \
@@ -115,6 +111,7 @@ ADD environment-condaforge.yml environment.yml
 RUN conda env update --name base --file environment.yml \
  && rm environment.yml
 
+RUN conda install -c bioconda ray ray[rllib]
 
 # Setting up container startup
 EXPOSE 8888

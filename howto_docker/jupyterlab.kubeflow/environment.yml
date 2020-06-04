@@ -6,10 +6,12 @@ dependencies:
   - matplotlib
   - seaborn
   - celery
-  - ray
-  - ray[rllib]
+  # - ray
+  # - ray[rllib]
   - pip:
     - modin
     - modin[ray]
+    - tfx
+    - apache-beam
   #   - gym
   #   - gym[atari]

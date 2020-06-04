@@ -2,5 +2,4 @@ name: base
 channels:
   - conda-forge
 dependencies:
-  - apache-beam
-  - opencv
+  - elasticsearch
