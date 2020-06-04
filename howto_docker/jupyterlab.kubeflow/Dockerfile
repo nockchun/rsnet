@@ -110,6 +110,12 @@ RUN conda env update --name base --file environment.yml \
  && rm environment.yml
 
 
+# Upgrade Python Library
+ADD environment-condaforge.yml environment.yml
+RUN conda env update --name base --file environment.yml \
+ && rm environment.yml
+
+
 # Setting up container startup
 EXPOSE 8888
 EXPOSE 6006
