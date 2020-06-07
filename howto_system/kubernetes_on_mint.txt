@@ -192,74 +192,6 @@ user:~$ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-pr
 
 
 #########################################################################################
-###                                      Kubeflow                                     ###
-#########################################################################################
-* Service Account Token Volume Projection -----------------------------------------------
-user:~$ sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
-- --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
-- --service-account-issuer=kubernetes.default.svc
-user:~$ watch kubectl get pod --all-namespaces
-
-
-* Kubeflow Install ----------------------------------------------------------------------
-user:~$ rm -rf kfctl* \
-     && wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz \
-     && tar xfv kfctl_v1.0.2-0-ga476281_linux.tar.gz \
-     && sudo mv kfctl /usr/local/bin/ \
-     && export KF_NAME=kubeflow \
-     && export BASE_DIR=/opt \
-     && export KF_DIR=${BASE_DIR}/${KF_NAME} \
-     && export CONFIG_URI="https://raw.githubusercontent.com/kubeflow/manifests/v1.0-branch/kfdef/kfctl_istio_dex.v1.0.2.yaml" \
-     && sudo mkdir -p ${KF_DIR} \
-     && sudo chown $USER.$GROUP ${KF_DIR} \
-     && cd ${KF_DIR} \
-     && rm -rf * \
-     && kfctl apply -V -f ${CONFIG_URI}
-user:~$ watch kubectl get all -n kubeflow -o wide
-user:~$ nohup kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80 &
-
-
-* SSH-Tunneling at client ----------------------------------------------------------------
-user:~$ ssh -f -N rsnet@master -L9902:localhost:8080
->>> Connection
-  > URL : http://localhost:9902
-  > ID/PASS : admin@kubeflow.org / 12341234
-
-
-* Delete Kubeflow -----------------------------------------------------------------------
-user:~$ export CONFIG_FILE=${KF_DIR}/kfctl_istio_dex.v1.0.2.yaml
-user:~$ cd ${KF_DIR}
-user:~$ kfctl delete -f ${CONFIG_FILE}
-
-
-* Expose with a loadbalancer (istio-ingress) --------------------------------------------
-user:~$ kubectl patch service -n istio-system istio-ingressgateway -p '{"spec": {"type": "LoadBalancer", "externalIPs":["172.19.98.40"]}}'
-
-user:~$ cat <<EOF | kubectl apply -f -
-apiVersion: cert-manager.io/v1alpha2
-kind: Certificate
-metadata:
-  name: istio-ingressgateway-certs
-  namespace: istio-system
-spec:
-  commonName: istio-ingressgateway.istio-system.svc
-  # Use ipAddresses if your LoadBalancer issues an IP
-  ipAddresses:
-  - <LoadBalancer IP>
-  # Use dnsNames if your LoadBalancer issues a hostname (eg on AWS)
-  dnsNames:
-  - <LoadBalancer HostName>
-  isCA: true
-  issuerRef:
-    kind: ClusterIssuer
-    name: kubeflow-self-signing-issuer
-  secretName: istio-ingressgateway-certs
-EOF
-
-
-
-
-#########################################################################################
 ###                                Kubernetes Dashboard                               ###
 #########################################################################################
 * Deploy Dashboard To k8s ---------------------------------------------------------------
@@ -300,6 +232,241 @@ user:~$ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-
 * SSH-Tunneling at client ---------------------------------------------------------------
 user:~$ ssh -f -N rsnet@master -L9901:localhost:8001
 >>> Connection URL : http://localhost:9901/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+
+
+
+
+#########################################################################################
+###                                      Kubeflow                                     ###
+#########################################################################################
+* Service Account Token Volume Projection -----------------------------------------------
+user:~$ sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
+- --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
+- --service-account-issuer=kubernetes.default.svc
+user:~$ watch kubectl get pod --all-namespaces
+
+
+* Kubeflow Install ----------------------------------------------------------------------
+user:~$ rm -rf kfctl* \
+     && wget https://github.com/kubeflow/kfctl/releases/download/v1.0.2/kfctl_v1.0.2-0-ga476281_linux.tar.gz \
+     && tar xfv kfctl_v1.0.2-0-ga476281_linux.tar.gz \
+     && sudo mv kfctl /usr/local/bin/ \
+     && export KF_NAME=kubeflow \
+     && export BASE_DIR=/opt \
+     && export KF_DIR=${BASE_DIR}/${KF_NAME} \
+     && export CONFIG_URI="https://raw.githubusercontent.com/kubeflow/manifests/v1.0-branch/kfdef/kfctl_istio_dex.v1.0.2.yaml" \
+     && sudo mkdir -p ${KF_DIR} \
+     && sudo chown $USER.$GROUP ${KF_DIR} \
+     && cd ${KF_DIR} \
+     && rm -rf * \
+     && kfctl apply -V -f ${CONFIG_URI}
+user:~$ watch kubectl get all -n kubeflow -o wide
+user:~$ nohup kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80 &
+
+user:~$ cat <<EOF | kubectl apply -f -
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-kubeflow
+  namespace: istio-system
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: kubeflow.rsnet
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: istio-ingressgateway
+          servicePort: 8080
+  tls:
+      - hosts:
+          - kubeflow.rsnet
+        secretName: istio-ingressgateway-certs
+EOF
+
+
+
+* SSH-Tunneling at client ----------------------------------------------------------------
+user:~$ ssh -f -N rsnet@master -L9902:localhost:8080
+>>> Connection
+  > URL : http://localhost:9902
+  > ID/PASS : admin@kubeflow.org / 12341234
+
+
+* Delete Kubeflow -----------------------------------------------------------------------
+user:~$ export CONFIG_FILE=${KF_DIR}/kfctl_istio_dex.v1.0.2.yaml
+user:~$ cd ${KF_DIR}
+user:~$ kfctl delete -f ${CONFIG_FILE}
+
+
+* Expose with a loadbalancer (istio-ingress) --------------------------------------------
+user:~$ kubectl patch service -n istio-system istio-ingressgateway -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
+
+user:~$ cat <<EOF | kubectl apply -f -
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: istio-ingressgateway-certs
+  namespace: istio-system
+spec:
+  commonName: istio-ingressgateway.istio-system.svc
+  # Use ipAddresses if your LoadBalancer issues an IP
+  ipAddresses:
+  - 192.168.0.101
+  # Use dnsNames if your LoadBalancer issues a hostname (eg on AWS)
+  dnsNames:
+  - kubeflow.rsnet
+  isCA: true
+  issuerRef:
+    kind: ClusterIssuer
+    name: kubeflow-self-signing-issuer
+  secretName: istio-ingressgateway-certs
+EOF
+
+
+
+
+#########################################################################################
+###                             Cert-Manager Using Helm 3                             ###
+#########################################################################################
+※ probably already installed if cuberflow was installed.
+
+user:~$ kubectl create namespace cert-manager
+
+user:~$ helm repo add jetstack https://charts.jetstack.io \
+     && helm repo update \
+     && kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.1/cert-manager.crds.yaml
+user:~$ helm install cert-manager jetstack/cert-manager \
+    --namespace cert-manager \
+    --version v0.15.1
+user:~$ kubectl get pods --namespace cert-manager
+
+
+
+
+#########################################################################################
+###                            NGINX Ingress Using Helm 3                             ###
+#########################################################################################
+* Install using Helm 3 ------------------------------------------------------------------
+user:~$ kubectl create namespace nginx-ingress
+user:~$ helm install rsingress stable/nginx-ingress \
+    --namespace nginx-ingress \
+    --set controller.replicaCount=2 \
+    --set controller.publishService.enabled=true \
+    --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
+    --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux
+user:~$ kubectl get service -l app=nginx-ingress --namespace nginx-ingress
+user:~$ kubectl patch svc rsingress-nginx-ingress-controller -n nginx-ingress -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
+
+
+
+
+#########################################################################################
+###                                   Elasticsearch                                   ###
+#########################################################################################
+※ REF SITE : https://github.com/elastic/helm-charts
+
+* Create Namespace ----------------------------------------------------------------------
+user:~$ kubectl create namespace elk
+
+* Install elasticsearch -----------------------------------------------------------------
+user:~$ wget https://raw.githubusercontent.com/elastic/helm-charts/master/elasticsearch/values.yaml \
+     && mv values.yaml elastic_values.yaml
+user:~$ helm repo add elastic https://helm.elastic.co \
+     && helm repo update \
+     && helm search hub elasticsearch \
+     && helm install elasticsearch elastic/elasticsearch -f elastic_values.yaml --namespace elk
+user:~$ watch kubectl get all -n elk -o wide
+user:~$ kubectl port-forward -n elk svc/elasticsearch-master 9200:9200 &
+user:~$ curl http://localhost:9200/
+
+
+* Install Filebeat ----------------------------------------------------------------------
+user:~$ wget https://raw.githubusercontent.com/elastic/helm-charts/master/filebeat/values.yaml \
+     && mv values.yaml filebeat_values.yaml
+user:~$ helm install filebeat elastic/filebeat -f filebeat_values.yaml --namespace elk
+user:~$ curl http://localhost:9200/_cat/indices
+
+
+* Install Kibana ------------------------------------------------------------------------
+user:~$ wget https://raw.githubusercontent.com/elastic/helm-charts/master/kibana/values.yaml \
+     && mv values.yaml kibana_values.yaml
+user:~$ helm install kibana elastic/kibana -f kibana_values.yaml --namespace elk
+user:~$ kubectl port-forward -n elk svc/kibana-kibana 5601:5601 &
+
+user:~$ cat <<EOF | kubectl apply -f -
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-elasticsearch
+  namespace: elk
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: elastic.rsnet
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: elasticsearch-master
+          servicePort: 9200
+  - host: kibana.rsnet
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kibana-kibana
+          servicePort: 5601
+EOF
+
+
+* Install Plugin ------------------------------------------------------------------------
+/elastisearch/bin/plugin -install mobz/elasticsearch-head
+/elastisearch/bin/plugin -install lukas-vlcek/bigdesk
+/elastisearch/bin/plugin -install enezes/elasticsearch-kopf
+
+
+
+
+#########################################################################################
+###                                       Spark                                       ###
+#########################################################################################
+※ REF SITE : https://github.com/bitnami/charts/tree/master/bitnami/spark
+
+* Create Namespace ----------------------------------------------------------------------
+user:~$ kubectl create namespace spark
+
+* Install elasticsearch -----------------------------------------------------------------
+user:~$ wget https://raw.githubusercontent.com/bitnami/charts/master/bitnami/spark/values.yaml \
+     && mv values.yaml spark_values.yaml
+user:~$ helm repo add bitnami https://charts.bitnami.com/bitnami \
+     && helm repo update \
+     && helm install spark bitnami/spark -f spark_values.yaml --namespace spark
+user:~$ nohup kubectl port-forward --namespace spark svc/spark-master-svc 9080:80 &
+
+user:~$ cat <<EOF | kubectl apply -f -
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-spark
+  namespace: spark
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: spark.rsnet
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: spark-master-svc
+          servicePort: 80
+EOF
+
+
 
 
 #########################################################################################
@@ -359,23 +526,6 @@ user:~$ kubectl get svc --all-namespaces
 
 
 #########################################################################################
-###                            NGINX Ingress Using Helm 3                             ###
-#########################################################################################
-* Install using Helm 3 ------------------------------------------------------------------
-user:~$ kubectl create namespace nginx-ingress
-user:~$ helm install rsingress stable/nginx-ingress \
-    --namespace nginx-ingress \
-    --set controller.replicaCount=2 \
-    --set controller.publishService.enabled=true \
-    --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
-    --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux
-user:~$ kubectl get service -l app=nginx-ingress --namespace nginx-ingress
-user:~$ kubectl patch svc rsingress-nginx-ingress-controller -n nginx-ingress -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
-
-
-
-
-#########################################################################################
 ###                                  Rook For Cephfs                                  ###
 #########################################################################################
 ※ REF SITE : https://rook.io/docs/rook/v1.1/ceph-filesystem.html
@@ -399,88 +549,6 @@ user:~$ kc apply -f csi/cephfs/storageclass.yaml \
      && kc apply -f csi/cephfs/kube-registry.yaml
 
 user:~$ kubectl patch storageclass rook-cephfs -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-
-
-
-
-#########################################################################################
-###                                   Elasticsearch                                   ###
-#########################################################################################
-※ REF SITE : https://github.com/elastic/helm-charts
-
-* Create Namespace ----------------------------------------------------------------------
-user:~$ kubectl create namespace elk
-
-* Install elasticsearch -----------------------------------------------------------------
-user:~$ wget https://raw.githubusercontent.com/elastic/helm-charts/master/elasticsearch/values.yaml \
-     && mv values.yaml elastic_values.yaml
-user:~$ helm repo add elastic https://helm.elastic.co \
-     && helm repo update \
-     && helm search hub elasticsearch \
-     && helm install elasticsearch elastic/elasticsearch -f elastic_values.yaml --namespace elk
-user:~$ watch kubectl get all -n elk -o wide
-user:~$ kubectl port-forward -n elk svc/elasticsearch-master 9200:9200 &
-user:~$ curl http://localhost:9200/
-
-* Install Filebeat ----------------------------------------------------------------------
-user:~$ wget https://raw.githubusercontent.com/elastic/helm-charts/master/filebeat/values.yaml \
-     && mv values.yaml filebeat_values.yaml
-user:~$ helm install filebeat elastic/filebeat -f filebeat_values.yaml --namespace elk
-user:~$ curl http://localhost:9200/_cat/indices
-
-* Install Kibana ------------------------------------------------------------------------
-user:~$ wget https://raw.githubusercontent.com/elastic/helm-charts/master/kibana/values.yaml \
-     && mv values.yaml kibana_values.yaml
-user:~$ helm install kibana elastic/kibana -f kibana_values.yaml --namespace elk
-user:~$ kubectl port-forward -n elk svc/kibana-kibana 5601:5601 &
-
-* SSH-Tunneling at client ----------------------------------------------------------------
-user:~$ ssh -f -N rsnet@master -L9903:localhost:5601
->>> Connection
-  > URL : http://localhost:9903
-
-
-
-
-#########################################################################################
-###                                       Spark                                       ###
-#########################################################################################
-※ REF SITE : https://github.com/bitnami/charts/tree/master/bitnami/spark
-
-* Create Namespace ----------------------------------------------------------------------
-user:~$ kubectl create namespace spark
-
-
-* Install elasticsearch -----------------------------------------------------------------
-user:~$ wget https://raw.githubusercontent.com/bitnami/charts/master/bitnami/spark/values.yaml \
-     && mv values.yaml spark_values.yaml
-user:~$ helm repo add bitnami https://charts.bitnami.com/bitnami \
-     && helm repo update \
-     && helm install spark bitnami/spark -f spark_values.yaml --namespace spark
-user:~$ nohup kubectl port-forward --namespace spark svc/spark-master-svc 9080:80 &
-
-* SSH-Tunneling at client ----------------------------------------------------------------
-user:~$ ssh -f -N rsnet@master -L9904:localhost:9080
->>> Connection
-  > URL : http://localhost:9904
-
-
-
-
-#########################################################################################
-###                             Cert-Manager Using Helm 3                             ###
-#########################################################################################
-※ probably already installed if cuberflow was installed.
-
-user:~$ kubectl create namespace cert-manager
-
-user:~$ helm repo add jetstack https://charts.jetstack.io \
-     && helm repo update \
-     && kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.1/cert-manager.crds.yaml
-user:~$ helm install cert-manager jetstack/cert-manager \
-    --namespace cert-manager \
-    --version v0.15.1
-user:~$ kubectl get pods --namespace cert-manager
 
 
 
