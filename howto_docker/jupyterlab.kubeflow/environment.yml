@@ -6,8 +6,6 @@ dependencies:
   - matplotlib
   - seaborn
   - celery
-  # - ray
-  # - ray[rllib]
   - pip:
     - modin
     - modin[ray]

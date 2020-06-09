@@ -440,9 +440,11 @@ EOF
 user:~$ kubectl create namespace spark
 
 * Install elasticsearch -----------------------------------------------------------------
-user:~$ wget https://raw.githubusercontent.com/helm/charts/master/stable/spark/values.yaml \
+user:~$ wget https://raw.githubusercontent.com/bitnami/charts/master/bitnami/spark/values.yaml \
      && mv values.yaml spark_values.yaml
-user:~$ helm install spark stable/spark -f spark_values.yaml --namespace spark
+user:~$ helm repo add bitnami https://charts.bitnami.com/bitnami \
+     && helm repo update \
+     && helm install spark bitnami/spark -f spark_values.yaml --namespace spark
 user:~$ nohup kubectl port-forward --namespace spark svc/spark-master 7077:7077 &
 user:~$ kubectl patch service -n spark spark-webui -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
 user:~$ kubectl patch service -n spark spark-zeppelin -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.101"]}}'
@@ -467,6 +469,11 @@ spec:
           serviceName: spark-master
           servicePort: 7077
 EOF
+
+Submit an application to the cluster:
+  kubectl exec -ti spark-worker-0 -- spark-submit --master spark://spark-master-svc:7077 \
+    --class org.apache.spark.examples.SparkPi \
+    examples/jars/spark-examples_2.11-2.4.4.jar 5
 
 
 

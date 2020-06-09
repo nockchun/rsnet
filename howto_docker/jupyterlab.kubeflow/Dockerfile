@@ -11,6 +11,7 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
         libevent-dev libffi-dev libgdbm-dev libgeoip-dev libglib2.0-dev libgmp-dev libjpeg-dev libkrb5-dev liblzma-dev \
         libmagickcore-dev libmagickwand-dev libncurses5-dev libncursesw5-dev libpng-dev libpq-dev libreadline-dev xvfb \
         libsqlite3-dev libssl-dev libtool libwebp-dev libxml2-dev libxslt-dev libyaml-dev make patch unzip xz-utils zlib1g-dev \
+        iputils-ping dnsutils \
  && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
  && locale-gen
 
@@ -22,6 +23,9 @@ RUN apt install unzip fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts
  && unzip D2Coding-1.2.zip -d /usr/share/fonts/truetype/D2Coding/ \
  && rm -rf /usr/share/fonts/truetype/D2Coding/__MACOSX \
  && rm -rf D2Coding-1.2.zip \
+ && wget -O mac-fonts.zip http://drive.noobslab.com/data/Mac/macfonts.zip \
+ && unzip mac-fonts.zip -d /usr/share/fonts \
+ && rm mac-fonts.zip \
  && fc-cache -f -v
 
 
@@ -100,24 +104,25 @@ RUN apt-get install -y curl grep sed dpkg && \
     apt-get clean
 
 
+RUN conda install -c bioconda ray ray[rllib]
+
 # Upgrade Python Library
 ADD environment.yml environment.yml
 RUN conda env update --name base --file environment.yml \
  && rm environment.yml
-
 
 # Upgrade Python Library
 ADD environment-condaforge.yml environment.yml
 RUN conda env update --name base --file environment.yml \
  && rm environment.yml
 
-RUN conda install -c bioconda ray ray[rllib]
 
 # Setting up container startup
 EXPOSE 8888
 EXPOSE 6006
 VOLUME /notebooks
-RUN chown -R $NB_USER.$NB_USER /notebooks
+RUN chown -R $NB_USER.$NB_USER /notebooks \
+ && chown -R $NB_USER.$NB_USER $CONDA_DIR
 
 USER $NB_USER
 ENTRYPOINT ["tini", "-g", "--"]
