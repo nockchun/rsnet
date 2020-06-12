@@ -466,8 +466,12 @@ spec:
       paths:
       - path: /
         backend:
-          serviceName: spark-master
+          serviceName: spark-master-svc
           servicePort: 7077
+      - path: /ui
+        backend:
+          serviceName: spark-master-svc
+          servicePort: 80
 EOF
 
 Submit an application to the cluster:
