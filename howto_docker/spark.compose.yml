@@ -1,0 +1,109 @@
+version: "3.4"
+
+services:
+    hadoop-namenode:
+        build:
+            context: ./hadoop
+        image: nockchun/hadoop:3.2.1
+        container_name: namenode
+        command: ["/entrypoint.sh", "/namenode.sh"]
+        ports:
+            - 9870:9870
+        volumes:
+            - hadoop_namenode:/hadoop/dfs/name
+        environment:
+            - CLUSTER_NAME=test
+        env_file:
+            - ./hadoop/hadoop.env
+        networks:
+            - spark-network
+
+    resourcemanager:
+        build:
+            context: ./hadoop
+        image: nockchun/hadoop:3.2.1
+        container_name: resourcemanager
+        command: ["/entrypoint.sh", "/resourcemanager.sh"]
+        ports:
+            - 8088:8088
+        environment:
+            SERVICE_PRECONDITION: "namenode:9870 datanode1:9864 datanode2:9864"
+        env_file:
+            - ./hadoop/hadoop.env
+        networks:
+            - spark-network
+
+    hadoop-nodemanager:
+        build:
+            context: ./hadoop
+        image: nockchun/hadoop:3.2.1
+        container_name: nodemanager
+        command: ["/entrypoint.sh", "/nodemanager.sh"]
+        environment:
+            SERVICE_PRECONDITION: "namenode:9870 datanode1:9864 datanode2:9864 resourcemanager:8088"
+        env_file:
+            - ./hadoop/hadoop.env
+        networks:
+            - spark-network
+
+    hadoop-historyserver:
+        build:
+            context: ./hadoop
+        image: nockchun/hadoop:3.2.1
+        container_name: historyserver
+        command: ["/entrypoint.sh", "/historyserver.sh"]
+        environment:
+            SERVICE_PRECONDITION: "namenode:9870 datanode1:9864 datanode2:9864 resourcemanager:8088"
+        ports:
+            - 8188:8188
+        volumes:
+            - hadoop_historyserver:/hadoop/yarn/timeline
+        env_file:
+            - ./hadoop/hadoop.env
+        networks:
+            - spark-network
+
+    hadoop-datanode1:
+        build:
+            context: ./hadoop
+        image: nockchun/hadoop:3.2.1
+        container_name: datanode1
+        command: ["/entrypoint.sh", "/datanode.sh"]
+        volumes:
+            - hadoop_datanode1:/hadoop/dfs/data
+        environment:
+            CONDITION: "namenode:9870"
+        env_file:
+            - ./hadoop/hadoop.env
+        networks:
+            - spark-network
+
+    hadoop-datanode2:
+        build:
+            context: ./hadoop
+        image: nockchun/hadoop:3.2.1
+        container_name: datanode2
+        command: ["/entrypoint.sh", "/datanode.sh"]
+        volumes:
+            - hadoop_datanode2:/hadoop/dfs/data
+        environment:
+            CONDITION: "namenode:9870"
+        env_file:
+            - ./hadoop/hadoop.env
+        networks:
+            - spark-network
+
+
+
+
+
+volumes:
+    hadoop_namenode:
+    hadoop_datanode1:
+    hadoop_datanode2:
+    hadoop_historyserver:
+    jupyter_data:
+
+networks:
+    spark-network:
+      driver: bridge
