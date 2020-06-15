@@ -1,6 +1,23 @@
 https://parksuseong.blogspot.com/2019/04/312-3-standalone-pseudo-distributed.html
 
 #########################################################################################
+###                              Private Helm Repository                              ###
+#########################################################################################
+user:~$ helm package <project>
+user:~$ mv project-0.1.0.tgz stable
+user:~$ helm repo index stable --url https://nockchun.github.io/rsnet-helm/stable
+user:~$ git add .
+user:~$ git commit -m "add project chart"
+user:~$ git push
+
+user:~$ helm repo add rsnet-helm https://nockchun.github.io/rsnet-helm/stable
+user:~$ helm search repo rsnet-helm
+user:~$ helm install rsnet-helm/project
+
+
+
+
+#########################################################################################
 ###                                      Hadoop                                       ###
 #########################################################################################
 * All Nodes -----------------------------------------------------------------------------
