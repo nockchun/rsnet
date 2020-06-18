@@ -3,6 +3,7 @@ https://parksuseong.blogspot.com/2019/04/312-3-standalone-pseudo-distributed.htm
 #########################################################################################
 ###                              Private Helm Repository                              ###
 #########################################################################################
+user:~$ helm create <project>
 user:~$ helm package <project>
 user:~$ mv project-0.1.0.tgz stable
 user:~$ helm repo index stable --url https://nockchun.github.io/rsnet-helm/stable
@@ -26,7 +27,6 @@ user:~$ sudo vi /etc/hosts
 192.168.0.201 vnode01
 192.168.0.202 vnode02
 
-
 user:~$ sudo apt install openjdk-11-jdk
 user:~$ wget http://apache.mirror.cdnetworks.com/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.gz \
      && tar xfvz hadoop-3.2.1.tar.gz \
@@ -37,25 +37,26 @@ user:~$ wget http://apache.mirror.cdnetworks.com/hadoop/common/hadoop-3.2.1/hado
 user:~$ sudo vi /etc/bash.bashrc
 export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 export HADOOP_HOME=/opt/hadoop
+export HADOOP_PID_DIR=${HADOOP_HOME}/pids
+export HADOOP_CLASSPATH=$JAVA_HOME/lib/tools.jar
 
 export HADOOP_INSTALL=$HADOOP_HOME
-export HADOOP_MAPRED_HOME=${HADOOP_HOME}
-export HADOOP_COMMON_HOME=${HADOOP_HOME}
-export HADOOP_HDFS_HOME=${HADOOP_HOME}
-export YARN_HOME=${HADOOP_HOME}
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export HADOOP_YARN_HOME=$HADOOP_HOME
 export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
 export HADOOP_LOG_DIR=${HADOOP_HOME}/logs
 export HADOOP_COMMON_LIB_NATIVE_DIR=${HADOOP_HOME}/lib/native
 export HADOOP_OPTS="-Djava.library.path=$HADOOP_COMMON_LIB_NATIVE_DIR"
 
 export PATH=$PATH:$HADOOP_HOME/bin:$JAVA_HOME/bin:$HADOOP_HOME/sbin
-
+export JAVA_LIBRARY_PATH=$HADOOP_HOME/lib/native:$JAVA_LIBRARY_PATH
 
 user:~$ vi $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 export HADOOP_HOME=/opt/hadoop
 export HADOOP_PID_DIR=${HADOOP_HOME}/pids
-
 
 user:~$ vi $HADOOP_HOME/etc/hadoop/core-site.xml
 <configuration>
@@ -65,36 +66,6 @@ user:~$ vi $HADOOP_HOME/etc/hadoop/core-site.xml
     </property>
 </configuration>
 
-
-user:~$ vi $HADOOP_HOME/etc/hadoop/mapred-site.xml
-<configuration>
-    <property>
-        <name>mapreduce.framework.name</name>
-        <value>yarn</value>
-    </property>
-    <property>
-        <name>yarn.app.mapreduce.am.env</name>
-        <value>HADOOP_MAPRED_HOME=/opt/hadoop</value>
-    </property>
-    <property>
-        <name>mapreduce.map.env</name>
-        <value>HADOOP_MAPRED_HOME=/opt/hadoop</value>
-    </property>
-    <property>
-        <name>mapreduce.reduce.env</name>
-        <value>HADOOP_MAPRED_HOME=/opt/hadoop</value>
-    </property>
-</configuration>
-
-
-
-
-* At Master Node ------------------------------------------------------------------------
-user:~$ ssh-keygen -t rsa
-user:~$ ssh-copy-id rsnet@vmaster
-user:~$ ssh-copy-id rsnet@vnode01
-user:~$ ssh-copy-id rsnet@vnode02
-
 user:~$ vi $HADOOP_HOME/etc/hadoop/hdfs-site.xml
 <configuration>
     <property>
@@ -106,32 +77,12 @@ user:~$ vi $HADOOP_HOME/etc/hadoop/hdfs-site.xml
         <value>false</value>
     </property>
     <property>
-        <name>dfs.namenode.http.address</name>
-        <value>vmaster:9870</value>
-    </property>
-    <property>
-        <name>dfs.secondary.http.address</name>
-        <value>vmaster:9868</value>
-    </property>
-    <property>
         <name>dfs.namenode.name.dir</name>
-        <value>file:///opt/hadoop/data/namenode</value>
+        <value>/opt/hadoop/data/namenode</value>
     </property>
     <property>
-        <name>dfs.datanode.address</name>
-        <value>0.0.0.0:50161</value>
-    </property>
-    <property>
-        <name>dfs.datanode.http.address</name>
-        <value>0.0.0.0:50162</value>
-    </property>
-    <property>
-        <name>dfs.datanode.https.address</name>
-        <value>0.0.0.0:50163</value>
-    </property>
-    <property>
-        <name>dfs.datanode.ipc.address</name>
-        <value>0.0.0.0:50164</value>
+        <name>dfs.datanode.data.dir</name>
+        <value>/opt/hadoop/data/datanode</value>
     </property>
 </configuration>
 
@@ -139,28 +90,11 @@ user:~$ vi $HADOOP_HOME/etc/hadoop/workers
 vnode01
 vnode02
 
+user:~$ cd $HADOOP_HOME/share/hadoop/mapreduce/lib
+user:~$ wget https://repo1.maven.org/maven2/javax/activation/activation/1.1.1/activation-1.1.1.jar
 
 
 * At Slave Node ------------------------------------------------------------------------
-user:~$ vi $HADOOP_HOME/etc/hadoop/hdfs-site.xml
-<configuration>
-    <property>
-        <name>dfs.replication</name>
-        <value>2</value>
-    </property>
-    <property>
-        <name>dfs.permissions</name>
-        <value>false</value>
-    </property>
-    <property>
-        <name>dfs.datanode.data.dir</name>
-        <value>file:///opt/hadoop/data/datanode</value>
-    </property>
-</configuration>
-
-
-
-
 user:~$ vi $HADOOP_HOME/etc/hadoop/yarn-site.xml
 <configuration>
     <property>
@@ -185,11 +119,73 @@ user:~$ vi $HADOOP_HOME/etc/hadoop/yarn-site.xml
     </property>
 </configuration>
 
-
-
+user:~$ vi $HADOOP_HOME/etc/hadoop/mapred-site.xml
+<configuration>
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+    <property>
+        <name>yarn.app.mapreduce.am.env</name>
+        <value>HADOOP_MAPRED_HOME=/opt/hadoop</value>
+    </property>
+    <property>
+        <name>mapreduce.map.env</name>
+        <value>HADOOP_MAPRED_HOME=/opt/hadoop</value>
+    </property>
+    <property>
+        <name>mapreduce.reduce.env</name>
+        <value>HADOOP_MAPRED_HOME=/opt/hadoop</value>
+    </property>
+</configuration>
 
 * At Master Node ------------------------------------------------------------------------
+user:~$ ssh-keygen -t rsa
+user:~$ ssh-copy-id rsnet@vmaster
+user:~$ ssh-copy-id rsnet@vnode01
+user:~$ ssh-copy-id rsnet@vnode02
+
+
 user:~$ hdfs namenode -format
 user:~$ start-dfs.sh
 user:~$ start-yarn.sh
+
+
+
+
+
+#########################################################################################
+###                                       Sprk                                        ###
+#########################################################################################
+* At Master Node ------------------------------------------------------------------------
+user:~$ wget http://apache.mirror.cdnetworks.com/spark/spark-3.0.0-preview2/spark-3.0.0-preview2-bin-hadoop3.2.tgz
+
+user:~$ wget http://apache.mirror.cdnetworks.com/spark/spark-3.0.0-preview2/spark-3.0.0-preview2-bin-hadoop3.2.tgz \
+     && tar xfvz spark-3.0.0-preview2-bin-hadoop3.2.tgz \
+     && sudo mv spark-3.0.0-preview2-bin-hadoop3.2 /opt/spark \
+     && rm -rf spark-3.0.0-preview2-bin-hadoop3.2.tgz \
+     && sudo chown -R rsnet.rsnet /opt/spark/
+
+user:~$ sudo vi /etc/bash.bashrc
+export YARN_CONF_DIR=$HADOOP_HOME/etc/hadoop
+export SPARK_HOME=/opt/spark
+export PATH=$PATH:$SPARK_HOME/bin
+
+
+
+
+#########################################################################################
+###                                       LIVY                                        ###
+#########################################################################################
+* At Master Node ------------------------------------------------------------------------
+user:~$ wget http://apache.mirror.cdnetworks.com/incubator/livy/0.7.0-incubating/apache-livy-0.7.0-incubating-bin.zip \
+     && unzip apache-livy-0.7.0-incubating-bin.zip \
+     && sudo mv apache-livy-0.7.0-incubating-bin /opt/livy \
+     && rm -rf apache-livy-0.7.0-incubating-bin.zip \
+     && sudo chown -R rsnet.rsnet /opt/livy/
+
+user:~$ sudo vi /etc/bash.bashrc
+export LIVY_HOME=/opt/livy
+export PATH=$PATH:$LIVY_HOME/bin
+
 

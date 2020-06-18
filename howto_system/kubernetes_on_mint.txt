@@ -615,3 +615,21 @@ user:~$ curl -X GET http://xx.xx.xx.xx:5000/v2/_catalog
 user:~$ curl -X GET http://xx.xx.xx.xx:5000/v2/hello-world/tags/list
 
 
+
+
+#########################################################################################
+###                              Private Helm Repository                              ###
+#########################################################################################
+user:~$ helm create <project>
+user:~$ helm package <project>
+user:~$ mv project-0.1.0.tgz stable
+user:~$ helm repo index stable --url https://nockchun.github.io/rsnet-helm/stable
+user:~$ git add .
+user:~$ git commit -m "add project chart"
+user:~$ git push
+
+user:~$ helm repo add rsnet-helm https://nockchun.github.io/rsnet-helm/stable
+user:~$ helm search repo rsnet-helm
+user:~$ helm install rsnet-helm/project
+
+
