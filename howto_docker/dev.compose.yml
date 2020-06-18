@@ -6,7 +6,7 @@ services:
             context: ./jupyterlab.kubeflow
             dockerfile: Dockerfile
         image: jupyterlab.kubeflow
-        # image: nockchun/jupyterlab.kubeflow:2.1.1
+        # image: nockchun/jupyterlab.kubeflow:2.2.1
         container_name: jupyterlab.kubeflow
         hostname: jupyterlab
         restart: always

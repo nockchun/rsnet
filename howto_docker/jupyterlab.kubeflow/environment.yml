@@ -1,11 +1,7 @@
 name: base
 channels:
   - anaconda
-  - bioconda
 dependencies:
-  - matplotlib
-  - seaborn
-  - celery
   - pip:
     - modin
     - modin[ray]

@@ -71,14 +71,13 @@ RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERS
 # Install Basic Conda Library
 RUN chown -R $NB_USER.$NB_USER $CONDA_DIR \
  && conda update -y pip setuptools \
- && conda install -c conda-forge --yes google-resumable-media dill pandas httplib2 \
-                  ipykernel pyyaml networkx python-graphviz pyflakes autopep8 ipywidgets tensorflow-gpu==2.1 kfp
+ && conda install -c conda-forge --yes google-resumable-media dill pandas httplib2 nodejs jupyterlab \
+    ipykernel pyyaml networkx python-graphviz pyflakes autopep8 ipywidgets tensorflow-gpu==2.1 kfp \
+ && jupyter notebook --generate-config
 
 
 # Create Jupyterlab Environments
-RUN conda install -c conda-forge --yes nodejs jupyterlab \
- && jupyter notebook --generate-config \
- && jupyter serverextension enable --py jupyterlab --sys-prefix \
+RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
  && jupyter labextension install @jupyter-widgets/jupyterlab-manager@2 \
     @jupyterlab/application-extension @jupyterlab/apputils-extension @jupyterlab/codemirror-extension @jupyterlab/completer-extension \
     @jupyterlab/console-extension @jupyterlab/csvviewer-extension @jupyterlab/docmanager-extension @jupyterlab/documentsearch-extension \
@@ -107,12 +106,12 @@ RUN apt-get install -y curl grep sed dpkg && \
 RUN conda install -c bioconda ray ray[rllib]
 
 # Upgrade Python Library
-ADD environment.yml environment.yml
+ADD environment-condaforge.yml environment.yml
 RUN conda env update --name base --file environment.yml \
  && rm environment.yml
 
 # Upgrade Python Library
-ADD environment-condaforge.yml environment.yml
+ADD environment.yml environment.yml
 RUN conda env update --name base --file environment.yml \
  && rm environment.yml
 

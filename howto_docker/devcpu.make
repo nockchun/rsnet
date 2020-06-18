@@ -62,7 +62,7 @@ else
 	@$(call fun_conrm, $(t); exit 0)
 endif
 
-start: ## Start all. OR t=<name>
+run: ## Start all. OR t=<name>
 	@$(DC) -f $(DCF) up -d $(t)
 
 stop: ## Stop all or t=<name>

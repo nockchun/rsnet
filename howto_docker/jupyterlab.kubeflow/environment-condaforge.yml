@@ -4,3 +4,7 @@ channels:
 dependencies:
   - elasticsearch
   - pyspark
+  - sparkmagic
+  - matplotlib
+  - seaborn
+  - celery
