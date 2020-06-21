@@ -1,2 +1,2 @@
 #!/bin/bash
-make -f /data/workspace/rsnet/howto_docker/spark.make $@
+make -f /data/notebooks/rsnet/howto_docker/spark.make $@

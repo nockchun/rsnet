@@ -1,2 +1,2 @@
 #!/bin/bash
-make -f /data/workspace/rsnet/howto_docker/dev.make $@
+make -f /data/notebooks/rsnet/howto_docker/dev.make $@
