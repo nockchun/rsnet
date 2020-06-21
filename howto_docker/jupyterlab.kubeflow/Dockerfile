@@ -1,7 +1,6 @@
 FROM nvidia/cuda:10.2-devel-ubuntu18.04
 LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
 
-
 # Setup OS Base System Packages
 RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
  && apt update --fix-missing && apt clean && apt update \
@@ -15,7 +14,6 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
  && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
  && locale-gen
 
-
 # Install Fonts
 RUN apt install unzip fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts-nanum fonts-nanum-coding fonts-nanum-extra fonts-ubuntu-font-family-console \
  && wget https://github.com/naver/d2codingfont/releases/download/VER1.21/D2Coding-1.2.zip \
@@ -27,7 +25,6 @@ RUN apt install unzip fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts
  && unzip mac-fonts.zip -d /usr/share/fonts \
  && rm mac-fonts.zip \
  && fc-cache -f -v
-
 
 # Configure Environments
 ARG NB_USER="jovyan"
@@ -50,11 +47,9 @@ RUN groupadd -g $NB_UID $NB_USER \
  && echo "$NB_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/$NB_USER \
  && chmod 0440 /etc/sudoers.d/$NB_USER
 
-
 # Change User
 USER $NB_USER
 WORKDIR $HOME
-
 
 # Create MiniConda Environments as Base
 ENV MINICONDA_VERSION=latest
@@ -67,14 +62,13 @@ RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERS
  && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc \
  && echo "conda activate base" >> ~/.bashrc
 
-
 # Install Basic Conda Library
+ADD conda-forge.yml environment.yml
 RUN chown -R $NB_USER.$NB_USER $CONDA_DIR \
  && conda update -y pip setuptools \
- && conda install -c conda-forge --yes google-resumable-media dill pandas httplib2 nodejs jupyterlab \
-    ipykernel pyyaml networkx python-graphviz pyflakes autopep8 ipywidgets tensorflow-gpu==2.1 kfp \
+ && conda env update --name base --file environment.yml \
+ && rm environment.yml \
  && jupyter notebook --generate-config
-
 
 # Create Jupyterlab Environments
 RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
@@ -92,7 +86,6 @@ RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
 RUN jupyter labextension install jupyter-matplotlib @jupyterlab/fasta-extension @jupyterlab/toc @jupyterlab/mathjax3-extension \
     @jupyterlab/geojson-extension @jupyterlab/katex-extension @lckr/jupyterlab_variableinspector
 
-
 USER root
 # Tini: https://github.com/krallin/tini
 RUN apt-get install -y curl grep sed dpkg && \
@@ -102,28 +95,28 @@ RUN apt-get install -y curl grep sed dpkg && \
     rm tini.deb && \
     apt-get clean
 
-
-RUN conda install -c bioconda ray ray[rllib]
-
 # Upgrade Python Library
-ADD environment-condaforge.yml environment.yml
+ADD anaconda.yml environment.yml
 RUN conda env update --name base --file environment.yml \
  && rm environment.yml
 
-# Upgrade Python Library
-ADD environment.yml environment.yml
-RUN conda env update --name base --file environment.yml \
- && rm environment.yml
-
+# Spark Livy Setting
+RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension \
+ && cd /opt/conda/lib/python3.7/site-packages \
+ && jupyter-kernelspec install sparkmagic/kernels/sparkkernel \
+ && jupyter-kernelspec install sparkmagic/kernels/pysparkkernel \
+ && jupyter-kernelspec install sparkmagic/kernels/sparkrkernel
+ADD config.json ~/.sparkmagic/config.json
 
 # Setting up container startup
 EXPOSE 8888
 EXPOSE 6006
-VOLUME /notebooks
-RUN chown -R $NB_USER.$NB_USER /notebooks \
+VOLUME /home/jovyan
+RUN chown -R $NB_USER.$NB_USER $HOME \
  && chown -R $NB_USER.$NB_USER $CONDA_DIR
 
+# Start Jupyterlab
 USER $NB_USER
+WORKDIR $HOME
 ENTRYPOINT ["tini", "-g", "--"]
 CMD ["sh","-c", "jupyter lab --notebook-dir=/home/jovyan --ip=0.0.0.0 --no-browser --allow-root --port=8888 --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.base_url=${NB_PREFIX}"]
-

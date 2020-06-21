@@ -27,7 +27,7 @@ user:~$ sudo vi /etc/hosts
 192.168.0.201 vnode01
 192.168.0.202 vnode02
 
-user:~$ sudo apt install openjdk-11-jdk
+user:~$ sudo apt install openjdk-11-jdk-headless
 user:~$ wget http://apache.mirror.cdnetworks.com/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.gz \
      && tar xfvz hadoop-3.2.1.tar.gz \
      && sudo mv hadoop-3.2.1 /opt/hadoop \
@@ -48,11 +48,12 @@ export HADOOP_YARN_HOME=$HADOOP_HOME
 export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
 export HADOOP_LOG_DIR=${HADOOP_HOME}/logs
 export HADOOP_COMMON_LIB_NATIVE_DIR=${HADOOP_HOME}/lib/native
-export HADOOP_OPTS="${HADOOP_OPTS} -Djava.library.path=$HADOOP_COMMON_LIB_NATIVE_DIR"
+export HADOOP_OPTS="-Djava.library.path=$HADOOP_COMMON_LIB_NATIVE_DIR"
 
 export PATH=$PATH:$HADOOP_HOME/bin:$JAVA_HOME/bin:$HADOOP_HOME/sbin
 export JAVA_LIBRARY_PATH=$HADOOP_HOME/lib/native:$JAVA_LIBRARY_PATH
 
+user:~$ mkdir -p ${HADOOP_HOME}/pids
 user:~$ vi $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 export HADOOP_HOME=/opt/hadoop
@@ -78,11 +79,11 @@ user:~$ vi $HADOOP_HOME/etc/hadoop/hdfs-site.xml
     </property>
     <property>
         <name>dfs.namenode.name.dir</name>
-        <value>/opt/hadoop/data/namenode</value>
+        <value>file:///opt/hadoop/data/namenode</value>
     </property>
     <property>
         <name>dfs.datanode.data.dir</name>
-        <value>/opt/hadoop/data/datanode</value>
+        <value>file:///opt/hadoop/data/datanode</value>
     </property>
 </configuration>
 
@@ -156,10 +157,10 @@ user:~$ mapred --daemon start historyserver
 ###                                       Sprk                                        ###
 #########################################################################################
 * All Nodes -----------------------------------------------------------------------------
-user:~$ wget http://apache.mirror.cdnetworks.com/spark/spark-3.0.0-preview2/spark-3.0.0-preview2-bin-hadoop3.2.tgz \
-     && tar xfvz spark-3.0.0-preview2-bin-hadoop3.2.tgz \
-     && sudo mv spark-3.0.0-preview2-bin-hadoop3.2 /opt/spark \
-     && rm -rf spark-3.0.0-preview2-bin-hadoop3.2.tgz \
+user:~$ wget http://apache.mirror.cdnetworks.com/spark/spark-3.0.0/spark-3.0.0-bin-hadoop3.2.tgz \
+     && tar xfvz spark-3.0.0-bin-hadoop3.2.tgz \
+     && sudo mv spark-3.0.0-bin-hadoop3.2 /opt/spark \
+     && rm -rf spark-3.0.0-bin-hadoop3.2.tgz \
      && sudo chown -R rsnet.rsnet /opt/spark/
 
 user:~$ sudo vi /etc/bash.bashrc
@@ -170,8 +171,11 @@ export PATH=$PATH:$SPARK_HOME/bin
 user:~$ cd $SPARK_HOME/conf
 user:~$ cp spark-env.sh.template spark-env.sh
 user:~$ vi spark-env.sh
+export HADOOP_HOME=/opt/hadoop
+export YARN_CONF_DIR=$HADOOP_HOME/etc/hadoop
 export PYSPARK_PYTHON=/usr/bin/python3
 export PYSPARK_DRIVER_PYTHON=/usr/bin/python3
+export SPARK_HOME=/opt/spark
 export SPARK_MASTER_HOST=vmaster
 export SPARK_LOG_DIR=${SPARK_HOME}/logs
 export SPARK_PID_DIR=${SPARK_HOME}/pids
@@ -181,7 +185,14 @@ user:~$ vi slaves
 vnode01
 vnode02
 
+user:~$ wget https://downloads.lightbend.com/scala/2.12.11/scala-2.12.11.deb \
+     && sudo dpkg -i scala-2.12.11.deb \
+     && rm -rf scala-2.12.11.deb \
+     && sudo apt update \
+     && sudo apt install scala
 
+user:~$ $SPARK_HOME/sbin/start-all.sh
+>> test : http://vmaster:8080/
 
 
 #########################################################################################
@@ -198,12 +209,13 @@ user:~$ sudo vi /etc/bash.bashrc
 export LIVY_HOME=/opt/livy
 export PATH=$PATH:$LIVY_HOME/bin
 
-user:~$ cd $LIVY_HOME/conf
-user:~$ cp livy.conf.template livy.conf
-user:~$ vi livy.conf
+user:~$ cd $LIVY_HOME/conf \
+     && cp livy.conf.template livy.conf \
+     && vi livy.conf
 livy.spark.master = spark://vmaster:7077
 
-user:~$ vi livy-env.sh
+user:~$ cp livy-env.sh.template livy-env.sh \
+     && vi $LIVY_HOME/conf/livy-env.sh
 export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 export SPARK_HOME=/opt/spark
 export SPARK_CONF_DIR=$SPARK_HOME/conf
@@ -212,7 +224,7 @@ export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
 export HADOOP_COMMON_LIB_NATIVE_DIR=${HADOOP_HOME}/lib/native
 export HADOOP_OPTS="${HADOOP_OPTS} -Djava.library.path=$HADOOP_COMMON_LIB_NATIVE_DIR"
 
-
+user:~$ livy-server start
 
 
 
