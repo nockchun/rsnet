@@ -5,7 +5,6 @@ services:
         # build:
         #     context: ./jupyterlab.kubeflow
         #     dockerfile: Dockerfile
-        # image: nockchun/jupyterlab.kubeflow:2.1.0
         image: nockchun/jupyterlab.kubeflow:2.1.0
         container_name: jupyterlab.kubeflow
         hostname: jupyterlab

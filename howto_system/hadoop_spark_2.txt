@@ -89,6 +89,14 @@ user:~$ vi $HADOOP_CONF_DIR/hdfs-site.xml
         <name>dfs.namenode.datanode.registration.ip-hostname-check</name>
         <value>false</value>
     </property>
+    <property>
+      <name>dfs.datanode.use.datanode.hostname</name>
+      <value>false</value>
+    </property>
+    <property>
+      <name>dfs.client.use.datanode.hostname</name>
+      <value>false</value>
+    </property>
 </configuration>
 
 
@@ -110,6 +118,20 @@ user:~$ vi $HADOOP_CONF_DIR/yarn-site.xml
         <name>yarn.acl.enable</name>
         <value>0</value>
     </property>
+    <property>
+        <name>yarn.application.classpath</name>
+        <value>
+            /opt/hadoop/etc/hadoop,
+            /opt/hadoop/share/hadoop/common/*,
+            /opt/hadoop/share/hadoop/common/lib/*,
+            /opt/hadoop/share/hadoop/hdfs/*,
+            /opt/hadoop/share/hadoop/hdfs/lib/*,
+            /opt/hadoop/share/hadoop/mapreduce/*,
+            /opt/hadoop/share/hadoop/mapreduce/lib/*,
+            /opt/hadoop/share/hadoop/yarn/*,
+            /opt/hadoop/share/hadoop/yarn/lib/*
+        </value>
+    </property>
 </configuration>
 
 user:~$ cp $HADOOP_CONF_DIR/mapred-site.xml.template $HADOOP_CONF_DIR/mapred-site.xml
@@ -128,11 +150,11 @@ user:~$ ssh-copy-id rsnet@vnode01
 user:~$ ssh-copy-id rsnet@vnode02
 
 user:~$ hdfs namenode -format
-user:~$ start-dfs.sh
+user:~$ $HADOOP_HOME/sbin/start-dfs.sh
 >> test : http://vmaster:50070
-user:~$ start-yarn.sh
+user:~$ $HADOOP_HOME/sbin/start-yarn.sh
 >> test : http://vmaster:8088
-user:~$ mr-jobhistory-daemon.sh start historyserver
+user:~$ $HADOOP_HOME/sbin/mr-jobhistory-daemon.sh start historyserver
 >> test : http://vmaster:19888
 
 
@@ -154,9 +176,9 @@ export YARN_CONF_DIR=$HADOOP_HOME/etc/hadoop
 export SPARK_HOME=/opt/spark
 export PATH=$PATH:$SPARK_HOME/bin
 
-user:~$ cd $SPARK_HOME/conf
-user:~$ cp spark-env.sh.template spark-env.sh
-user:~$ vi spark-env.sh
+user:~$ cd $SPARK_HOME/conf \
+     && cp spark-env.sh.template spark-env.sh \
+     && vi spark-env.sh
 export HADOOP_HOME=/opt/hadoop
 export YARN_CONF_DIR=$HADOOP_HOME/etc/hadoop
 export PYSPARK_PYTHON=/usr/bin/python3
@@ -166,12 +188,17 @@ export SPARK_MASTER_HOST=vmaster
 export SPARK_LOG_DIR=${SPARK_HOME}/logs
 export SPARK_PID_DIR=${SPARK_HOME}/pids
 
-user:~$ cp slaves.template slaves
-user:~$ vi slaves
+user:~$ cd $SPARK_HOME/conf \
+     && cp slaves.template slaves \
+     && vi slaves
 vnode01
 vnode02
 
-user:~$ sudo apt install scala
+user:~$ sudo apt install -y scala \
+     && echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list \
+     && sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823 \
+     && sudo apt update \
+     && sudo apt install -y sbt
 
 user:~$ $SPARK_HOME/sbin/start-all.sh
 >> test : http://vmaster:8080/
@@ -196,7 +223,8 @@ user:~$ cd $LIVY_HOME/conf \
      && vi livy.conf
 livy.spark.master = spark://vmaster:7077
 
-user:~$ cp livy-env.sh.template livy-env.sh \
+user:~$ cd $LIVY_HOME/conf \
+     && cp livy-env.sh.template livy-env.sh \
      && vi $LIVY_HOME/conf/livy-env.sh
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 export SPARK_HOME=/opt/spark
@@ -206,14 +234,14 @@ export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
 export HADOOP_COMMON_LIB_NATIVE_DIR=${HADOOP_HOME}/lib/native
 export HADOOP_OPTS="${HADOOP_OPTS} -Djava.library.path=$HADOOP_COMMON_LIB_NATIVE_DIR"
 
-user:~$ livy-server start
+user:~$ $LIVY_HOME/bin/livy-server start
 >> test : http://vmaster:8998
 
 
 #########################################################################################
 ###                                Jupyterlab Setting                                 ###
 #########################################################################################
-user:~$ conda install sparkmagic
+user:~$ conda install -c conda-forge sparkmagic -y
 user:~$ jupyter nbextension enable --py --sys-prefix widgetsnbextension
 user:~$ cd /opt/conda/lib/python3.7/site-packages/
 user:~$ jupyter-kernelspec install sparkmagic/kernels/sparkkernel

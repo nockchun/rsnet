@@ -103,10 +103,10 @@ RUN conda env update --name base --file environment.yml \
 # Spark Livy Setting
 RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension \
  && cd /opt/conda/lib/python3.7/site-packages \
- && jupyter-kernelspec install sparkmagic/kernels/sparkkernel \
- && jupyter-kernelspec install sparkmagic/kernels/pysparkkernel \
- && jupyter-kernelspec install sparkmagic/kernels/sparkrkernel
-ADD config.json ~/.sparkmagic/config.json
+ && jupyter-kernelspec install sparkmagic/kernels/sparkkernel --user \
+ && jupyter-kernelspec install sparkmagic/kernels/pysparkkernel --user \
+ && jupyter-kernelspec install sparkmagic/kernels/sparkrkernel --user 
+ADD config.json $HOME/.sparkmagic/config.json
 
 # Setting up container startup
 EXPOSE 8888
