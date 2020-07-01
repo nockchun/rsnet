@@ -580,6 +580,51 @@ user:~$ kubectl -n cattle-system rollout status deploy/rancher
 
 
 #########################################################################################
+###                                    PostgreSQL                                     ###
+#########################################################################################
+* Create Namespace ----------------------------------------------------------------------
+user:~$ kubectl create namespace postgresql
+
+* Install elasticsearch -----------------------------------------------------------------
+user:~$ wget https://raw.githubusercontent.com/bitnami/charts/master/bitnami/postgresql/values.yaml \
+     && mv values.yaml postgresql_values.yaml
+user:~$ helm repo add bitnami https://charts.bitnami.com/bitnami \
+     && helm repo update \
+     && helm install postgresql bitnami/postgresql -f postgresql_values.yaml --namespace postgresql
+
+
+user:~$ watch kubectl get all -n postgresql -o wide
+user:~$ kubectl port-forward -n elk svc/elasticsearch-master 9200:9200 &
+user:~$ curl http://localhost:9200/
+
+user:~$ cat <<EOF | kubectl apply -f -
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-postgres
+  namespace: postgresql
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: postgres.rsnet
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: postgresql
+          servicePort: 5432
+EOF
+
+
+
+
+
+
+
+
+
+#########################################################################################
 ###                          Docker Hub For Public & Private                          ###
 #########################################################################################
 * Public Docker-hub Usage ---------------------------------------------------------------
