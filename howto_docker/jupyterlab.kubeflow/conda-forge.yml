@@ -51,5 +51,9 @@ dependencies:
   - pyflakes
   - autopep8
   - ipywidgets
-  - tensorflow-gpu==2.1
+  - tensorflow-gpu==2.2
   - kfp
+  - beautifulsoup4
+  - cython
+  - psycopg2
+  

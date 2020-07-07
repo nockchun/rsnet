@@ -347,6 +347,27 @@ user:~$ kubectl get pods --namespace cert-manager
 
 
 #########################################################################################
+###                           HAPROXY Ingress Using Helm 3                            ###
+#########################################################################################
+* Install using Helm 3 ------------------------------------------------------------------
+user:~$ kubectl create namespace haproxy
+user:~$ wget https://raw.githubusercontent.com/haproxytech/helm-charts/master/kubernetes-ingress/values.yaml \
+     && mv values.yaml haproxy_values.yaml
+user:~$ helm install haproxy haproxytech/kubernetes-ingress -f haproxy_values.yaml --namespace haproxy \
+  --set controller.kind=DaemonSet \
+  --set controller.ingressClass=haproxy \
+  --set controller.service.type=LoadBalancer \
+  --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-internal"="0.0.0.0/0" \
+  --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-cross-zone-load-balancing-enabled"="true"
+
+user:~$ kubectl get service --namespace haproxy
+user:~$ kubectl patch svc haproxy-kubernetes-ingress -n haproxy -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.200"]}}'
+
+
+
+
+
+#########################################################################################
 ###                            NGINX Ingress Using Helm 3                             ###
 #########################################################################################
 * Install using Helm 3 ------------------------------------------------------------------
@@ -591,35 +612,27 @@ user:~$ wget https://raw.githubusercontent.com/bitnami/charts/master/bitnami/pos
 user:~$ helm repo add bitnami https://charts.bitnami.com/bitnami \
      && helm repo update \
      && helm install postgresql bitnami/postgresql -f postgresql_values.yaml --namespace postgresql
-
-
 user:~$ watch kubectl get all -n postgresql -o wide
-user:~$ kubectl port-forward -n elk svc/elasticsearch-master 9200:9200 &
-user:~$ curl http://localhost:9200/
+user:~$ kubectl port-forward --namespace postgresql svc/postgresql 5432:5432 &
+user:~$ ssh -f -N rsnet@vmaster -L5432:localhost:5432
 
 user:~$ cat <<EOF | kubectl apply -f -
-apiVersion: extensions/v1beta1
-kind: Ingress
+apiVersion: v1
+kind: Service
 metadata:
-  name: ingress-postgres
+  name: postgresql-external
   namespace: postgresql
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
-  rules:
-  - host: postgres.rsnet
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: postgresql
-          servicePort: 5432
+  type: LoadBalancer
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app: postgresql
 EOF
 
-
-
-
-
+kubectl patch service -n postgresql postgresql-external -p '{"spec": {"type": "LoadBalancer", "externalIPs":["192.168.0.200"]}}'
 
 
 

@@ -2,16 +2,8 @@ name: base
 channels:
   - anaconda
 dependencies:
-  - ipywidgets
-  - beautifulsoup4
   - snakeviz
-  - cython
-  # - psutil
-  # - pytables
-  # - re2
   - pip:
-    # - modin
-    # - modin[ray]
     - tfx
     - gym
     - gym[atari]

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="test">
+    <select id="testBasic">
+        SELECT *
+          FROM corporation
+    </select>
+
+    <insert id="inCorporation">
+    INSERT
+      INTO public.corporation(code, name, sectors, products, data_listing, month_settlement, name_ceo, homepage, area, is_cosdaq)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+    </insert>
+
+    <insert id="initDB">
+    DROP TABLE IF EXISTS corporation;
+    CREATE TABLE corporation (
+        code char(6) NOT NULL UNIQUE,
+        name varchar NOT NULL,
+        sectors varchar,
+        products varchar,
+        data_listing date,
+        month_settlement char(2),
+        name_ceo varchar,
+        homepage varchar,
+        area varchar,
+        is_cosdaq boolean NOT NULL,
+        PRIMARY KEY (code)
+    );
+    </insert>
+
+</mapper>
