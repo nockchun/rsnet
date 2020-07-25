@@ -14,19 +14,56 @@ services:
         volumes:
             - /data/dockerhub:/var/lib/registry
 
-    rsflask:
-        build:
-            context: ./flask
-            dockerfile: Dockerfile
-        image: rsflask
-        container_name: rsflask
-        hostname: rsflask
+    postgres:
+        image: postgres
+        container_name: postgres
+        hostname: postgres
         restart: always
-        env_file:
-            - .env
-        command:
-            python app.py
+        environment:
+            - POSTGRES_PASSWORD=postgres
         ports:
-            - "5080:5000"
+            - "5432:5432"
+        networks:
+            - rsnet
         volumes:
-            - ./flask/app:/app
+            - /data/postgres:/var/lib/postgresql/data
+
+    gitlab:
+        image: gitlab/gitlab-ce:latest
+        restart: always
+        hostname: honist.iptime.org
+        container_name: gitlab
+        environment:
+            GITLAB_OMNIBUS_CONFIG: |
+                external_url 'http://honist.iptime.org'
+                # Add any other gitlab.rb configuration here, each on its own line
+        ports:
+            - '80:80'
+            - '443:443'
+            - '22:22'
+        volumes:
+            - '/data/gitlab/config:/etc/gitlab'
+            - '/data/gitlab/logs:/var/log/gitlab'
+            - '/data/gitlab/data:/var/opt/gitlab'
+            - '/data/gitlab/backups:/var/opt/gitlab/backups'
+            
+    # rsflask:
+    #     build:
+    #         context: ./flask
+    #         dockerfile: Dockerfile
+    #     image: rsflask
+    #     container_name: rsflask
+    #     hostname: rsflask
+    #     restart: always
+    #     env_file:
+    #         - .env
+    #     command:
+    #         python app.py
+    #     ports:
+    #         - "5080:5000"
+    #     volumes:
+    #         - ./flask/app:/app
+
+networks:
+    rsnet:
+        driver: bridge
