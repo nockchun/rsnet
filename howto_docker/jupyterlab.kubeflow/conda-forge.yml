@@ -56,4 +56,5 @@ dependencies:
   - beautifulsoup4
   - cython
   - psycopg2
+  - pandas-profiling
   
