@@ -72,7 +72,8 @@ RUN chown -R $NB_USER.$NB_USER $CONDA_DIR \
 
 # Create Jupyterlab Environments
 RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
- && jupyter labextension install @jupyter-widgets/jupyterlab-manager@2 \
+ && jupyter lab build \
+ && jupyter labextension install @jupyter-widgets/jupyterlab-manager@2 @jupyterlab/git \
     @jupyterlab/application-extension @jupyterlab/apputils-extension @jupyterlab/codemirror-extension @jupyterlab/completer-extension \
     @jupyterlab/console-extension @jupyterlab/csvviewer-extension @jupyterlab/docmanager-extension @jupyterlab/documentsearch-extension \
     @jupyterlab/extensionmanager-extension @jupyterlab/filebrowser-extension @jupyterlab/fileeditor-extension @jupyterlab/help-extension \

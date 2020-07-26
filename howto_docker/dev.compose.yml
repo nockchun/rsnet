@@ -2,9 +2,9 @@ version: "3.4"
 
 services:
     jupyterlab:
-        build:
-            context: ./jupyterlab.kubeflow
-            dockerfile: Dockerfile
+        # build:
+        #     context: ./jupyterlab.kubeflow
+        #     dockerfile: Dockerfile
         image: nockchun/jupyterlab.kubeflow:2.2.0
         container_name: jupyterlab.kubeflow
         hostname: jupyterlab

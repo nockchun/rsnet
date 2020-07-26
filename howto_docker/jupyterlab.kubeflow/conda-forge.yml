@@ -57,4 +57,5 @@ dependencies:
   - cython
   - psycopg2
   - pandas-profiling
+  - jupyterlab-git
   
