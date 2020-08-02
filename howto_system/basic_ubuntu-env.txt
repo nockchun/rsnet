@@ -72,7 +72,7 @@ user:~$ sudo apt-get install fonts-unfonts-core fonts-unfonts-extra fonts-baekmu
 
 
 * Terminal Them With Powerline ----------------------------------------------------------
-root:~$ apt install powerline python-pip python-setuptools fonts-powerline fontconfig \
+root:~$ apt install powerline python3-pip python3-setuptools fonts-powerline fontconfig \
      && pip install git+git://github.com/Lokaltog/powerline \
      && wget https://github.com/Lokaltog/powerline/raw/develop/font/PowerlineSymbols.otf \
      && wget https://github.com/Lokaltog/powerline/raw/develop/font/10-powerline-symbols.conf \
@@ -81,8 +81,8 @@ root:~$ apt install powerline python-pip python-setuptools fonts-powerline fontc
      && mv 10-powerline-symbols.conf /etc/fonts/conf.d/
 
 root:~$ cat >> /etc/bash.bashrc << EOF
-if [ -f /usr/local/lib/python2.7/dist-packages/powerline/bindings/bash/powerline.sh ]; then
-    source /usr/local/lib/python2.7/dist-packages/powerline/bindings/bash/powerline.sh
+if [ -f /usr/share/powerline/bindings/bash/powerline.sh ]; then
+    source /usr/share/powerline/bindings/bash/powerline.sh
 fi
 EOF
 
