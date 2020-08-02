@@ -107,6 +107,12 @@ syntax on
 EOF
 
 
+* Chrome ---------------------------------------------------------------------------------
+user:~$ wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+user:~$ sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
+user:~$ sudo apt-get update
+user:~$ sudo apt-get install google-chrome-stable
+
 
 
 #########################################################################################
@@ -291,8 +297,8 @@ Move to the terminal below the current one : Alt + ↓
 #########################################################################################
 ###                                   Virtualbox 6                                    ###
 #########################################################################################
-root:~$ wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add - \
-     && echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian bionic contrib" | tee /etc/apt/sources.list.d/virtualbox.list \
+root:~$ wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add - \
+     && echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian focal contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list \
      && apt update
 root:~$ apt install -y virtualbox-6.1
 
