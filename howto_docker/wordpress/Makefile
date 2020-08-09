@@ -1,7 +1,7 @@
 # GLOBAL VARIABLES ----------------------------------------------------------
 DK  := docker
 DC  := docker-compose
-DCF := /data/notebooks/rsnet/howto_docker/dev.compose.yml
+DCF := /opt/wordpress/docker-compose.yml
 HUB := 192.168.0.101:5000
 
 # COLORS & UTIL FUNCTION ----------------------------------------------------
