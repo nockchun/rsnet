@@ -3,9 +3,12 @@ channels:
   - anaconda
 dependencies:
   - snakeviz
-  - pip:
-    - tfx
-    - gym
-    - gym[atari]
-    - tables
-    - apache-beam
+  - pillow
+  # - pip:
+  #   - tfx
+  #   - gym
+  #   - gym[atari]
+  #   - tables
+  #   - apache-beam
+  #   - import-ipynb
+  #   - jdc

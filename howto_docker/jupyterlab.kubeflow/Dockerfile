@@ -1,4 +1,4 @@
-FROM nvidia/cuda:10.2-devel-ubuntu18.04
+FROM nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04
 LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
 
 # Setup OS Base System Packages
@@ -10,8 +10,8 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
         libevent-dev libffi-dev libgdbm-dev libgeoip-dev libglib2.0-dev libgmp-dev libjpeg-dev libkrb5-dev liblzma-dev \
         libmagickcore-dev libmagickwand-dev libncurses5-dev libncursesw5-dev libpng-dev libpq-dev libreadline-dev xvfb \
         libsqlite3-dev libssl-dev libtool libwebp-dev libxml2-dev libxslt-dev libyaml-dev make patch unzip xz-utils zlib1g-dev \
-        iputils-ping dnsutils \
- && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
+        iputils-ping dnsutils language-pack-ko python-opengl ffmpeg \
+ && echo "ko_KR.UTF-8 UTF-8" > /etc/locale.gen \
  && locale-gen
 
 # Install Fonts
@@ -33,9 +33,9 @@ ENV CONDA_DIR=/opt/conda \
     SHELL=/bin/bash \
     NB_USER=$NB_USER \
     NB_UID=$NB_UID \
-    LC_ALL=en_US.UTF-8 \
-    LANG=en_US.UTF-8 \
-    LANGUAGE=en_US.UTF-8
+    LC_ALL=ko_KR.UTF-8 \
+    LANG=ko_KR.UTF-8 \
+    LANGUAGE=ko_KR.UTF-8
 ENV PATH=$CONDA_DIR/bin:$HOME/.local/bin:$PATH \
     HOME=/home/$NB_USER
 
@@ -60,12 +60,14 @@ RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERS
  && conda clean -tipsy \
  && sudo ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
  && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc \
- && echo "conda activate base" >> ~/.bashrc
+ && echo "conda activate base" >> ~/.bashrc \
+ && conda update -y pip setuptools \
+ && python -m pip install --upgrade pip setuptools \
+ && pip install ez_setup
 
 # Install Basic Conda Library
 ADD conda-forge.yml environment.yml
 RUN chown -R $NB_USER.$NB_USER $CONDA_DIR \
- && conda update -y pip setuptools \
  && conda env update --name base --file environment.yml \
  && rm environment.yml \
  && jupyter notebook --generate-config
@@ -87,6 +89,14 @@ RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
 RUN jupyter labextension install jupyter-matplotlib @jupyterlab/fasta-extension @jupyterlab/toc @jupyterlab/mathjax3-extension \
     @jupyterlab/geojson-extension @jupyterlab/katex-extension @lckr/jupyterlab_variableinspector
 
+# Upgrade Python Library
+ADD anaconda.yml environment.yml
+RUN conda env update --name base --file environment.yml \
+ && rm environment.yml
+ADD requirements.txt requirements.txt
+RUN pip install -r requirements.txt \
+ && rm requirements.txt
+
 USER root
 # Tini: https://github.com/krallin/tini
 RUN apt-get install -y curl grep sed dpkg && \
@@ -96,14 +106,9 @@ RUN apt-get install -y curl grep sed dpkg && \
     rm tini.deb && \
     apt-get clean
 
-# Upgrade Python Library
-ADD anaconda.yml environment.yml
-RUN conda env update --name base --file environment.yml \
- && rm environment.yml
-
 # Spark Livy Setting
 RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension \
- && cd /opt/conda/lib/python3.7/site-packages \
+ && cd /opt/conda/lib/python3.8/site-packages \
  && jupyter-kernelspec install sparkmagic/kernels/sparkkernel --user \
  && jupyter-kernelspec install sparkmagic/kernels/pysparkkernel --user \
  && jupyter-kernelspec install sparkmagic/kernels/sparkrkernel --user 

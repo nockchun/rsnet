@@ -62,7 +62,7 @@ root:~$ netplan apply
 user:~$ sudo apt install vim openssh-server build-essential
 
 
-* Install Fons --------------------------------------------------------------------------
+* Install Fonts --------------------------------------------------------------------------
 user:~$ sudo apt-get install fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts-nanum fonts-nanum-coding fonts-nanum-extra \
      && wget https://github.com/naver/d2codingfont/releases/download/VER1.21/D2Coding-1.2.zip \
      && sudo mkdir /usr/share/fonts/truetype/D2Coding \

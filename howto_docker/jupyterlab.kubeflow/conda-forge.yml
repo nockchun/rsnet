@@ -52,10 +52,12 @@ dependencies:
   - autopep8
   - ipywidgets
   - tensorflow-gpu==2.2
+  - tensorboard
   - kfp
   - beautifulsoup4
   - cython
   - psycopg2
   - pandas-profiling
   - jupyterlab-git
+  - pyarrow
   
