@@ -1,76 +1,82 @@
-FROM nvidia/cuda:10.1-base-ubuntu18.04
+FROM nvidia/cuda:10.2-cudnn7-base-ubuntu18.04
 LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
 
-ARG NB_USER="rsnet"
-ARG NB_UID="1000"
-ENV DEBIAN_FRONTEND noninteractive
-
-# Install system packages
+# Setup OS Base System Packages
 RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
- && apt clean && apt update && apt install -yq --no-install-recommends apt-utils \
-    ca-certificates sudo locales fonts-liberation bzip2 gcc g++ make git graphviz libgl1-mesa-glx libhdf5-dev openmpi-bin wget curl npm \
-    vim net-tools openssh-server sudo cmake zlib1g-dev libjpeg-dev xvfb xorg-dev xcftools \
-    libpng-dev libtiff5 libtiff5-dev xvfb xserver-xephyr vnc4server python-opengl \
- && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
+ && apt update --fix-missing && apt clean && apt update \
+ && apt install -y --no-install-recommends wget git curl bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 \
+        sudo locales fonts-liberation vim net-tools openssh-client graphviz libgl1-mesa-glx libhdf5-dev openmpi-bin \
+        autoconf automake dpkg-dev file g++ gcc imagemagick libbz2-dev libc6-dev libcurl4-openssl-dev libdb-dev cmake \
+        libevent-dev libffi-dev libgdbm-dev libgeoip-dev libglib2.0-dev libgmp-dev libjpeg-dev libkrb5-dev liblzma-dev \
+        libmagickcore-dev libmagickwand-dev libncurses5-dev libncursesw5-dev libpng-dev libpq-dev libreadline-dev xvfb \
+        libsqlite3-dev libssl-dev libtool libwebp-dev libxml2-dev libxslt-dev libyaml-dev make patch unzip xz-utils zlib1g-dev \
+        iputils-ping dnsutils language-pack-ko python-opengl ffmpeg \
+ && echo "ko_KR.UTF-8 UTF-8" > /etc/locale.gen \
  && locale-gen
 
 # Install Fonts
-RUN apt install unzip fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts-nanum fonts-nanum-coding fonts-nanum-extra \
+RUN apt install unzip fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts-nanum fonts-nanum-coding fonts-nanum-extra fonts-ubuntu-font-family-console \
  && wget https://github.com/naver/d2codingfont/releases/download/VER1.21/D2Coding-1.2.zip \
  && mkdir /usr/share/fonts/truetype/D2Coding \
  && unzip D2Coding-1.2.zip -d /usr/share/fonts/truetype/D2Coding/ \
  && rm -rf /usr/share/fonts/truetype/D2Coding/__MACOSX \
+ && rm -rf D2Coding-1.2.zip \
+ && wget -O mac-fonts.zip http://drive.noobslab.com/data/Mac/macfonts.zip \
+ && unzip mac-fonts.zip -d /usr/share/fonts \
+ && rm mac-fonts.zip \
  && fc-cache -f -v
 
-# Configure environment
+# Create a working directory
+RUN mkdir /app
+WORKDIR /app
+
+# Create a non-root user and switch to it
+RUN adduser --disabled-password --gecos '' --shell /bin/bash rsnet \
+ && chown -R rsnet:rsnet /app
+RUN echo "rsnet ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/90-rsnet
+USER rsnet
+
+# All users can use /home/user as their home directory
+ENV HOME=/home/rsnet
+RUN chmod 777 /home/rsnet
+
+# Configure Environments
 ENV CONDA_DIR=/opt/conda \
     SHELL=/bin/bash \
-    NB_USER=$NB_USER \
-    NB_UID=$NB_UID \
-    LC_ALL=en_US.UTF-8 \
-    LANG=en_US.UTF-8 \
-    LANGUAGE=en_US.UTF-8
-ENV PATH=$CONDA_DIR/bin:$PATH \
-    HOME=/home/$NB_USER
-
-# Create jovyan user with UID=1000 and in the 'users' group 
-RUN groupadd -g $NB_UID $NB_USER \
- && useradd -m -s /bin/bash -p $NB_USER -g $NB_USER -N -u $NB_UID $NB_USER \
- && mkdir -p $CONDA_DIR \
- && chown -R $NB_USER.$NB_USER $CONDA_DIR \
- && adduser $NB_USER sudo \
- && echo "$NB_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/$NB_USER \
- && chmod 0440 /etc/sudoers.d/$NB_USER
-
-USER $NB_USER
-WORKDIR $HOME
-
-# Install conda
-ENV MINICONDA_VERSION=latest
-RUN mkdir -p .conda
+    LC_ALL=ko_KR.UTF-8 \
+    LANG=ko_KR.UTF-8 \
+    LANGUAGE=ko_KR.UTF-8 \
+    PATH=$CONDA_DIR/bin:$HOME/.local/bin:$PATH \
+    HOME=/home/rsnet
 
 # Create MiniConda Environments as Base
+ENV MINICONDA_VERSION=latest
 RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
  && /bin/bash Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p $CONDA_DIR \
  && rm Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
- && conda config --system --prepend channels conda-forge \
- && conda config --system --set auto_update_conda true \
- && conda config --system --set show_channel_urls true \
- && conda install -y tini=0.18.0 \
- && conda update -n base -c defaults conda \
- && conda update --all -y \
+ && conda install -y python==3.8.1 \
+ && sudo ln -s /opt/conda/bin/conda /usr/bin/conda \
+ && sudo ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
  && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc \
- && conda install -c conda-forge --yes notebook jupyterhub jupyterlab==2 \
- && jupyter notebook --generate-config \
- && conda install -c plotly jupyterlab-dash -y
-
-# Create Tensorflow 2 Environments
-ADD environment.tf2.yml environment.yml
-RUN conda update -y pip setuptools \
+ && echo "conda activate base" >> ~/.bashrc \
+ && conda update -y pip setuptools \
  && python -m pip install --upgrade pip setuptools \
+ && pip install ez_setup \
+ && conda clean -ya
+
+# Install Basic Conda Library
+ADD conda-forge.yml environment.yml
+RUN chown -R $NB_USER.$NB_USER $CONDA_DIR \
  && conda env update --name base --file environment.yml \
  && rm environment.yml \
- && conda update -n base --all -y
+ && jupyter notebook --generate-config
+
+# CUDA 10.2-specific pytorch steps
+RUN conda install -y -c pytorch \
+    cudatoolkit=10.2 \
+    "pytorch=1.5.1=py3.8_cuda10.2.89_cudnn7.6.5_0" \
+    "torchvision=0.6.1=py38_cu102" \
+ && conda clean -ya
 
 # Adding Jupyterlab Extensions
 RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
@@ -88,18 +94,7 @@ RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
 RUN jupyter labextension install jupyter-matplotlib @jupyterlab/fasta-extension @jupyterlab/toc @jupyterlab/mathjax3-extension \
     @jupyterlab/geojson-extension @jupyterlab/katex-extension @lckr/jupyterlab_variableinspector
 
-# Create Tensorflow 1 Environments
-ADD environment.yml environment.yml
-RUN conda update -y pip setuptools \
- && python -m pip install --upgrade pip setuptools \
- && conda env update --name tf1 --file environment.yml \
- && rm environment.yml
-RUN ["/bin/bash" , "-c", "source activate tf1 && \
-    ipython kernel install --user --name tf1 --display-name 'Tensorflow 1' && \
-    conda deactivate"]
-
 # Setting Up JupyterLab Environments
-#USER root
 EXPOSE 8888
 EXPOSE 6006
 EXPOSE 22
@@ -111,5 +106,4 @@ RUN sudo chown -R $NB_USER.$NB_USER /notebooks
 # Setting up container startup
 ENTRYPOINT ["tini", "-g", "--"]
 
-USER $NB_USER
 WORKDIR /notebooks
