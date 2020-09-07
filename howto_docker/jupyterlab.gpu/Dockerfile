@@ -1,4 +1,4 @@
-FROM nvidia/cuda:10.2-cudnn7-base-ubuntu18.04
+FROM nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04
 LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
 
 # Setup OS Base System Packages
@@ -26,42 +26,50 @@ RUN apt install unzip fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts
  && rm mac-fonts.zip \
  && fc-cache -f -v
 
-# Create a working directory
-RUN mkdir /app
-WORKDIR /app
-
-# Create a non-root user and switch to it
-RUN adduser --disabled-password --gecos '' --shell /bin/bash rsnet \
- && chown -R rsnet:rsnet /app
-RUN echo "rsnet ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/90-rsnet
-USER rsnet
-
-# All users can use /home/user as their home directory
-ENV HOME=/home/rsnet
-RUN chmod 777 /home/rsnet
-
 # Configure Environments
+ARG NB_USER="jovyan"
+ARG NB_UID="1000"
 ENV CONDA_DIR=/opt/conda \
     SHELL=/bin/bash \
+    NB_USER=$NB_USER \
+    NB_UID=$NB_UID \
     LC_ALL=ko_KR.UTF-8 \
     LANG=ko_KR.UTF-8 \
-    LANGUAGE=ko_KR.UTF-8 \
-    PATH=$CONDA_DIR/bin:$HOME/.local/bin:$PATH \
-    HOME=/home/rsnet
+    LANGUAGE=ko_KR.UTF-8
+ENV PATH=$CONDA_DIR/bin:$HOME/.local/bin:$PATH \
+    HOME=/home/$NB_USER
+
+RUN groupadd -g $NB_UID $NB_USER \
+ && useradd -m -s /bin/bash -p $NB_USER -g $NB_USER -N -u $NB_UID $NB_USER \
+ && mkdir -p $CONDA_DIR \
+ && chown -R $NB_USER.$NB_USER $CONDA_DIR \
+ && adduser $NB_USER sudo \
+ && echo "$NB_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/$NB_USER \
+ && chmod 0440 /etc/sudoers.d/$NB_USER
+
+# Change User
+USER $NB_USER
+WORKDIR $HOME
 
 # Create MiniConda Environments as Base
 ENV MINICONDA_VERSION=latest
 RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
  && /bin/bash Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p $CONDA_DIR \
  && rm Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
- && conda install -y python==3.8.1 \
  && sudo ln -s /opt/conda/bin/conda /usr/bin/conda \
+ && conda clean -tipsy \
  && sudo ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
  && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc \
  && echo "conda activate base" >> ~/.bashrc \
  && conda update -y pip setuptools \
  && python -m pip install --upgrade pip setuptools \
- && pip install ez_setup \
+ && pip install ez_setup
+
+# CUDA 10.2-specific pytorch steps
+RUN conda install -y -c pytorch \
+    cudatoolkit=10.2 \
+    "pytorch=1.5.1=py3.8_cuda10.2.89_cudnn7.6.5_0" \
+    "torchvision=0.6.1=py38_cu102" \
  && conda clean -ya
 
 # Install Basic Conda Library
@@ -70,13 +78,6 @@ RUN chown -R $NB_USER.$NB_USER $CONDA_DIR \
  && conda env update --name base --file environment.yml \
  && rm environment.yml \
  && jupyter notebook --generate-config
-
-# CUDA 10.2-specific pytorch steps
-RUN conda install -y -c pytorch \
-    cudatoolkit=10.2 \
-    "pytorch=1.5.1=py3.8_cuda10.2.89_cudnn7.6.5_0" \
-    "torchvision=0.6.1=py38_cu102" \
- && conda clean -ya
 
 # Adding Jupyterlab Extensions
 RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
