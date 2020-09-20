@@ -2,6 +2,7 @@ FROM nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04
 LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
 
 # Setup OS Base System Packages
+SHELL ["/bin/bash", "--login", "-c"]
 RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
  && apt update --fix-missing && apt clean && apt update \
  && apt install -y --no-install-recommends wget git curl bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 \
@@ -27,7 +28,7 @@ RUN apt install unzip fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts
  && fc-cache -f -v
 
 # Configure Environments
-ARG NB_USER="jovyan"
+ARG NB_USER="rsnet"
 ARG NB_UID="1000"
 ENV CONDA_DIR=/opt/conda \
     SHELL=/bin/bash \
@@ -65,13 +66,6 @@ RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERS
  && python -m pip install --upgrade pip setuptools \
  && pip install ez_setup
 
-# CUDA 10.2-specific pytorch steps
-RUN conda install -y -c pytorch \
-    cudatoolkit=10.2 \
-    "pytorch=1.5.1=py3.8_cuda10.2.89_cudnn7.6.5_0" \
-    "torchvision=0.6.1=py38_cu102" \
- && conda clean -ya
-
 # Install Basic Conda Library
 ADD conda-forge.yml environment.yml
 RUN chown -R $NB_USER.$NB_USER $CONDA_DIR \
@@ -95,16 +89,48 @@ RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
 RUN jupyter labextension install jupyter-matplotlib @jupyterlab/fasta-extension @jupyterlab/toc @jupyterlab/mathjax3-extension \
     @jupyterlab/geojson-extension @jupyterlab/katex-extension @lckr/jupyterlab_variableinspector
 
-# Setting Up JupyterLab Environments
+# Create PyTorch Environments
+ADD pytorch.yml environment.yml
+RUN conda create -y -n pytorch ipykernel && conda activate pytorch \
+ && conda config --add channels conda-forge \
+ && conda install -y pytorch torchvision cudatoolkit=10.2 -c pytorch \
+ && ipython kernel install --user --name pytorch --display-name 'PyTorch' \
+ && conda env update --name pytorch --file ~/environment.yml \
+ && conda deactivate \
+ && rm ~/environment.yml
+
+# Tini: https://github.com/krallin/tini
+USER root
+RUN apt-get install -y curl grep sed dpkg && \
+    TINI_VERSION=`curl https://github.com/krallin/tini/releases/latest | grep -o "/v.*\"" | sed 's:^..\(.*\).$:\1:'` && \
+    curl -L "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini_${TINI_VERSION}.deb" > tini.deb && \
+    dpkg -i tini.deb && \
+    rm tini.deb && \
+    apt-get clean
+
+# Spark Livy Setting
+RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension \
+ && cd /opt/conda/lib/python3.8/site-packages \
+ && jupyter-kernelspec install sparkmagic/kernels/sparkkernel --user \
+ && jupyter-kernelspec install sparkmagic/kernels/pysparkkernel --user \
+ && jupyter-kernelspec install sparkmagic/kernels/sparkrkernel --user 
+ADD config.json $HOME/.sparkmagic/config.json
+
+# Setting up container startup
 EXPOSE 8888
 EXPOSE 6006
-EXPOSE 22
+
 VOLUME /notebooks
 VOLUME /ml_data
 VOLUME /tensorboard
-RUN sudo chown -R $NB_USER.$NB_USER /notebooks
+RUN chown -R $NB_USER.$NB_USER $HOME \
+ && chown -R $NB_USER.$NB_USER $CONDA_DIR \
+ && chown -R $NB_USER.$NB_USER /notebooks \
+ && chown -R $NB_USER.$NB_USER /ml_data \
+ && chown -R $NB_USER.$NB_USER /tensorboard
 
 # Setting up container startup
+USER $NB_USER
 ENTRYPOINT ["tini", "-g", "--"]
 
 WORKDIR /notebooks

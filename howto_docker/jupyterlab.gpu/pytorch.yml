@@ -1,14 +1,9 @@
-name: base
+name: pytorch
 channels:
   - conda-forge
 dependencies:
-  - jupyterlab
-  - jupyter_contrib_nbextensions
-  - jupyter_nbextensions_configurator
-  - widgetsnbextension
   - ipykernel
   - pyyaml
-  - jupyterlab-git
   - ipywidgets
   - ipytest
   - seaborn
@@ -55,8 +50,4 @@ dependencies:
   - matplotlib
   - elasticsearch
   - sparkmagic
-  - celery
-  - tensorflow-gpu
-  - tensorboard
-  # - cufflinks-py
- 
+  - celery 

@@ -3,10 +3,10 @@ version: "3.4"
 services:
     jupyterlab:
         # build:
-        #     context: ./jupyterlab.kubeflow
+        #     context: ./jupyterlab.gpu
         #     dockerfile: Dockerfile
-        image: nockchun/jupyterlab.kubeflow:2.2.1
-        container_name: jupyterlab.kubeflow
+        image: nockchun/jupyterlab.gpu:1.0
+        container_name: jupyterlab.gpu
         hostname: jupyterlab
         restart: always
         # network_mode: host
@@ -16,11 +16,11 @@ services:
         networks:
             - rsnet
         volumes:
-            - /data/notebooks:/home/jovyan
+            - /data/notebooks:/notebooks
             - /data/notebooks/ml_data:/ml_data
             - /data/notebooks/tensorboard:/tensorboard
         command:
-            jupyter lab --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
+            jupyter lab --notebook-dir=/notebooks --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
 
 networks:
     rsnet:
