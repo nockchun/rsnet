@@ -34,8 +34,13 @@ user:~$ curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key 
 user:~$ sudo apt update
 
 
-* bluetooth repogitory ------------------------------------------------------------------
-user:~$ sudo add-apt-repository ppa:bluetooth/bluez
+* bluetooth Sound Headset Drivers --------------------------------------------------------
+user:~$ sudo apt-get install bluez*
+user:~$ sudo apt-get install blueman
+user:~$ modprobe btusb
+user:~$ sudo systemctl restart bluetooth
+user:~$ vi /etc/bluetooth/main.conf
+ControllerMode = dual
 
 
 * iOS connect drivers -------------------------------------------------------------------
@@ -108,10 +113,10 @@ EOF
 
 
 * Chrome ---------------------------------------------------------------------------------
-user:~$ wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-user:~$ sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
-user:~$ sudo apt-get update
-user:~$ sudo apt-get install google-chrome-stable
+user:~$ wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add - \
+     && sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+     && sudo apt-get update \
+     && sudo apt-get install google-chrome-stable
 
 
 
@@ -278,11 +283,11 @@ user:~$ sudo apt install sublime-text sublime-merge
 #########################################################################################
 ###                                      VSCODE                                       ###
 #########################################################################################
-user:~$ curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
-user:~$ sudo install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/
-user:~$ sudo sh -c 'echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
-user:~$ sudo apt update
-user:~$ sudo apt install code
+user:~$ curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg \
+     && sudo install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/ \
+     && sudo sh -c 'echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list' \
+     && sudo apt update \
+     && sudo apt install code
 
 
 
@@ -331,9 +336,9 @@ user:~$ sudo systemctl daemon-reload \
 ###                                      L2TP VPN                                     ###
 #########################################################################################
 * Install -------------------------------------------------------------------------------
-user:~$ sudo add-apt-repository ppa:nm-l2tp/network-manager-l2tp
-user:~$ sudo apt install network-manager-l2tp network-manager-l2tp-gnome
-user:~$ sudo apt install xl2tpd
+user:~$ sudo add-apt-repository ppa:nm-l2tp/network-manager-l2tp \
+     && sudo apt install network-manager-l2tp network-manager-l2tp-gnome \
+     && sudo apt install xl2tpd
 
 
 
