@@ -17,6 +17,7 @@ services:
             - rsnet
         volumes:
             - /data/notebooks:/notebooks
+            - /data/share:/data
             - /data/notebooks/ml_data:/ml_data
             - /data/notebooks/tensorboard:/tensorboard
         command:

@@ -58,5 +58,5 @@ dependencies:
   - celery
   - tensorflow-gpu
   - tensorboard
-  # - cufflinks-py
+  - ipympl
  
