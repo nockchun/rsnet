@@ -93,7 +93,7 @@ RUN jupyter labextension install jupyter-matplotlib @jupyterlab/fasta-extension 
 ADD pytorch.yml environment.yml
 RUN conda create -y -n pytorch ipykernel && conda activate pytorch \
  && conda config --add channels conda-forge \
- && conda install -y pytorch torchvision cudatoolkit=10.2 -c pytorch \
+ && conda install -y pytorch torchvision torchaudio cudatoolkit=11.0 -c pytorch \
  && ipython kernel install --user --name pytorch --display-name 'PyTorch' \
  && conda env update --name pytorch --file ~/environment.yml \
  && conda deactivate \
