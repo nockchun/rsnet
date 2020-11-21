@@ -53,7 +53,7 @@ dependencies:
   - celery 
   - ipympl
   - nltk
+  - pip
   - pip:
     - gensim
     - ray
-    - modin
