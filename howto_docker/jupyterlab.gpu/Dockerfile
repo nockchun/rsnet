@@ -1,4 +1,4 @@
-FROM nvidia/cuda:10.2-cudnn7-runtime-ubuntu18.04
+FROM nvidia/cuda:11.1-cudnn8-runtime-ubuntu18.04
 LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
 
 # Setup OS Base System Packages
@@ -11,7 +11,7 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
         libevent-dev libffi-dev libgdbm-dev libgeoip-dev libglib2.0-dev libgmp-dev libjpeg-dev libkrb5-dev liblzma-dev \
         libmagickcore-dev libmagickwand-dev libncurses5-dev libncursesw5-dev libpng-dev libpq-dev libreadline-dev xvfb \
         libsqlite3-dev libssl-dev libtool libwebp-dev libxml2-dev libxslt-dev libyaml-dev make patch unzip xz-utils zlib1g-dev \
-        iputils-ping dnsutils language-pack-ko python-opengl ffmpeg \
+        iputils-ping dnsutils language-pack-ko python-opengl ffmpeg openjdk-11-jre-headless \
  && echo "ko_KR.UTF-8 UTF-8" > /etc/locale.gen \
  && locale-gen
 

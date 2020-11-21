@@ -59,4 +59,5 @@ dependencies:
   - tensorflow-gpu
   - tensorboard
   - ipympl
- 
+  - keras-radam
+  - gensim
