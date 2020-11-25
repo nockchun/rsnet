@@ -8,6 +8,7 @@ services:
         image: nockchun/jupyterlab.gpu:1.0
         container_name: jupyterlab.gpu
         hostname: jupyterlab
+        shm_size: "16gb"
         restart: always
         # network_mode: host
         ports:
