@@ -10,7 +10,7 @@ services:
         hostname: jupyterlab
         shm_size: "16gb"
         environment:
-            - PYTHONPATH=/notebooks
+            - PYTHONPATH=/notebooks:/notebooks/ai-projs:$PYTHONPATH
         restart: always
         # network_mode: host
         ports:
