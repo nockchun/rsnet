@@ -9,6 +9,8 @@ services:
         container_name: jupyterlab.gpu
         hostname: jupyterlab
         shm_size: "16gb"
+        environment:
+            - PYTHONPATH=/notebooks
         restart: always
         # network_mode: host
         ports:
