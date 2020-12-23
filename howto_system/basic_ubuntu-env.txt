@@ -24,6 +24,9 @@ root# update-alternatives --config python
 sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list
 
 
+* Ubuntu Key Update ---------------------------------------------------------------------
+root# apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6ED91CA3AC1160CD
+
 
 #########################################################################################
 ###                              Drivers & Basic Settings                             ###
@@ -579,9 +582,45 @@ user:~$ ceph fs new filesystem cephfs_metadata cephfs_data
 user:~$ ceph auth get client.admin
 
 
-* Using distibut node at client ---------------------------------------------
+* Using distibut node at client ----------------------------------------------------
 root:~$ vi /root/admin.secret
 AQB9Sctey0pxLxAAfTRtV8TLe3IbXXOkID131w==
 root:~$ mkdir /mnt/ceph
 root:~$ mount -t ceph 192.168.0.211:6789:/ /mnt/ceph/ -o name=admin,secretfile=/root/admin.secret
+
+
+
+
+#########################################################################################
+###                                      Dnsmasq                                      ###
+#########################################################################################
+* Install  -------------------------------------------------------------------------
+root:~$ apt install dnsmasq <-- it will be error
+root:~$ vi /etc/systemd/resolved.conf
+[Resolve]
+DNSStubListener=no
+
+root:~$ systemctl restart systemd-resolved.service
+
+* DNS Config Setting  --------------------------------------------------------------
+* host ip : 10.10.10.10
+root:~$ vi /etc/hosts
+10.10.10.1 test1.my.com
+10.10.10.2 test2.my.com
+
+root:~$ vi /etc/resolv.conf
+nameserver 10.10.10.10
+
+root:~$ vi /etc/resolv.dnsmasq
+nameserver 8.8.8.8
+
+root:~$ vi /etc/dnsmasq.conf
+resolv-file=/etc/resolv.dnsmasq
+
+* Dnsmasq restart  ----------------------------------------------------------------
+root:~$ systemctl restart dnsmasq.service
+root:~$ systemctl status dnsmasq.service <-- status ok
+
+
+
 
