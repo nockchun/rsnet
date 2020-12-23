@@ -1,0 +1,2 @@
+https://help.iwinv.kr/manual/read.html?idx=548
+https://docs.splunk.com/Documentation/Splunk/8.1.1/Installation/DeployandrunSplunkEnterpriseinsideDockercontainers
