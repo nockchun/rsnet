@@ -7,7 +7,7 @@ services:
     networks:
       - proxy
     ports:
-      - "80:80"
+      - "80:8040"
     volumes:
       - "/var/run/docker.sock:/tmp/docker.sock:ro"
       - "./vhost.d:/etc/nginx/vhost.d:ro"
