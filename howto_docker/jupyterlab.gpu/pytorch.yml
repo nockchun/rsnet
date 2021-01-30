@@ -2,6 +2,12 @@ name: pytorch
 channels:
   - conda-forge
 dependencies:
+  - python=3.8
+  - jupyterlab
+  - jupyter_console
+  - jupyter_contrib_nbextensions
+  - jupyter_nbextensions_configurator
+  - widgetsnbextension
   - ipykernel
   - pyyaml
   - ipywidgets
@@ -12,7 +18,6 @@ dependencies:
   - more-itertools
   - statsmodels
   - sympy
-  - opencv
   - pyvirtualdisplay
   - google-resumable-media
   - dill
@@ -26,12 +31,8 @@ dependencies:
   - scikit-learn
   - scipy
   - kfp
-  - spacy
   - sqlalchemy
   - networkx
-  - graphviz
-  - python-graphviz
-  - pyflakes
   - autopep8
   - beautifulsoup4
   - cython
@@ -52,8 +53,16 @@ dependencies:
   - sparkmagic
   - celery 
   - ipympl
-  - nltk
+  - bqplot
   - pip
   - pip:
+    - jdc
     - gensim
     - ray
+    - modin[ray]
+    - opencv-python
+    - graphviz
+    - pyflakes
+    - nengo-dl
+    - nengo[all]
+    - nengo-gui

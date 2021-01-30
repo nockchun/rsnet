@@ -11,7 +11,8 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
         libevent-dev libffi-dev libgdbm-dev libgeoip-dev libglib2.0-dev libgmp-dev libjpeg-dev libkrb5-dev liblzma-dev \
         libmagickcore-dev libmagickwand-dev libncurses5-dev libncursesw5-dev libpng-dev libpq-dev libreadline-dev xvfb \
         libsqlite3-dev libssl-dev libtool libwebp-dev libxml2-dev libxslt-dev libyaml-dev make patch unzip xz-utils zlib1g-dev \
-        iputils-ping dnsutils language-pack-ko python-opengl ffmpeg openjdk-11-jre-headless \
+        iputils-ping dnsutils language-pack-ko python-opengl ffmpeg openjdk-11-jre-headless libatlas-base-dev libgflags-dev \
+        libgoogle-glog-dev libhdf5-serial-dev libleveldb-dev liblmdb-dev libprotobuf-dev libsnappy-dev protobuf-compiler \
  && echo "ko_KR.UTF-8 UTF-8" > /etc/locale.gen \
  && locale-gen
 
@@ -58,11 +59,11 @@ RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERS
  && /bin/bash Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p $CONDA_DIR \
  && rm Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
  && sudo ln -s /opt/conda/bin/conda /usr/bin/conda \
- && conda clean -tipsy \
  && sudo ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
  && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc \
  && echo "conda activate base" >> ~/.bashrc \
- && conda update -y pip setuptools \
+ && conda install --yes nomkl conda-build \
+ && conda update --yes pip setuptools \
  && python -m pip install --upgrade pip setuptools \
  && pip install ez_setup
 
@@ -91,9 +92,9 @@ RUN jupyter labextension install jupyter-matplotlib @jupyterlab/fasta-extension 
 
 # Create PyTorch Environments
 ADD pytorch.yml environment.yml
-RUN conda create -y -n pytorch ipykernel && conda activate pytorch \
+RUN conda create -y -n pytorch ipykernel python=3.8 && conda activate pytorch \
  && conda config --add channels conda-forge \
- && conda install -y pytorch torchvision torchaudio cudatoolkit=11.0 -c pytorch \
+ && conda install --yes pytorch torchvision torchaudio cudatoolkit=11.0 -c pytorch \
  && ipython kernel install --user --name pytorch --display-name 'PyTorch' \
  && conda env update --name pytorch --file ~/environment.yml \
  && conda deactivate \
@@ -123,6 +124,14 @@ EXPOSE 6006
 VOLUME /notebooks
 VOLUME /ml_data
 VOLUME /tensorboard
+
+# Cleanning System.
+RUN conda clean -aftipy \
+ && conda build purge-all \
+ && find /opt/conda/ -follow -type f -name '*.a' -delete \
+ && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
+ && find /opt/conda/ -follow -type f -name '*.js.map' -delete
+
 RUN chown -R $NB_USER.$NB_USER $HOME \
  && chown -R $NB_USER.$NB_USER $CONDA_DIR \
  && chown -R $NB_USER.$NB_USER /notebooks \
