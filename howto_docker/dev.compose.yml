@@ -2,9 +2,9 @@ version: "3.4"
 
 services:
     jupyterlab:
-        build:
-            context: ./jupyterlab.gpu
-            dockerfile: Dockerfile
+        # build:
+        #     context: ./jupyterlab.gpu
+        #     dockerfile: Dockerfile
         image: nockchun/jupyterlab.gpu:1.0
         container_name: jupyterlab.gpu
         hostname: jupyterlab
