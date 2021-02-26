@@ -10,7 +10,7 @@ dependencies:
   - widgetsnbextension
   - ipykernel
   - pyyaml
-  - jupyterlab-git
+  # - jupyterlab-git
   - ipywidgets
   - ipytest
   - seaborn
@@ -59,10 +59,12 @@ dependencies:
   - celery
   - tensorflow-gpu
   - tensorboard
+  - tensorflow-datasets
   - ipympl
   - bqplot
   - pip
   - pip:
+    - jupyterlab-git
     - jdc
     - tensorflow-addons
     - gensim
