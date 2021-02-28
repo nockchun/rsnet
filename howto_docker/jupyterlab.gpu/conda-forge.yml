@@ -64,7 +64,6 @@ dependencies:
   - bqplot
   - pip
   - pip:
-    - jupyterlab-git
     - jdc
     - tensorflow-addons
     - gensim
