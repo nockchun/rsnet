@@ -67,7 +67,7 @@ root:~$ netplan apply
 
 
 * Install Basic Library -----------------------------------------------------------------
-user:~$ sudo apt install vim openssh-server build-essential
+user:~$ sudo apt install vim openssh-server build-essential unzip
 
 
 * Install Fonts --------------------------------------------------------------------------

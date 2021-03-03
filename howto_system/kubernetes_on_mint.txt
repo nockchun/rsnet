@@ -25,8 +25,8 @@ tunnelfunction() {
 #########################################################################################
 ###                      Docker, Nvidia-Docker2 For Kubeflow 1.0                      ###
 #########################################################################################
-※ Kuberflow 1.0 system requirements
-  > kubeflow 1.0 == docker-ce-18.09.8 + Kubernetes 1.15
+※ Kuberflow 1.2 system requirements (https://www.kubeflow.org/docs/started/k8s/overview/)
+  > kubeflow 1.2 == docker-ce-18.09.8 + Kubernetes 1.16
 
 * Docker & Docker-Compose Install -------------------------------------------------------
 user:~$ sudo apt install -y apt-transport-https ca-certificates curl software-properties-common \
@@ -67,7 +67,7 @@ user:~$ sudo systemctl daemon-reload \
 
 
 #########################################################################################
-###                            Kubernetes For Kubeflow 1.0                            ###
+###                            Kubernetes For Kubeflow 1.2                            ###
 #########################################################################################
 * swap & sysctl settings for Kubernetes networking --------------------------------------
 root:~$ swapoff -a \
@@ -100,7 +100,7 @@ root:~$ cat <<EOF > /etc/apt/sources.list.d/kubernetes.list
 deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 root:~$ apt update \
-     && apt install -y kubelet=1.15.7-00 kubeadm=1.15.7-00 kubectl=1.15.7-00 \
+     && apt install -y kubelet=1.16.15-00 kubeadm=1.16.15-00 kubectl=1.16.15-00 \
      && apt-mark hold kubelet kubeadm kubectl
 
 
@@ -237,7 +237,7 @@ user:~$ ssh -f -N rsnet@master -L9901:localhost:8001
 
 
 #########################################################################################
-###                                      Kubeflow                                     ###
+###                                   Kubeflow 1.2                                    ###
 #########################################################################################
 * Service Account Token Volume Projection -----------------------------------------------
 user:~$ sudo vi /etc/kubernetes/manifests/kube-apiserver.yaml
