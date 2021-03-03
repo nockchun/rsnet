@@ -122,7 +122,7 @@ user:~$ sudo reboot
 
 
 * Setting Up For Master -----------------------------------------------------------------
-user:~$ sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.24.200
+user:~$ sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.0.24
 user:~$ mkdir ~/.kube \
      && sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config \
      && sudo chown -R $(id -u):$(id -g) ~/.kube \
@@ -173,7 +173,7 @@ user:~$ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/ma
      && chmod u+x get_helm.sh \
      && ./get_helm.sh
 
-user:~$ helm repo add stable https://kubernetes-charts.storage.googleapis.com \
+user:~$ helm repo add stable https://charts.helm.sh/stable \
      && helm repo update \
      && helm search repo stable
 
