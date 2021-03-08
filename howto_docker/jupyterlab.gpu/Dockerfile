@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.1-cudnn8-runtime-ubuntu18.04
+FROM nvidia/cuda:11.2.1-cudnn8-runtime-ubuntu18.04
 LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
 
 # Setup OS Base System Packages

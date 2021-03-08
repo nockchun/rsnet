@@ -71,4 +71,3 @@ dependencies:
     - modin[ray]
     - nengo-dl
     - nengo[all]
-    - nengo-gui
