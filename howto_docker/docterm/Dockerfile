@@ -1,5 +1,5 @@
 FROM alpine:latest
-MAINTAINER RealStudy.NET <nockchun@gmail.com>
+MAINTAINER RealStudy.NET <realstudynet@gmail.com>
 
 # Timezone
 ENV TIMEZONE Asia/Seoul
