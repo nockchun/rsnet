@@ -1,4 +1,4 @@
-import os, json, logging, logging.config, yaml
+import os, json, logging.config, yaml
 from flask import Flask
 from pymongo import MongoClient
 

@@ -12,7 +12,7 @@ handlers:
     class: logging.StreamHandler
     level: DEBUG
     formatter: standard
-    stream: ext://sys.stdout
+    stream: ext://sys.stdout # ext://sys.stderr
 
   debug_file_handler:
     class: logging.handlers.RotatingFileHandler
