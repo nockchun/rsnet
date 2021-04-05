@@ -3,6 +3,8 @@
 root# apt install -y fonts-nanum*
 root# apt install -y zenity nabi
 root# apt install -y fonts-nanum fonts-nanum-coding fonts-unfonts-core
+root# apt install fcitx-lib*
+root# apt install fcitx-hangul
 root# apt install -y im-config
 root# im-config
 
