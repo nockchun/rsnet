@@ -8,7 +8,7 @@ RUN sed -i 's/archive.ubuntu.com/ftp.harukasan.org/g' /etc/apt/sources.list \
  && locale-gen
 
 # Install web service environments
-RUN pip install flask pymongo
+RUN pip install flask pymongo pyyaml
 COPY app /app
 
 # Config server environments

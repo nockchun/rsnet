@@ -1,6 +1,9 @@
-import os, json
+import os, json, logging, logging.config, yaml
 from flask import Flask
 from pymongo import MongoClient
+
+conf_log = yaml.safe_load(open("logging.yaml"))
+logging.config.dictConfig(conf_log)
 
 app = Flask(__name__)
 env_username = os.getenv("MONGO_USERNAME", "admin")
@@ -35,6 +38,15 @@ def listingDB():
     documents_str = json.dumps([doc["name"] for doc in documents], ensure_ascii = False)
     
     return f"collections: {collections_str}<br>documents: {documents_str}"
+
+@app.route("/log")
+def logme():
+    import logdemo1, logdemo2
+
+    logdemo1.demo.doLogging()
+    logdemo2.demo.doLogging()
+
+    return "log generated."
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
