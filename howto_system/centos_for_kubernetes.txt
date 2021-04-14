@@ -15,54 +15,33 @@ DNS2=8.8.8.8
 root# yum install -y epel-release
 root# yum install -y bash-completion-extras
 
-# Ubuntu Color Setting
-if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+* Python & Powerline Bash ---------------------------------------------------------------
+root# sudo yum install -y epel-release
+root# sudo yum install wget sysstat lrzsz lsof bzip2 unzip iftop -y \
+   && sudo yum install python3 python3-pip git fontconfig -y
+root# sudo ln -s /usr/bin/pip3 /usr/bin/pip \
+   && sudo ln -s /usr/bin/python3 /usr/bin/python \
+   && sudo pip install --upgrade pip \
+   && sudo pip install git+git://github.com/Lokaltog/powerline
+root# wget https://github.com/Lokaltog/powerline/raw/develop/font/PowerlineSymbols.otf \
+   && wget https://github.com/Lokaltog/powerline/raw/develop/font/10-powerline-symbols.conf \
+   && sudo mv PowerlineSymbols.otf /usr/share/fonts/ \
+   && sudo mv 10-powerline-symbols.conf /etc/fonts/conf.d/ \
+   && fc-cache -vf /usr/share/fonts/
+
+root# cat >>/etc/bashrc<<EOF
+
+export TERM="screen-256color"
+if [ -f `which powerline-daemon` ]; then
+    powerline-daemon -q
+    POWERLINE_BASH_CONTINUATION=1
+    POWERLINE_BASH_SELECT=1
 fi
-
-
-# VIM & Color -------------------------------------------------------------
-root# yum install -y vim
-root# vi /etc/profile
-alias vi="vim"
-
-root# vi /etc/profile
-# Shorten home dir, cygwin drives, paths that are too long
-if [ -d /cygdrive ] && uname -a |grep -qi cygwin; then CYGWIN_OS=1; fi
-function PSWD() {
-  local p="$*" space A B cols="${COLUMNS:-`tput cols 2>/dev/null || echo 80`}"
-  p="${p/$HOME/\~}"         # shrink home down to a tilde
-  if [ -n "$CYGWIN_OS" ] && [ "${p#/cygdrive/?/}" != "$p" ]; then
-    p="${p:10:1}:${p:11}"   # /cygdrive/c/hi -> c:/hi
-  fi
-  space="$((${#USER}+${#HOSTNAME}+6))"  # width w/out the path
-  if [ "$cols" -lt 60 ]; then echo -n "$N "; space=-29; p="$p$N\b"; fi
-  if [ "$cols" -lt "$((space+${#p}+20))" ]; then # < 20 chars for the command
-    A=$(( (cols-20-space)/4 ))      # a quarter of the space (-20 for cmd)
-    if [ $A -lt 4 ]; then A=4; fi   # 4+ chars from beginning
-    B=$(( cols-20-space-A*2 ))      # half (plus rounding) of the space
-    if [ $B -lt 8 ]; then B=8; fi   # 8+ chars from end
-    p="${p:0:$A}..${p: -$B}"
-  fi
-  echo "$p"
-}
-
-PSC() { echo -ne "\[\033[${1:-0;38}m\]"; }
-PR="0;32"       # default color used in prompt is green
-if [ "$(id -u)" = 0 ]; then
-    sudo=41     # root is red background
-  elif [ "$USER" != "${SUDO_USER:-$USER}" ]; then
-    sudo=31     # not root, not self: red text
-  else sudo="$PR"   # standard user color
+if [ -f /usr/local/lib/python3.6/site-packages/powerline/bindings/bash/powerline.sh ]; then
+    source /usr/local/lib/python3.6/site-packages/powerline/bindings/bash/powerline.sh
 fi
-PROMPT_COMMAND='[ $? = 0 ] && PS1=${PS1[1]} || PS1=${PS1[2]}'
-PSbase="$(PSC $sudo)\u$(PSC $PR)@\h $(PSC 33)\$(PSWD \w)"
-PS1[1]="$PSbase$(PSC $PR)\$ $(PSC)"
-PS1[2]="$PSbase$(PSC  31)\$ $(PSC)"
-PS1="${PS1[1]}"
-unset sudo PR PSbase
+EOF
+
 
 # NTFS Driver -------------------------------------------------------------
 root# yum install -y ntfs-3g
@@ -77,6 +56,9 @@ root# sed -i 's/^SELINUX=enforcing$/SELINUX=disabled/' /etc/selinux/config
 
 ###########################################################################
 * Vi Editor (~/.vimrc)
+root# yum install -y vim
+root# cat >>/etc/vimrc<<EOF
+
 set number
 set tabstop=4
 set shiftwidth=4
@@ -89,6 +71,15 @@ set title
 set statusline=\ %<%l:%v\ [%P]%=%a\ %h%m%r\ %F\
 
 syntax on
+EOF
+
+# Powerline vim -----------------------------------------------------------
+root# cat >>/etc/vimrc<<EOF
+
+set rtp+=/usr/local/lib/python3.6/site-packages/powerline/bindings/vim/
+set laststatus=2
+set t_Co=256
+EOF
 
 ###########################################################################
 # Install git2 new version
@@ -148,23 +139,18 @@ root# yum install -y dkms
 root# mount /dev/cdrom /mnt/VBoxLinuxAdditions
 root# /mnt/VBoxLinuxAdditions.run --nox11
 
-
 ###########################################################################
-# Install Docker & Compose on CentOS 7
-# docker-ce-18.09.8 : Kubernetes 1.15 : kubeflow 0.7
+# Install Docker & Compose on CentOS 8
+# kubeflow 1.2 == docker-ce-18.09.8 + Kubernetes 1.16 (https://www.kubeflow.org/docs/started/k8s/overview/)
 user:~$ sudo yum install -y yum-utils device-mapper-persistent-data lvm2
 user:~$ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-user:~$ sudo yum install -y docker-ce-19.03.4 docker-ce-cli-19.03.4 containerd.io-1.2.10
+user:~$ sudo yum install -y docker-ce docker-ce-cli containerd.io
 user:~$ sudo usermod -aG docker $(whoami)
 user:~$ sudo systemctl enable docker.service
 user:~$ sudo systemctl start docker.service
-user:~$ sudo yum install -y epel-release
-user:~$ sudo yum install -y python-pip
-user:~$ sudo yum install gcc glibc glibc-common gd gd-devel python-devel -y
+user:~$ sudo yum install gcc glibc glibc-common gd gd-devel python3-devel -y
 user:~$ sudo pip install docker-compose
-user:~$ sudo yum upgrade python*
 user:~$ docker-compose version
-
 
 ###########################################################################
 # Install Nvidia-Docker on CentOS 7
@@ -196,13 +182,15 @@ root:~$ curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-d
 root:~$ yum install nvidia-docker2
 
 ###########################################################################
-###########################################################################
 # Install Kubernetes
 # Master & Node HOST File Setting -----------------------------------------
 root# cat >> /etc/hosts<<EOF
-10.10.1.101 master.lab master
-10.10.1.111 node01.lab node01
-10.10.1.112 node02.lab node02
+192.168.0.24 vmaster
+192.168.0.25 vnode1
+192.168.0.26 vnode2
+192.168.0.27 vnode3
+192.168.0.28 vnode4
+192.168.0.29 vnode5
 EOF
 
 # Disable swap ------------------------------------------------------------
@@ -247,24 +235,23 @@ EOF
 root# mkdir -p /etc/systemd/system/docker.service.d
 
 # Start Docker
-root# systemctl daemon-reload
-root# systemctl enable kubelet
-root# systemctl start kubelet
+root# systemctl daemon-reload \
+   && systemctl enable kubelet \
+   && systemctl start kubelet
 
 
 ###########################################################################
 # Setting Up Kubernetes Master
 # Initialize Kubernetes Cluster -------------------------------------------
-rsnet# sudo kubeadm init --apiserver-advertise-address=10.10.1.101 --pod-network-cidr=10.10.0.0/16
+rsnet# sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.0.24
 
-# Copy kube config --------------------------------------------------------
-rsnet# mkdir ~/.kube
-rsnet# sudo cp /etc/kubernetes/admin.conf ~/.kube/config
-rsnet# sudo chown -R rsnet:rsnet ~/.kube
-
-# Deploy Calico network ---------------------------------------------------
-rsnet# kubectl create -f https://docs.projectcalico.org/v3.11/manifests/calico.yaml
+# Setting Up For Master ---------------------------------------------------
+user:~$ mkdir ~/.kube \
+     && sudo cp -i /etc/kubernetes/admin.conf ~/.kube/config \
+     && sudo chown -R $(id -u):$(id -g) ~/.kube \
+     && kubectl apply -f https://docs.projectcalico.org/v3.17/manifests/calico.yaml  \
+     && watch kubectl get all --all-namespaces -o wide
+user:~$ kubectl taint nodes --all node-role.kubernetes.io/master-
 
 # Cluster join command ----------------------------------------------------
 rsnet# kubeadm token create --print-join-command
-

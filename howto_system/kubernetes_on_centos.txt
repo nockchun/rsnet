@@ -15,34 +15,35 @@ DNS2=8.8.8.8
 root# yum install -y epel-release
 root# yum install -y bash-completion
 
-* Python ------------------------------------------------------------------
-root# yum install -y epel-release
+* Python & Powerline Bash ---------------------------------------------------------------
+user# sudo yum install -y epel-release
+user# sudo yum install wget sysstat lrzsz lsof bzip2 unzip iftop -y
+user# sudo yum install python3 python3-pip git fontconfig -y
+user# sudo ln -s /usr/bin/pip3 /usr/bin/pip
+user# sudo ln -s /usr/bin/python3 /usr/bin/python
+user# sudo pip install --upgrade pip
+user# sudo pip install git+git://github.com/Lokaltog/powerline
+user# wget https://github.com/Lokaltog/powerline/raw/develop/font/PowerlineSymbols.otf
+user# wget https://github.com/Lokaltog/powerline/raw/develop/font/10-powerline-symbols.conf
+user# sudo mv PowerlineSymbols.otf /usr/share/fonts/
+user# sudo mv 10-powerline-symbols.conf /etc/fonts/conf.d/
+user# fc-cache -vf /usr/share/fonts/
 
-
-
-
-* Powerline Bash ------------------------------------------------------------------------
-root# yum install -y wget sysstat lrzsz lsof bzip2 unzip iftop python3 python3-pip  git fontconfig
-root# 
-root# 
-root# 
-root# 
-root# 
-root# 
-root# 
-root# 
-root# 
-
-
-
-
-
+user# sudo vi /etc/bashrc
+export TERM="screen-256color"
+if [ -f `which powerline-daemon` ]; then
+    powerline-daemon -q
+    POWERLINE_BASH_CONTINUATION=1
+    POWERLINE_BASH_SELECT=1
+fi
+if [ -f /usr/local/lib/python3.6/site-packages/powerline/bindings/bash/powerline.sh ]; then
+    source /usr/local/lib/python3.6/site-packages/powerline/bindings/bash/powerline.sh
+fi
 
 * Add Nvidia Driver Repository ----------------------------------------------------------
 user:~$ sudo add-apt-repository ppa:graphics-drivers/ppa
 user:~$ curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
 user:~$ sudo apt update
-
 
 * Install Basic Library & Fons ----------------------------------------------------------
 user:~$ sudo apt install vim openssh-server build-essential
