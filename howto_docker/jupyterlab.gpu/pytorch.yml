@@ -10,6 +10,7 @@ dependencies:
   - widgetsnbextension
   - ipykernel
   - pyyaml
+  - jupyterlab-git
   - ipywidgets
   - ipytest
   - seaborn

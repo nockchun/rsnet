@@ -298,6 +298,8 @@ root# systemctl daemon-reload
 root# systemctl restart docker
 
 
+
+
 * Install Kubernetes --------------------------------------------------------------------
 root:~$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 root:~$ cat <<EOF > /etc/apt/sources.list.d/kubernetes.list

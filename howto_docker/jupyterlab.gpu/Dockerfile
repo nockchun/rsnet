@@ -86,9 +86,11 @@ RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
     @jupyterlab/pdf-extension @jupyterlab/rendermime-extension @jupyterlab/running-extension @jupyterlab/settingeditor-extension \
     @jupyterlab/shortcuts-extension @jupyterlab/statusbar-extension @jupyterlab/terminal-extension \
     @jupyterlab/theme-dark-extension @jupyterlab/theme-light-extension @jupyterlab/tooltip-extension @jupyterlab/ui-components-extension \
-    @jupyterlab/vdom-extension @jupyterlab/vega5-extension
+    @jupyterlab/vdom-extension @jupyterlab/vega5-extension @jupyterlab/git
 RUN jupyter labextension install jupyter-matplotlib @jupyterlab/fasta-extension @jupyterlab/toc @jupyterlab/mathjax3-extension \
-    @jupyterlab/geojson-extension @jupyterlab/katex-extension @lckr/jupyterlab_variableinspector
+    @jupyterlab/geojson-extension @jupyterlab/katex-extension
+#   \
+#      @lckr/jupyterlab_variableinspector
 
 # Create PyTorch Environments
 ADD pytorch.yml environment.yml

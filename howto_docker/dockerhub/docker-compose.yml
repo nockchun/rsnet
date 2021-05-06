@@ -1,0 +1,16 @@
+version: "3.2"
+
+services:
+  nginx-proxy:
+    image: registry
+    restart: always
+    networks:
+      - vhubnet
+    ports:
+      - "5000:5000"
+    volumes:
+      - /home/rsnet/registry:/var/lib/registry/docker/registry/v2
+
+networks:
+    vhubnet:
+        driver: bridge

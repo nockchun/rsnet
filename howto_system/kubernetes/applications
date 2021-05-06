@@ -1,0 +1,97 @@
+#########################################################################################
+###                                Kubernetes Dashboard                               ###
+#########################################################################################
+* Deploy Dashboard To k8s ---------------------------------------------------------------
+user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml
+user:~$ nohup kubectl proxy --port=8001 --address=0.0.0.0 --accept-hosts='^*$' &
+user:~$ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+
+
+* Creating sample Accout ---------------------------------------------------------------
+user:~$ cat <<EOF | kubectl create -f -
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+EOF
+
+
+* Create sample ClusterRoleBinding ------------------------------------------------------
+user:~$ cat <<EOF | kubectl create -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kubernetes-dashboard
+EOF
+
+
+# Create Bearer Token --------------------------------------------------------------------
+user:~$ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+
+
+
+
+#########################################################################################
+###                                      MetalLB                                      ###
+#########################################################################################
+* Install MetalLB -----------------------------------------------------------------------
+user:~$ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.6/manifests/namespace.yaml
+user:~$ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.6/manifests/metallb.yaml
+user:~$ kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
+
+* Layer 2 Configuration -----------------------------------------------------------------
+user:~$ cat << EOF | kubectl create -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: metallb-system
+  name: config
+data:
+  config: |
+    address-pools:
+    - name: default
+      protocol: layer2
+      addresses:
+      - 192.168.0.180-192.168.0.199
+EOF
+
+* For Dashboard -----------------------------------------------------------------
+user:~$ mkdir certs; cd certs
+user:~$ openssl genrsa -des3 -passout pass:testpass -out dashboard.pass.key 2048
+user:~$ openssl rsa -passin pass:testpass -in dashboard.pass.key -out dashboard.key
+user:~$ rm dashboard.pass.key
+user:~$ openssl req -new -key dashboard.key -out dashboard.csr
+# Create SSL Certificate
+user:~$ openssl x509 -req -sha256 -days 365 -in dashboard.csr -signkey dashboard.key -out dashboard.crt
+# Create k8s secret
+user:~$ cd .. && kubectl create secret generic kubernetes-dashboard-certs --from-file=./certs -n kube-system
+user:~$ vi recommended.yaml
+ 32 kind: Service
+ 33 apiVersion: v1
+ 34 metadata:
+ 35   labels:
+ 36     k8s-app: kubernetes-dashboard
+ 37   name: kubernetes-dashboard
+ 38   namespace: kubernetes-dashboard
+ 39 spec:
+ 40   type: LoadBalancer <-- change here
+ 41   ports:
+ 42     - port: 443
+ 43       targetPort: 8443
+ 44   selector:
+ 45     k8s-app: kubernetes-dashboard
+
+user:~$ kubectl apply -f recommended.yaml
+user:~$ kubectl get svc --all-namespaces
+
+
+
