@@ -89,12 +89,12 @@ EOF
 
 # Git Version 2 -------------------------------------------------------------------------
 user:~$ sudo rpm -Uvh http://opensource.wandisco.com/centos/7/git/x86_64/wandisco-git-release-7-2.noarch.rpm
-user:~$ sudo yum install git
+user:~$ sudo yum install -y git
 
 # Sublime Text 3 ------------------------------------------------------------------------
 user:~$ sudo rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg
 user:~$ sudo yum-config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
-user:~$ sudo yum -y install sublime-text
+user:~$ sudo yum install -y sublime-text
 
 1. SideBarEnhanceinsments
     > site : https://github.com/titoBouzout/SideBarEnhancements
@@ -337,10 +337,36 @@ user:~$ docker run -d --name docker-registry --restart=always \
                -v /home/rsnet/registry:/var/lib/registry/docker/registry/v2 \
                registry
 
-* Using Private Docker-Hub With Https ---------------------------------------------------
+* Private Docker-hub Install With Https -------------------------------------------------
 user:~$ cd home/rsnet/certs
-user:~$ openssl genrsa -out ca.key 4096
-user:~$ openssl req -new -x509 -days 1826 -key ca.key -out ca.crt
+#user:~$ openssl genrsa -out ca.key 4096
+#user:~$ openssl req -new -x509 -days 1826 -key ca.key -out ca.crt
+user:~$ cat >> openssl.conf <<EOF
+[ req ]
+distinguished_name = req_distinguished_name
+x509_extensions    = req_ext
+default_md         = sha256
+prompt             = no
+encrypt_key        = no
+
+[ req_distinguished_name ]
+countryName            = "GB"
+localityName           = "London"
+organizationName       = "Just Me and Opensource"
+organizationalUnitName = "YouTube"
+commonName             = "<Docker Server IP>"
+emailAddress           = "test@example.com"
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS = "<Docker Server IP>"
+EOF
+user:~$ openssl req \
+-x509 -newkey rsa:4096 -days 1826 -config openssl.conf \
+-keyout certs/ca.key -out certs/ca.crt
+
 user:~$ docker run -d --name docker-registry --restart=always \
                -p 5000:5000 \
                -v /home/rsnet/registry:/var/lib/registry/docker/registry/v2 \
@@ -348,13 +374,44 @@ user:~$ docker run -d --name docker-registry --restart=always \
                -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/ca.crt \
                -e REGISTRY_HTTP_TLS_KEY=/certs/ca.key \
                registry
-# copy certificate to client host
+
+* Private Docker-hub Install With Basic Auth --------------------------------------------
+user:~$ cat > docker-registry.yaml << EOF
+version: '3.0'
+services:
+  registry:
+    container_name: docker-registry
+    restart: always
+    image: registry
+    environment:
+      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/domain.crt
+      REGISTRY_HTTP_TLS_KEY: /certs/domain.key
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+    ports:
+      - 5000:5000
+    volumes:
+      - /home/rsnet/registry:/var/lib/registry
+      - /home/rsnet/certs:/certs
+      - /home/rsnet/auth:/auth
+EOF
+user:~$ mkdir /auth
+user:~$ sudo yum install httpd-tools
+user:~$ htpasswd -Bbn testuser testpassword >> auth/htpasswd
+
+* copy certificate to client host -------------------------------------------------------
 # ubuntu
 user:~$ cp ca.crt /usr/share/ca-certificates/extra/
 user:~$ vi /etc/ca-certificates.conf
 extra/ca.crt
 user:~$ update-ca-certificates
 user:~$ systemctl restart docker
+
+# centos
+user:~$ sudo cp ca.crt /etc/pki/ca-trust/source/anchors/
+user:~$ update-ca-trust
+
 
 * Using Private Docker-Hub With Http ----------------------------------------------------
 > Settings For use without https 

@@ -1,0 +1,198 @@
+#########################################################################################
+###                                   Cert-Manager                                    ###
+#########################################################################################
+user:~$ kubectl create namespace cert-manager
+user:~$ helm repo add jetstack https://charts.jetstack.io
+user:~$ helm repo update
+user:~$ helm install \
+  cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.3.1 \
+  --set installCRDs=true
+
+* Verifying the installation ------------------------------------------------------------
+$ kubectl get pods --namespace cert-manager
+
+
+#########################################################################################
+###                            Blank Selfsigned CA Issuers                            ###
+#########################################################################################
+* Creating an Issuer referencing the Secret ---------------------------------------------
+user:~$ cat << EOF | kubectl create -f -
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: ca-issuer
+  namespace: cert-manager
+spec:
+  selfSigned: {}
+EOF
+
+* Testing to obtain a signed Certificate ------------------------------------------------
+user:~$ cat << EOF | kubectl create -f -
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: example-com
+  namespace: default
+spec:
+  secretName: example-com-tls
+  issuerRef:
+    name: ca-issuer
+    kind: ClusterIssuer
+  commonName: example.com
+  organization:
+  - Example CA
+  dnsNames:
+  - example.com
+  - www.example.com
+EOF
+user:~$ kubectl describe certificate example-com
+
+
+
+
+
+
+
+
+
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/secure-backends: "true"
+    ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.org/ssl-backend: "kubernetes-dashboard"
+    kubernetes.io/ingress.allow-http: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "100M"
+  name: kubernetes-dashboard
+  namespace: kube-system
+spec:
+  tls:
+  - secretName: kubernetes-dashboard-certs
+  rules:
+  - host: dashboard.k8s.stage
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kubernetes-dashboard
+          servicePort: 443
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#########################################################################################
+###                                    CA Issuers                                     ###
+#########################################################################################
+* Generate a CA key pair ----------------------------------------------------------------
+# Generate a CA private key
+user:~$ openssl genrsa -out ca.key 4096
+
+# Create a self signed Certificate, valid for 10yrs with the 'signing' option set
+user:~$ cat >> openssl.conf <<EOF
+[ req ]
+distinguished_name = req_distinguished_name
+x509_extensions    = req_ext
+default_md         = sha256
+prompt             = no
+encrypt_key        = no
+
+[ req_distinguished_name ]
+countryName            = "KR"
+localityName           = "Kyungido"
+organizationName       = "Realstudy.Net"
+organizationalUnitName = "RS CA"
+commonName             = "ca.realstudy.net"
+emailAddress           = "admin@realstudy.net"
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS = "192.168.0.24"
+EOF
+
+user:~$ openssl req -new -x509 -days 3650 -key ca.key -out ca.crt -config openssl.conf
+
+* Save the signing key pair as a Secret -------------------------------------------------
+user:~$ kubectl create secret tls ca-key-pair \
+   --cert=ca.crt \
+   --key=ca.key \
+   --namespace=cert-manager
+
+* Creating an Issuer referencing the Secret ---------------------------------------------
+user:~$ cat << EOF | kubectl create -f -
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: ca-issuer
+  namespace: cert-manager
+spec:
+  ca:
+    secretName: ca-key-pair
+EOF
+
+* Testing to obtain a signed Certificate ------------------------------------------------
+user:~$ cat << EOF | kubectl create -f -
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: example-com
+  namespace: default
+spec:
+  secretName: example-com-tls
+  issuerRef:
+    name: ca-issuer
+    kind: ClusterIssuer
+  commonName: example.com
+  organization:
+  - Example CA
+  dnsNames:
+  - example.com
+  - www.example.com
+EOF
+user:~$ kubectl describe certificate example-com
+
+
+
+
+
+
+
