@@ -20,6 +20,9 @@ user:~$ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.
 user:~$ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.6/manifests/metallb.yaml
 user:~$ kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
 
+* Verifying the installation ------------------------------------------------------------
+user:~$ kubectl get all -n metallb-system
+
 * Layer 2 Configuration -----------------------------------------------------------------
 user:~$ cat << EOF | kubectl create -f -
 apiVersion: v1
@@ -35,9 +38,6 @@ data:
       addresses:
       - 192.168.0.231-192.168.0.250
 EOF
-
-* Verifying the installation ------------------------------------------------------------
-user:~$ kubectl get all -n metallb-system
 
 
 #########################################################################################
@@ -71,7 +71,7 @@ $ kubectl get all -n cert-manager
 
 * Creating an selfsigned ca ClusterIssuer -----------------------------------------------
 user:~$ cat << EOF | kubectl create -f -
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: ca-issuer
