@@ -33,7 +33,7 @@ data:
     - name: default
       protocol: layer2
       addresses:
-      - 192.168.0.180-192.168.0.199
+      - 192.168.0.231-192.168.0.250
 EOF
 
 * Verifying the installation ------------------------------------------------------------
@@ -125,8 +125,59 @@ user:~$ ssh -f -N vmaster -L9901:localhost:8001
 
 
 
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/secure-backends: "true"
+    ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.org/ssl-backend: "kubernetes-dashboard"
+    kubernetes.io/ingress.allow-http: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "100M"
+  name: kubernetes-dashboard
+  namespace: kube-system
+spec:
+  tls:
+  - secretName: kubernetes-dashboard-certs
+  rules:
+  - host: dashboard.k8s.stage
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kubernetes-dashboard
+          servicePort: 443
 
 
+
+
+
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingressrule
+  namespace: mini-api
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/issuer: "letsencrypt-staging"
+spec:
+  tls:
+  - hosts:
+    - miniapi.thinktecture-demos.com
+    secretName: miniapi-staging-certificate
+  rules:
+    - host: miniapi.thinktecture-demos.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: miniapi
+              servicePort: 8080
 
 
 

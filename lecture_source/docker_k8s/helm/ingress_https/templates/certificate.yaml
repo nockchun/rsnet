@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: demoweb-tls
+spec:
+  secretName: demoweb-tls
+  issuerRef:
+    name: ca-issuer
+    kind: ClusterIssuer
+  commonName: demoweb-system
+  dnsNames:
+  - ingress.demo.com
+  acme:
+    config:
+    - http01:
+        ingress: demoweb-ingress ### 기존에 만든 HTTP ingress 명
+      domains:
+      - ingress.demo.com
