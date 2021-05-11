@@ -140,7 +140,7 @@ user:~$ sudo yum install -y sublime-text
 # Sublime Merge -------------------------------------------------------------------------
 user:~$ sudo rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg
 user:~$ sudo yum-config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
-user:~$ sudo yum install sublime-merge
+user:~$ sudo yum install -y sublime-merge
 
 # X11 Forwarding ------------------------------------------------------------------------
 user:~$ sudo yum -y install xterm* xorg* xauth
