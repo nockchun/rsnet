@@ -10,9 +10,4 @@ spec:
   commonName: demoweb-system
   dnsNames:
   - ingress.demo.com
-  acme:
-    config:
-    - http01:
-        ingress: demoweb-ingress ### 기존에 만든 HTTP ingress 명
-      domains:
-      - ingress.demo.com
+  
