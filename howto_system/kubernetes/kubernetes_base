@@ -56,9 +56,9 @@ user:~$ kubectl get all -n ingress-nginx
 #########################################################################################
 ###                                   Cert-Manager                                    ###
 #########################################################################################
-user:~$ kubectl create namespace cert-manager
-user:~$ helm repo add jetstack https://charts.jetstack.io
-user:~$ helm repo update
+user:~$ kubectl create namespace cert-manager \
+     && helm repo add jetstack https://charts.jetstack.io \
+     && helm repo update
 user:~$ helm install \
   cert-manager jetstack/cert-manager \
   --namespace cert-manager \
@@ -87,6 +87,9 @@ EOF
 * Deploy Dashboard To k8s ---------------------------------------------------------------
 user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml
 
+* Verifying the installation ------------------------------------------------------------
+$ kubectl get all -n kubernetes-dashboard
+
 * Creating sample Accout ---------------------------------------------------------------
 user:~$ cat << EOF | kubectl create -f -
 apiVersion: v1
@@ -114,159 +117,72 @@ user:~$ nohup kubectl proxy --port=8001 --address=0.0.0.0 --accept-hosts='^*$' &
 user:~$ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
 
 * SSH-Tunneling at client ---------------------------------------------------------------
+user:~$ pkill -f L9901
 user:~$ ssh -f -N vmaster -L9901:localhost:8001
 >>> Connection URL : http://localhost:9901/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 
 
-
-
-
-
-
-
-
-apiVersion: extensions/v1beta1
+* SSL Ingress ---------------------------------------------------------------------------
+user:~$ cat << EOF > dashingress.yaml
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-    kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
     nginx.ingress.kubernetes.io/secure-backends: "true"
     ingress.kubernetes.io/ssl-passthrough: "true"
     nginx.org/ssl-backend: "kubernetes-dashboard"
     kubernetes.io/ingress.allow-http: "false"
-    nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/proxy-body-size: "100M"
-  name: kubernetes-dashboard
-  namespace: kube-system
-spec:
-  tls:
-  - secretName: kubernetes-dashboard-certs
-  rules:
-  - host: dashboard.k8s.stage
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: kubernetes-dashboard
-          servicePort: 443
-
-
-
-
-
-
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: ingressrule
-  namespace: mini-api
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    cert-manager.io/issuer: "letsencrypt-staging"
+  name: dashboard-ingress
+  namespace: kubernetes-dashboard
 spec:
   tls:
   - hosts:
-    - miniapi.thinktecture-demos.com
-    secretName: miniapi-staging-certificate
+    - ingress.demo.com
+    secretName: demoweb-tls
   rules:
-    - host: miniapi.thinktecture-demos.com
-      http:
-        paths:
-          - path: /
-            backend:
-              serviceName: miniapi
-              servicePort: 8080
+  - host: ingress.demo.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kubernetes-dashboard
+            port:
+              number: 443
+EOF
 
+* Ingress -------------------------------------------------------------------------------
+user:~$ cat << EOF > dashingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dashboard-ingress
+  namespace: kubernetes-dashboard
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  rules:
+  - host: ingress.demo.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: kubernetes-dashboard
+            port: 
+              number: 443
+EOF
 
-
-
-
-The ingress-nginx controller has been installed.
-It may take a few minutes for the LoadBalancer IP to be available.
-You can watch the status by running 'kubectl --namespace ingress-nginx get services -o wide -w ingress-nginx-controller'
-
-An example Ingress that makes use of the controller:
-
-  apiVersion: networking.k8s.io/v1beta1
-  kind: Ingress
-  metadata:
-    annotations:
-      kubernetes.io/ingress.class: nginx
-    name: example
-    namespace: foo
-  spec:
-    rules:
-      - host: www.example.com
-        http:
-          paths:
-            - backend:
-                serviceName: exampleService
-                servicePort: 80
-              path: /
-    # This section is only required if TLS is to be enabled for the Ingress
-    tls:
-        - hosts:
-            - www.example.com
-          secretName: example-tls
-
-If TLS is enabled for the Ingress, a Secret containing the certificate and key must also be provided:
-
-  apiVersion: v1
-  kind: Secret
-  metadata:
-    name: example-tls
-    namespace: foo
-  data:
-    tls.crt: <base64 encoded cert>
-    tls.key: <base64 encoded key>
-  type: kubernetes.io/tls
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-* For Dashboard -----------------------------------------------------------------
-user:~$ mkdir certs; cd certs
-user:~$ openssl genrsa -des3 -passout pass:testpass -out dashboard.pass.key 2048
-user:~$ openssl rsa -passin pass:testpass -in dashboard.pass.key -out dashboard.key
-user:~$ rm dashboard.pass.key
-user:~$ openssl req -new -key dashboard.key -out dashboard.csr
-# Create SSL Certificate
-user:~$ openssl x509 -req -sha256 -days 365 -in dashboard.csr -signkey dashboard.key -out dashboard.crt
-# Create k8s secret
-user:~$ cd .. && kubectl create secret generic kubernetes-dashboard-certs --from-file=./certs -n kube-system
-user:~$ vi recommended.yaml
- 32 kind: Service
- 33 apiVersion: v1
- 34 metadata:
- 35   labels:
- 36     k8s-app: kubernetes-dashboard
- 37   name: kubernetes-dashboard
- 38   namespace: kubernetes-dashboard
- 39 spec:
- 40   type: LoadBalancer <-- change here
- 41   ports:
- 42     - port: 443
- 43       targetPort: 8443
- 44   selector:
- 45     k8s-app: kubernetes-dashboard
-
-user:~$ kubectl apply -f recommended.yaml
-user:~$ kubectl get svc --all-namespaces
-
-
+user:~$ kubectl apply -f dashingress.yaml
 
 
 
