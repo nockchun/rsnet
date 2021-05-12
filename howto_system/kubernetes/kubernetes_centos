@@ -297,9 +297,15 @@ user:~$ kubectl taint nodes --all node-role.kubernetes.io/master-
 user:~$ watch kubectl get all --all-namespaces -o wide
 
 # Cluster join command ------------------------------------------------------------------
-rsnet# kubeadm token create --print-join-command
+user:~$ kubeadm token create --print-join-command
 
-
+# Check Kubernetes Components Status ----------------------------------------------------
+user:~$ kubectl get componentstatuses (or cs)
+# if scheduler, controller-manager is Unhealthy then modify the follow files on master node
+# Clear the line (spec->containers->command) containing this phrase: - --port=0
+user:~$ sudo vi /etc/kubernetes/manifests/kube-scheduler.yaml
+user:~$ sudo vi /etc/kubernetes/manifests/kube-controller-manager.yaml
+user:~$ sudo systemctl restart kubelet.service
 
 
 #########################################################################################
