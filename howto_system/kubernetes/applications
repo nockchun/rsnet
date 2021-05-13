@@ -1,0 +1,37 @@
+#########################################################################################
+###                                    PostgreSQL                                     ###
+#########################################################################################
+※ site : https://github.com/bitnami/charts/blob/master/bitnami/postgresql/README.md
+
+* Install elasticsearch -----------------------------------------------------------------
+user:~$ wget https://raw.githubusercontent.com/bitnami/charts/master/bitnami/postgresql/values.yaml \
+     && mv values.yaml postgresql_values.yaml
+user:~$ helm repo add bitnami https://charts.bitnami.com/bitnami \
+     && helm repo update \
+     && helm install postgresql bitnami/postgresql -f postgresql_values.yaml --namespace postgresql --create-namespace
+
+* Verifying the installation ------------------------------------------------------------
+user:~$ watch kubectl get all -n postgresql
+
+* SSH-Tunneling at client ---------------------------------------------------------------
+user:~$ kubectl port-forward --namespace postgresql svc/postgresql 5432:5432 &
+user:~$ ssh -f -N rsnet@vmaster -L5432:localhost:5432
+
+* Expose port for dev -------------------------------------------------------------------
+user:~$ cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql-external
+  namespace: postgresql
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app.kubernetes.io/instance: postgresql
+    app.kubernetes.io/name: postgresql
+EOF
+

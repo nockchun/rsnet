@@ -21,7 +21,7 @@ user:~$ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.
      && kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
 
 * Verifying the installation ------------------------------------------------------------
-user:~$ kubectl get all -n metallb-system
+user:~$ watch kubectl get all -n metallb-system
 
 * Layer 2 Configuration -----------------------------------------------------------------
 user:~$ cat << EOF | kubectl create -f -
@@ -50,7 +50,7 @@ user:~$ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx \
      && helm install ingress-nginx ingress-nginx/ingress-nginx -n ingress-nginx
 
 * Verifying the installation ------------------------------------------------------------
-user:~$ kubectl get all -n ingress-nginx
+user:~$ watch kubectl get all -n ingress-nginx
 
 
 #########################################################################################
@@ -67,7 +67,7 @@ user:~$ helm install \
   --set installCRDs=true
 
 * Verifying the installation ------------------------------------------------------------
-user:~$ kubectl get all -n cert-manager
+user:~$ watch kubectl get all -n cert-manager
 
 * Creating an selfsigned ca ClusterIssuer -----------------------------------------------
 user:~$ cat << EOF | kubectl create -f -
@@ -88,7 +88,7 @@ EOF
 user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml
 
 * Verifying the installation ------------------------------------------------------------
-$ kubectl get all -n kubernetes-dashboard
+$ watch kubectl get all -n kubernetes-dashboard
 
 * Creating sample Accout ---------------------------------------------------------------
 user:~$ cat << EOF | kubectl create -f -

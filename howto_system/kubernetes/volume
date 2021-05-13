@@ -2,8 +2,88 @@
 ###                               Local Path Provisioner                              ###
 #########################################################################################
 * Install -------------------------------------------------------------------------------
-user:~$ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml \
-     && kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' \
-     && kubectl get storageclass
+user:~$ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+user:~$ kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
+* Verifying the installation ------------------------------------------------------------
+user:~$ kubectl get storageclass
+
+
+#########################################################################################
+###                                  Rook For Cephfs                                  ###
+#########################################################################################
+※ REF SITE : https://rook.io
+
+user:~$ git clone --single-branch --branch v1.6.2 https://github.com/rook/rook.git \
+     && cd rook/cluster/examples/kubernetes/ceph/ \
+     && kubectl create -f crds.yaml -f common.yaml -f operator.yaml
+user:~$ kubectl create -f cluster.yaml
+user:~$ watch kubectl get pod -n rook-ceph
+
+user:~$ kubectl create -f filesystem.yaml -f toolbox.yaml
+user:~$ watch kubectl get pod -n rook-ceph
+
+user:~$ kubectl exec -it deploy/rook-ceph-tools -n rook-ceph -- bash
+     >> ceph status
+     >> ceph osd status
+
+* Ingress -------------------------------------------------------------------------------
+user:~$ cat << EOF | kubectl create -f -
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dashboard-ceph
+  namespace: rook-ceph
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  rules:
+  - host: cephboard.realstudy.net
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: rook-ceph-mgr-dashboard
+            port: 
+              number: 8443
+EOF
+
+user:~$ kubectl create -f csi/cephfs/storageclass.yaml
+
+
+#########################################################################################
+###                                  NFS Provisioner                                  ###
+#########################################################################################
+* NFS Server Setup ----------------------------------------------------------------------
+user:~$ sudo yum install -y nfs nfs-utils rpc-bind
+user:~$ sudo mkdir -p /srv/nfs/kubedata
+user:~$ sudo chmod -R 777 /srv/nfs
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+
+
+
+
+
+
+
 
 
