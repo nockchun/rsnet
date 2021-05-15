@@ -254,6 +254,7 @@ root:~$ yum install -y kubelet-1.20.0-0 kubeadm-1.20.0-0 kubectl-1.20.0-0 --disa
 
 ##Install Kubectl Auto-Complete
 root:~$ kubectl completion bash > /etc/bash_completion.d/kubectl
+root:~$ source /usr/share/bash-completion/bash_completion
 
 ##Check Installed ones
 root:~$ rpm -qa | grep kube

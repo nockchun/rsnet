@@ -11,6 +11,10 @@ user:~$ helm repo add stable https://charts.helm.sh/stable
 user:~$ helm repo update
 user:~$ helm search repo stable
 
+* Install Kubectl Auto-Complete ---------------------------------------------------------
+root:~$ helm completion bash > /etc/bash_completion.d/helm
+root:~$ source /usr/share/bash-completion/bash_completion
+
 
 #########################################################################################
 ###                                      MetalLB                                      ###

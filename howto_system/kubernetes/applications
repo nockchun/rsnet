@@ -35,3 +35,67 @@ spec:
     app.kubernetes.io/name: postgresql
 EOF
 
+
+
+#########################################################################################
+###                                      MongoDB                                      ###
+#########################################################################################
+※ site : https://artifacthub.io/packages/helm/bitnami/mongodb
+
+* Install  ------------------------------------------------------------------------------
+user:~$ helm repo add bitnami https://charts.bitnami.com/bitnami \
+     && helm repo update
+user:~$ helm install mongodb bitnami/mongodb --namespace mongodb --create-namespace
+
+* Verifying the installation ------------------------------------------------------------
+user:~$ watch kubectl get all -n mongodb
+
+
+
+#########################################################################################
+###                                   Elasticsearch                                   ###
+#########################################################################################
+※ site : https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-install-helm.html
+
+* Install  ------------------------------------------------------------------------------
+user:~$ helm repo add elastic https://helm.elastic.co \
+     && helm repo update
+user:~$ helm install elastic-operator elastic/eck-operator -n elastic-system --create-namespace
+
+
+* Verifying the installation ------------------------------------------------------------
+user:~$ watch kubectl get all -n elastic-system
+
+
+
+#########################################################################################
+###                                      Airflow                                      ###
+#########################################################################################
+※ site : https://artifacthub.io/packages/helm/airflow-helm/airflow
+
+* Install  ------------------------------------------------------------------------------
+user:~$ wget https://raw.githubusercontent.com/airflow-helm/charts/main/charts/airflow/values.yaml \
+     && mv values.yaml values_airflow.yaml
+
+user:~$ helm repo add airflow-stable https://airflow-helm.github.io/charts \
+     && helm repo update
+user:~$ helm install \
+  airflow \
+  airflow-stable/airflow \
+  --version 8.1.1 \
+  --values values_airflow.yaml \
+  --namespace airflow \
+  --create-namespace
+
+* Verifying the installation ------------------------------------------------------------
+user:~$ watch kubectl get all -n airflow
+
+
+
+
+
+
+
+
+
+
