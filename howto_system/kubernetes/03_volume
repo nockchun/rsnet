@@ -2,11 +2,28 @@
 ###                               Local Path Provisioner                              ###
 #########################################################################################
 * Install -------------------------------------------------------------------------------
-user:~$ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+user:~$ wget https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+user:~$ vi local-path-storage.yaml
+reclaimPolicy: Retain
+
+user:~$ kubectl apply -f local-path-storage.yaml
 user:~$ kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 
 * Verifying the installation ------------------------------------------------------------
 user:~$ kubectl get storageclass
+
+* Dynamic PersistentVolume --------------------------------------------------------------
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: local-path-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 128Mi
 
 
 #########################################################################################

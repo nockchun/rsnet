@@ -1,3 +1,5 @@
+###########################################
+# Rancher local-path PVC
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -9,3 +11,4 @@ spec:
   resources:
     requests:
       storage: 128Mi
+
