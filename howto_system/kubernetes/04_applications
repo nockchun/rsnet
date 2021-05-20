@@ -90,12 +90,30 @@ user:~$ helm install \
 * Verifying the installation ------------------------------------------------------------
 user:~$ watch kubectl get all -n airflow
 
-
-
-
-
-
-
+* Ingress -------------------------------------------------------------------------------
+user:~$ cat << EOF | kubectl create -f -
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: airflow-ingress
+  namespace: airflow
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  rules:
+  - host: airflow.realstudy.net
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: airflow-web
+            port: 
+              number: 8080
+EOF
 
 
 
