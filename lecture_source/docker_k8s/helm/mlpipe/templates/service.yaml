@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jupyterlab
+  labels:
+    name: jupyterlab
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8888
+      targetPort: 8888
+      protocol: TCP
+      name: http
+  selector:
+    name: jupyterlab

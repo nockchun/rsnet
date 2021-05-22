@@ -40,6 +40,8 @@ user:~$ watch kubectl get pod -n rook-ceph
 user:~$ kubectl create -f filesystem.yaml -f toolbox.yaml
 user:~$ watch kubectl get pod -n rook-ceph
 
+user:~$ kubectl create -f csi/cephfs/storageclass.yaml -f csi/rbd/storageclass.yaml
+
 user:~$ kubectl exec -it deploy/rook-ceph-tools -n rook-ceph -- bash
      >> ceph status
      >> ceph osd status
@@ -69,7 +71,18 @@ spec:
               number: 8443
 EOF
 
-user:~$ kubectl create -f csi/cephfs/storageclass.yaml
+* CEPH Filesystem PVC -------------------------------------------------------------------
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cephfs-pvc
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: rook-cephfs
 
 
 #########################################################################################
