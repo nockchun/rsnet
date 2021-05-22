@@ -6,13 +6,23 @@ metadata:
   name: mlpipe-ingress
 spec:
   rules:
-  - host: mlpipe.realstudy.net
+  - host: mlpipe1.realstudy.net
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: jupyterlab
+            name: jupyterlab1
+            port:
+              number: 8888
+  - host: mlpipe2.realstudy.net
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jupyterlab2
             port:
               number: 8888
