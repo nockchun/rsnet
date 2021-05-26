@@ -6,7 +6,7 @@ metadata:
     app: nfs-client-provisioner
   namespace: {{ .Release.Namespace }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   strategy:
     type: Recreate
   selector:
