@@ -90,19 +90,22 @@ spec:
 #########################################################################################
 * NFS Server Setup : 192.168.0.25 -------------------------------------------------------
 root:~$ sudo yum install -y nfs nfs-utils rpc-bind
-root:~$ mkdir -p /data/vol_nfs
+root:~$ mkdir -p /data/nfs
 root:~$ chmod -R 777 /data/nfs
 root:~$ vi /etc/exports
-/data/vol_nfs 192.168.0.0/24(rw,sync,no_subtree_check)
+/data/nfs 192.168.0.0/24(rw,sync,no_subtree_check)
+/data/nfs vnode2(rw,sync,no_subtree_check)
+
 root:~$ exportfs -a
-root:~$ systemctl restart nfs-kernel-server
-root:~$ systemctl enable nfs-kernel-server
+root:~$ systemctl restart nfs-server
+root:~$ systemctl enable nfs-server
 
 
 * NFS Client Setup : 192.168.0.26 -------------------------------------------------------
-root:~$ apt install nfs-common
-root:~$ mkdir -p /data/nfs
-root:~$ mount 192.168.0.25:/data/nfs /data/nfs
+user:~$ sudo yum install -y nfs nfs-utils
+user:~$ mkdir nfs
+user:~$ sudo mount 192.168.0.25:/data/nfs nfs
+user:~$ sudo umount nfs
 
 
 
