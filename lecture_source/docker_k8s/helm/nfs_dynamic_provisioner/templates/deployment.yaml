@@ -4,6 +4,7 @@ metadata:
   name: nfs-client-provisioner
   labels:
     app: nfs-client-provisioner
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   strategy:
