@@ -5,7 +5,7 @@ services:
         build:
             context: ./jupyterlab.gpu
             dockerfile: Dockerfile
-        image: nockchun/jupyterlab.gpu:1.0
+        image: nockchun/jupyterlab.gpu:1.1
         container_name: jupyterlab.gpu
         hostname: jupyterlab
         shm_size: "16gb"

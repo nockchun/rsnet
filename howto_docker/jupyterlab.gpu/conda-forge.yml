@@ -62,6 +62,8 @@ dependencies:
   - tensorflow-datasets
   - ipympl
   - bqplot
+  - elyra
+  - jupyterlab-drawio
   - pip
   - pip:
     - jdc

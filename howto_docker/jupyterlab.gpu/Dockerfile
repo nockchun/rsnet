@@ -72,7 +72,7 @@ ADD conda-forge.yml environment.yml
 RUN chown -R $NB_USER.$NB_USER $CONDA_DIR \
  && conda env update --name base --file environment.yml \
  && rm environment.yml \
- && jupyter notebook --generate-config
+ && jupyter lab --generate-config
 
 # Adding Jupyterlab Extensions
 RUN jupyter serverextension enable --py jupyterlab --sys-prefix \

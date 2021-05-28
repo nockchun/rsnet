@@ -71,27 +71,21 @@ user:~$ watch kubectl get all -n elastic-system
 #########################################################################################
 ###                                      Airflow                                      ###
 #########################################################################################
-※ site : https://artifacthub.io/packages/helm/airflow-helm/airflow
+※ site : https://airflow.apache.org/docs/helm-chart/stable/index.html
 
 * Install  ------------------------------------------------------------------------------
-user:~$ wget https://raw.githubusercontent.com/airflow-helm/charts/main/charts/airflow/values.yaml \
-     && mv values.yaml values_airflow.yaml
+user:~$ kubectl create namespace airflow
+user:~$ helm repo add apache-airflow https://airflow.apache.org
+user:~$ helm repo update
+user:~$ helm show values apache-airflow/airflow
+user:~$ helm install airflow apache-airflow/airflow --namespace airflow
 
-user:~$ helm repo add airflow-stable https://airflow-helm.github.io/charts \
-     && helm repo update
-user:~$ helm install \
-  airflow \
-  airflow-stable/airflow \
-  --version 8.1.1 \
-  --values values_airflow.yaml \
-  --namespace airflow \
-  --create-namespace
-
-* Verifying the installation ------------------------------------------------------------
-user:~$ watch kubectl get all -n airflow
+※ Airflow UI : admin / admin
+※ Postgres Connection : postgres / postgres
+※ echo Fernet Key: $(kubectl get secret --namespace airflow airflow-fernet-key -o jsonpath="{.data.fernet-key}" | base64 --decode)
 
 * Ingress -------------------------------------------------------------------------------
-user:~$ cat << EOF | kubectl create -f -
+user:~$ cat > ingress.yaml << EOF
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -110,10 +104,33 @@ spec:
         path: /
         backend:
           service:
-            name: airflow-web
+            name: airflow-webserver
             port: 
               number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flower-ingress
+  namespace: airflow
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  rules:
+  - host: flower.realstudy.net
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: airflow-flower
+            port: 
+              number: 5555
 EOF
+
 
 
 
