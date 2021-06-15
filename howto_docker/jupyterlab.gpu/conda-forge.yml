@@ -64,12 +64,15 @@ dependencies:
   - bqplot
   - elyra
   - jupyterlab-drawio
+  - jupyterlab-lsp
+  - airflow
   - pip
   - pip:
     - jdc
     - tensorflow-addons
     - gensim
     - ray
+    - tfx
     - modin[ray]
     - nengo-dl
     - nengo[all]

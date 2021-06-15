@@ -78,7 +78,11 @@ user:~$ kubectl create namespace airflow
 user:~$ helm repo add apache-airflow https://airflow.apache.org
 user:~$ helm repo update
 user:~$ helm show values apache-airflow/airflow
-user:~$ helm install airflow apache-airflow/airflow --namespace airflow
+user:~$ helm install airflow apache-airflow/airflow --namespace airflow \
+--set dags.persistence.enabled=True \
+--set dags.persistence.accessMode=ReadWriteMany \
+--set dags.persistence.size=1Gi \
+--set dags.persistence.storageClassName=managed-nfs-storage
 
 ※ Airflow UI : admin / admin
 ※ Postgres Connection : postgres / postgres

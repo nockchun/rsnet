@@ -89,12 +89,12 @@ spec:
 ###                                  NFS Provisioner                                  ###
 #########################################################################################
 * NFS Server Setup : 192.168.0.25 -------------------------------------------------------
-root:~$ sudo yum install -y nfs nfs-utils rpc-bind
+root:~$ yum install -y nfs-utils
 root:~$ mkdir -p /data/nfs
 root:~$ chmod -R 777 /data/nfs
-root:~$ vi /etc/exports
+root:~$ cat > /etc/exports << EOF
 /data/nfs 192.168.0.0/24(rw,sync,no_subtree_check)
-/data/nfs vnode2(rw,sync,no_subtree_check)
+EOF
 
 root:~$ exportfs -a
 root:~$ systemctl restart nfs-server
@@ -107,8 +107,7 @@ user:~$ mkdir nfs
 user:~$ sudo mount 192.168.0.25:/data/nfs nfs
 user:~$ sudo umount nfs
 
-
-
+* PVC -----------------------------------------------------------------------------------
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
