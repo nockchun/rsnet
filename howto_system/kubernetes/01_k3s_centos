@@ -1,0 +1,174 @@
+#########################################################################################
+###                                     Firewalld                                     ###
+#########################################################################################
+## on the master
+root:~$ firewall-cmd --permanent --add-port=6443/tcp
+root:~$ firewall-cmd --permanent --add-port=10250-10252/tcp
+root:~$ firewall-cmd --permanent --add-port=8285/udp
+
+## on the worker
+root:~$ firewall-cmd --permanent --add-port=10250/tcp
+root:~$ firewall-cmd --permanent --add-port=30000-32767/tcp
+root:~$ firewall-cmd --permanent --add-port=8285/udp
+
+root:~$ firewall-cmd --reload
+
+
+#########################################################################################
+###                                   K3s All Node                                    ###
+#########################################################################################
+### Set SELinux in permissive mode (effectively disabling it)
+root:~$ setenforce 0 \
+     && sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+ 
+### Disable swap
+root:~$ swapoff -a \
+     && sed -e '/swap/s/^/#/g' -i /etc/fstab
+
+### Disable firewall starting from Kubernetes v1.19 onwards
+root# systemctl stop firewalld \
+   && systemctl disable firewalld
+
+root:~$ cat << EOF | sudo tee /etc/sysctl.d/k3s.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+root:~$ sysctl --system
+
+### Master & Node Host Domain Name Regist -------------------------------------------------
+root# cat >> /etc/hosts<<EOF
+
+192.168.0.24 vmaster
+192.168.0.25 vnode1
+192.168.0.26 vnode2
+192.168.0.27 vnode3
+192.168.0.28 vnode4
+192.168.0.29 vnode5
+192.168.0.30 vhub
+EOF
+
+
+#########################################################################################
+###                                  K3s Master Node                                  ###
+#########################################################################################
+### Install K3s Master Node
+#root:~$ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip=192.168.0.24 --flannel-iface=enp0s3 --no-deploy traefik" sh -
+root:~$ curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="--no-deploy traefik" sh -
+root:~$ systemctl status k3s
+root:~$ kubectl get node
+root:~$ kubectl get pod --all-namespaces
+
+##Install Kubectl Auto-Complete
+root:~$ kubectl completion bash > /etc/bash_completion.d/kubectl
+root:~$ source /usr/share/bash-completion/bash_completion
+
+### Server Token Check
+user:~$ kubectl config view --raw >~/.kube/config
+user:~$ chmod 744 ~/.kube/config
+user:~$ sudo cat /var/lib/rancher/k3s/server/node-token
+
+
+#########################################################################################
+###                                       Helm 3                                      ###
+#########################################################################################
+* Install Helm 3 ------------------------------------------------------------------------
+root:~$ rm -rf /usr/local/bin/helm
+root:~$ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 \
+     && chmod u+x get_helm.sh \
+     && ./get_helm.sh \
+     && rm -rf get_helm.sh
+
+user:~$ helm repo add stable https://charts.helm.sh/stable
+user:~$ helm repo update
+user:~$ helm search repo stable
+
+* Install Kubectl Auto-Complete ---------------------------------------------------------
+root:~$ helm completion bash > /etc/bash_completion.d/helm
+root:~$ source /usr/share/bash-completion/bash_completion
+
+
+#########################################################################################
+###                                  K3s Worker Node                                  ###
+#########################################################################################
+root:~$ curl -sfL https://get.k3s.io | K3S_URL=https://vmaster:6443 K3S_TOKEN=XXX sh -
+
+
+#########################################################################################
+###                                   NGINX Ingress                                   ###
+#########################################################################################
+* Install using Helm 3 ------------------------------------------------------------------
+user:~$ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx \
+     && helm repo update \
+     && kubectl create ns ingress-nginx \
+     && helm install ingress-nginx ingress-nginx/ingress-nginx -n ingress-nginx
+
+* Verifying the installation ------------------------------------------------------------
+user:~$ watch kubectl get all -n ingress-nginx
+
+
+#########################################################################################
+###                                Kubernetes Dashboard                               ###
+#########################################################################################
+* Deploy Dashboard To k8s ---------------------------------------------------------------
+user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.3.0/aio/deploy/recommended.yaml
+
+* Verifying the installation ------------------------------------------------------------
+$ watch kubectl get all -n kubernetes-dashboard
+
+* Creating sample Accout ---------------------------------------------------------------
+user:~$ cat << EOF | kubectl create -f -
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kubernetes-dashboard
+EOF
+
+# Create Bearer Token -------------------------------------------------------------------
+user:~$ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+
+* Ingress -------------------------------------------------------------------------------
+user:~$ cat << EOF | kubectl create -f -
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dashboard-ingress
+  namespace: kubernetes-dashboard
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  rules:
+  - host: k3board.realstudy.net
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: kubernetes-dashboard
+            port: 
+              number: 443
+EOF
+
+* Verifying the installation ------------------------------------------------------------
+user:~$ kubectl get ingress -n kubernetes-dashboard
+
+
+
+
+

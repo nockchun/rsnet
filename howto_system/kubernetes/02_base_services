@@ -89,7 +89,7 @@ EOF
 ###                                Kubernetes Dashboard                               ###
 #########################################################################################
 * Deploy Dashboard To k8s ---------------------------------------------------------------
-user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml
+user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.3.1/aio/deploy/recommended.yaml
 
 * Verifying the installation ------------------------------------------------------------
 $ watch kubectl get all -n kubernetes-dashboard
