@@ -66,6 +66,7 @@ dependencies:
   - jupyterlab-drawio
   - jupyterlab-lsp
   - airflow
+  - gym
   - pip
   - pip:
     - jdc
