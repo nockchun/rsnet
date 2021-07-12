@@ -1,7 +1,10 @@
-FROM nvidia/cuda:11.2.1-cudnn8-runtime-ubuntu18.04
+FROM nvidia/cuda:11.4.0-runtime-ubuntu20.04
 LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
 
 # Setup OS Base System Packages
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Seoul
+
 SHELL ["/bin/bash", "--login", "-c"]
 RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
  && apt update --fix-missing && apt clean && apt update \
