@@ -1,0 +1,27 @@
+#########################################################################################
+###                               Docker Remote Enable                                ###
+#########################################################################################
+* Stop firewall -------------------------------------------------------------------------
+root:~$ systemctl stop firewalld
+root:~$ systemctl disable firewalld
+
+* Enable docker remote API --------------------------------------------------------------
+root:~$ vi /lib/systemd/system/docker.service
+ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375 --containerd=/run/containerd/containerd.sock
+(※ add "-H tcp://0.0.0.0:2375")
+
+root:~$ systemctl daemon-reload
+root:~$ systemctl restart docker
+
+
+#########################################################################################
+###                                Remote - Containers                                ###
+#########################################################################################
+remote container & remote development 설치
+
+* VSCODE에서 
+  > settings.json 열어서 아래 내용 추가
+  "docker.host" : "tcp://192.168.0.201:2375"
+
+
+
