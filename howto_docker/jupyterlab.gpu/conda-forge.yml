@@ -67,6 +67,7 @@ dependencies:
   - jupyterlab-lsp
   - airflow
   - gym
+  - pyopengl
   - pip
   - pip:
     - jdc
@@ -77,3 +78,4 @@ dependencies:
     - modin[ray]
     - nengo-dl
     - nengo[all]
+    - gym-notebook-wrapper
