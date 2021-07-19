@@ -149,7 +149,8 @@ user:~$ sudo usermod -aG docker $(whoami)
 user:~$ sudo systemctl enable docker.service
 user:~$ sudo systemctl start docker.service
 user:~$ sudo yum install gcc glibc glibc-common gd gd-devel python3-devel -y
-user:~$ sudo pip install docker-compose
+user:~$ sudo pip3 install setuptools_rust --upgrade pip
+user:~$ sudo pip3 install docker-compose
 user:~$ docker-compose version
 
 ###########################################################################
