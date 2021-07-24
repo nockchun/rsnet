@@ -1,0 +1,18 @@
+#########################################################################################
+###                                      Network                                      ###
+#########################################################################################
+root:~$ vi /etc/netplan/01-netcfg.yaml
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s3:
+      dhcp4: no
+      dhcp6: no
+      addresses: [10.10.1.101/24]
+      gateway4: 10.10.1.1
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
+root:~$ netplan apply
+
+
