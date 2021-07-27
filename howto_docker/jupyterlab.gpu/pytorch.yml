@@ -2,11 +2,7 @@ name: pytorch
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
   - jupyterlab
-  - jupyter_console
-  - jupyter_contrib_nbextensions
-  - jupyter_nbextensions_configurator
   - widgetsnbextension
   - ipykernel
   - pyyaml
@@ -20,7 +16,6 @@ dependencies:
   - statsmodels
   - sympy
   - pyvirtualdisplay
-  - google-resumable-media
   - dill
   - pandas
   - httplib2
@@ -31,7 +26,6 @@ dependencies:
   - scikit-image
   - scikit-learn
   - scipy
-  - kfp
   - sqlalchemy
   - networkx
   - autopep8
@@ -40,7 +34,6 @@ dependencies:
   - psycopg2
   - pandas-profiling
   - pyarrow
-  - nltk
   - numexpr
   - pandas-datareader
   - openpyxl
@@ -57,13 +50,10 @@ dependencies:
   - bqplot
   - pip
   - pip:
-    - jdc
-    - gensim
+    - tensorflow-addons
     - ray
     - modin[ray]
-    - opencv-python
-    - graphviz
-    - pyflakes
     - nengo-dl
     - nengo[all]
-    - nengo-gui
+    - gym-notebook-wrapper
+    - opencv-python

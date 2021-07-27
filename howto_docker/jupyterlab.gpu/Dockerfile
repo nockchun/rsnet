@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.4.0-runtime-ubuntu20.04
+FROM nvidia/cuda:11.1.1-runtime-ubuntu18.04
 LABEL maintainer="Jaehong. Kim. <nockchun@gmail.com>"
 
 # Setup OS Base System Packages
@@ -116,7 +116,7 @@ RUN apt-get install -y curl grep sed dpkg && \
 
 # Spark Livy Setting
 RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension \
- && cd /opt/conda/lib/python3.8/site-packages \
+ && cd /opt/conda/lib/python3.9/site-packages \
  && jupyter-kernelspec install sparkmagic/kernels/sparkkernel --user \
  && jupyter-kernelspec install sparkmagic/kernels/pysparkkernel --user \
  && jupyter-kernelspec install sparkmagic/kernels/sparkrkernel --user 

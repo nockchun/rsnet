@@ -2,7 +2,7 @@ name: base
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
+  - python=3.9
   - jupyterlab
   - jupyter_console
   - jupyter_contrib_nbextensions
@@ -21,7 +21,6 @@ dependencies:
   - sympy
   - opencv
   - pyvirtualdisplay
-  - google-resumable-media
   - dill
   - pandas
   - httplib2
@@ -32,7 +31,6 @@ dependencies:
   - scikit-image
   - scikit-learn
   - scipy
-  - kfp
   - sqlalchemy
   - networkx
   - graphviz
@@ -44,7 +42,6 @@ dependencies:
   - psycopg2
   - pandas-profiling
   - pyarrow
-  - nltk
   - numexpr
   - pandas-datareader
   - openpyxl
@@ -62,20 +59,22 @@ dependencies:
   - tensorflow-datasets
   - ipympl
   - bqplot
-  - elyra
   - jupyterlab-drawio
-  - jupyterlab-lsp
   - airflow
   - gym
   - pyopengl
+  - nltk
+  # - elyra
+  # - kfp
   - pip
   - pip:
-    - jdc
     - tensorflow-addons
-    - gensim
     - ray
-    - tfx
     - modin[ray]
     - nengo-dl
     - nengo[all]
     - gym-notebook-wrapper
+    - opencv-python
+    # - tfx
+    # - jdc
+    # - gensim
