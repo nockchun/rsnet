@@ -1,0 +1,40 @@
+name: base
+channels:
+  - conda-forge
+dependencies:
+  - tensorflow
+  - pyyaml
+  - flask
+  - flask-restful
+  - flask-restplus
+  - flask-sqlalchemy
+  - flask-migrate
+  - flask-script
+  - flask-redis
+  - flask-wtf
+  - flask-login
+  - pandas
+  - scikit-learn
+  - celery
+  - amqp
+  - pika
+  - redis
+  - psycopg2
+  - sqlalchemy
+  - keras
+  - numpy
+  - libgcc
+  - h5py
+  - hdf5
+  - scipy
+  - werkzeug
+  - pip
+  - pip:
+    - more-itertools
+    - marisa-trie
+    - networkx
+    - neo4j
+    - joblib
+    - structlog
+    - flask-restful-swagger
+    - sentencepiece

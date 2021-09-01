@@ -1,0 +1,19 @@
+* Create conda environments
+$ conda create -n nodeenv nodejs
+$ conda activate nodeenv
+$ node --version
+$ npm --version
+
+* npm upgrade
+$ npm install -g npm@latest
+
+* newer conda environments
+$ conda create -c conda-forge -n nodeenv nodejs
+
+* Remove conda environments
+$ conda deactivate
+$ conda env remove -n nodeenv
+
+
+* install create-react-app
+(nodeenv)$ npm install -g create-react-app
