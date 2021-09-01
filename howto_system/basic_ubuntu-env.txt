@@ -621,6 +621,3 @@ resolv-file=/etc/resolv.dnsmasq
 root:~$ systemctl restart dnsmasq.service
 root:~$ systemctl status dnsmasq.service <-- status ok
 
-
-
-

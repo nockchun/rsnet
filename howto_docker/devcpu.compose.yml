@@ -3,7 +3,7 @@ version: "3.4"
 services:
     jupyterlab.cpu:
         build:
-            context: ./jupyterlab
+            context: ./machinelearning/cpu
             dockerfile: Dockerfile
         image: jupyterlab.cpu
         container_name: jupyterlab.cpu

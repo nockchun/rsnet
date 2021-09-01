@@ -31,51 +31,34 @@ RUN apt install unzip fonts-unfonts-core fonts-unfonts-extra fonts-baekmuk fonts
  && rm mac-fonts.zip \
  && fc-cache -f -v
 
-# Configure Environments
-ARG NB_USER="rsnet"
-ARG NB_UID="1000"
+# Configure environment
 ENV CONDA_DIR=/opt/conda \
     SHELL=/bin/bash \
-    NB_USER=$NB_USER \
-    NB_UID=$NB_UID \
-    LC_ALL=ko_KR.UTF-8 \
-    LANG=ko_KR.UTF-8 \
-    LANGUAGE=ko_KR.UTF-8
-ENV PATH=$CONDA_DIR/bin:$HOME/.local/bin:$PATH \
-    HOME=/home/$NB_USER
-
-RUN groupadd -g $NB_UID $NB_USER \
- && useradd -m -s /bin/bash -p $NB_USER -g $NB_USER -N -u $NB_UID $NB_USER \
- && mkdir -p $CONDA_DIR \
- && chown -R $NB_USER.$NB_USER $CONDA_DIR \
- && adduser $NB_USER sudo \
- && echo "$NB_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/$NB_USER \
- && chmod 0440 /etc/sudoers.d/$NB_USER
-
-# Change User
-USER $NB_USER
-WORKDIR $HOME
+    LC_ALL=en_US.UTF-8 \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8
+ENV PATH=$CONDA_DIR/bin:$PATH
 
 # Create MiniConda Environments as Base
 ENV MINICONDA_VERSION=latest
 RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
  && /bin/bash Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh -f -b -p $CONDA_DIR \
  && rm Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh \
- && sudo ln -s /opt/conda/bin/conda /usr/bin/conda \
- && sudo ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
+ && conda config --system --prepend channels conda-forge \
+ && conda config --system --set show_channel_urls true \
+ && conda install -y tini=0.18.0 \
+ && conda update -n base -c defaults conda \
+ && conda update --all -y \
  && echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc \
- && echo "conda activate base" >> ~/.bashrc \
- && conda install --yes nomkl conda-build \
- && conda update --yes pip setuptools \
- && python -m pip install --upgrade pip setuptools \
- && pip install ez_setup
+ && conda install -c conda-forge --yes notebook jupyterhub jupyterlab \
+ && jupyter notebook --generate-config
 
-# Install Basic Conda Library
+# Create Tensorflow 2 Environments
 ADD conda-forge.yml environment.yml
-RUN chown -R $NB_USER.$NB_USER $CONDA_DIR \
+RUN conda update -y pip setuptools \
+ && python -m pip install --upgrade pip setuptools \
  && conda env update --name base --file environment.yml \
- && rm environment.yml \
- && jupyter lab --generate-config
+ && rm environment.yml
 
 # Adding Jupyterlab Extensions
 RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
@@ -92,8 +75,6 @@ RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
     @jupyterlab/vdom-extension @jupyterlab/vega5-extension @jupyterlab/git
 RUN jupyter labextension install jupyter-matplotlib @jupyterlab/fasta-extension @jupyterlab/toc @jupyterlab/mathjax3-extension \
     @jupyterlab/geojson-extension @jupyterlab/katex-extension
-#   \
-#      @lckr/jupyterlab_variableinspector
 
 # Create PyTorch Environments
 ADD pytorch.yml environment.yml
@@ -105,26 +86,10 @@ RUN conda create -y -n pytorch ipykernel python=3.8 && conda activate pytorch \
  && conda deactivate \
  && rm ~/environment.yml
 
-# Tini: https://github.com/krallin/tini
-USER root
-RUN apt-get install -y curl grep sed dpkg && \
-    TINI_VERSION=`curl https://github.com/krallin/tini/releases/latest | grep -o "/v.*\"" | sed 's:^..\(.*\).$:\1:'` && \
-    curl -L "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini_${TINI_VERSION}.deb" > tini.deb && \
-    dpkg -i tini.deb && \
-    rm tini.deb && \
-    apt-get clean
-
-# Spark Livy Setting
-RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension \
- && cd /opt/conda/lib/python3.9/site-packages \
- && jupyter-kernelspec install sparkmagic/kernels/sparkkernel --user \
- && jupyter-kernelspec install sparkmagic/kernels/pysparkkernel --user \
- && jupyter-kernelspec install sparkmagic/kernels/sparkrkernel --user 
-ADD config.json $HOME/.sparkmagic/config.json
-
 # Setting up container startup
 EXPOSE 8888
 EXPOSE 6006
+EXPOSE 8265
 
 VOLUME /notebooks
 VOLUME /ml_data
@@ -137,14 +102,7 @@ RUN conda clean -aftipy \
  && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
  && find /opt/conda/ -follow -type f -name '*.js.map' -delete
 
-RUN chown -R $NB_USER.$NB_USER $HOME \
- && chown -R $NB_USER.$NB_USER $CONDA_DIR \
- && chown -R $NB_USER.$NB_USER /notebooks \
- && chown -R $NB_USER.$NB_USER /ml_data \
- && chown -R $NB_USER.$NB_USER /tensorboard
-
 # Setting up container startup
-USER $NB_USER
 ENTRYPOINT ["tini", "-g", "--"]
 
 WORKDIR /notebooks

@@ -3,19 +3,19 @@ version: "3.4"
 services:
     jupyterlab:
         build:
-            context: ./jupyterlab.gpu
+            context: ./machinelearning/gpu
             dockerfile: Dockerfile
-        image: nockchun/jupyterlab.gpu:1.1
+        image: nockchun/jupyterlab.gpu:1.2
         container_name: jupyterlab.gpu
         hostname: jupyterlab
-        shm_size: "16gb"
         environment:
             - PYTHONPATH=$PYTHONPATH:/notebooks:/notebooks/ai-projs
         restart: always
-        # network_mode: host
+        shm_size: "16gb"
         ports:
             - "8888:8888"
             - "6006:6006"
+            - "8265:8265"
         networks:
             - rsnet
         volumes:
@@ -25,6 +25,51 @@ services:
             - /data/notebooks/tensorboard:/tensorboard
         command:
             jupyter lab --notebook-dir=/notebooks --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
+
+    # jupyterlab:
+    #     build:
+    #         context: ./machinelearning/cpu
+    #         dockerfile: Dockerfile
+    #     image: nockchun/jupyterlab.cpu:1.2
+    #     container_name: jupyterlab.cpu
+    #     hostname: jupyterlab
+    #     environment:
+    #         - PYTHONPATH=$PYTHONPATH:/notebooks:/notebooks/ai-projs
+    #     restart: always
+    #     ports:
+    #         - "8888:8888"
+    #         - "6006:6006"
+    #         - "8265:8265"
+    #     networks:
+    #         - rsnet
+    #     # volumes:
+    #     #     - /data/notebooks:/notebooks
+    #     #     - /data/share:/data
+    #     #     - /data/notebooks/ml_data:/ml_data
+    #     #     - /data/notebooks/tensorboard:/tensorboard
+    #     command:
+    #         jupyter lab --notebook-dir=/notebooks --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
+
+    # serving:
+    #     build:
+    #         context: ./machinelearning/serving_cpu
+    #         dockerfile: Dockerfile
+    #     image: svcsystem
+    #     container_name: asapredictor
+    #     hostname: svcsystem
+    #     environment:
+    #         - PYTHONPATH=$PYTHONPATH:/app
+    #     restart: always
+    #     shm_size: "16gb"
+    #     networks:
+    #         - rsnet
+    #     volumes:
+    #         - /data/notebooks:/notebooks
+    #         - /data/share:/data
+    #         - /data/notebooks/ml_data:/ml_data
+    #         - /data/notebooks/tensorboard:/tensorboard
+    #     command:
+    #         jupyter lab --notebook-dir=/notebooks --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
 
 networks:
     rsnet:
