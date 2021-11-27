@@ -16,3 +16,86 @@ network:
 root:~$ netplan apply
 
 
+#########################################################################################
+###                                   K3s All Node                                    ###
+#########################################################################################
+
+* disable swap & sysctl settings for networking -----------------------------------------
+root:~$ swapoff -a \
+     && sed -i '/swap/d' /etc/fstab \
+     && cat >>/etc/sysctl.d/kubernetes.conf<<EOF
+net.bridge.bridge-nf-call-iptables  = 1
+net.ipv4.ip_forward                 = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+EOF
+root:~$ sysctl --system
+
+* Disable firewall starting -------------------------------------------------------------
+root# systemctl stop firewalld \
+   && systemctl disable firewalld
+
+* Master & Node Host Domain Name Regist -------------------------------------------------
+root# cat >> /etc/hosts<<EOF
+
+192.168.0.24 vmaster
+192.168.0.25 vnode1
+192.168.0.26 vnode2
+192.168.0.27 vnode3
+192.168.0.28 vnode4
+192.168.0.29 vnode5
+192.168.0.30 vhub
+EOF
+
+
+#########################################################################################
+###                              DOCKER & DOCKER-COMPOSE                              ###
+#########################################################################################
+* Docker & Docker-Compose Install -------------------------------------------------------
+user:~$ sudo apt install -y apt-transport-https ca-certificates curl software-properties-common \
+     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - \
+     && sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" \
+     && sudo apt update \
+     && sudo apt install -y docker-ce docker-ce-cli containerd.io \
+     && sudo usermod -aG docker $USER \
+     && sudo apt install -y docker-compose
+
+user:~$ sudo systemctl start docker
+user:~$ sudo systemctl enable docker
+user:~$ sudo systemctl status docker
+
+
+* Nvidia-Docker Install ----------------------------------------------------------------
+user:~$ curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+user:~$ sudo vi /etc/apt/sources.list.d/nvidia-docker.list
+deb https://nvidia.github.io/libnvidia-container/ubuntu18.04/$(ARCH) /
+deb https://nvidia.github.io/nvidia-container-runtime/ubuntu18.04/$(ARCH) /
+deb https://nvidia.github.io/nvidia-docker/ubuntu18.04/$(ARCH) /
+user:~$ sudo apt update
+user:~$ sudo apt install -y nvidia-docker2
+
+
+* Setting Docker For nvidia gpu --------------------------------------------------------
+user:~$ sudo vi /etc/docker/daemon.json
+{
+    "default-runtime": "nvidia",
+    "runtimes": {
+        "nvidia": {
+            "path": "/usr/bin/nvidia-container-runtime",
+            "runtimeArgs": []
+        }
+    }
+}
+user:~$ sudo systemctl daemon-reload \
+     && sudo systemctl restart docker
+
+
+
+
+
+
+
+
+
+
+
+

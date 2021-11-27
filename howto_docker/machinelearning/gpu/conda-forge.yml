@@ -60,7 +60,7 @@ dependencies:
   - bqplot
   - jupyterlab-drawio
   - airflow
-  - gym
+  - gym-all
   - pyopengl
   - nltk
   - asyncpg
@@ -71,11 +71,24 @@ dependencies:
   - chktex
   - jupyterlab-lsp
   - texlab
+  - dm-tree
+  - starlette
+  - uvicorn
+  - typing-extensions
+  - ray-all
+  - fastapi
+  - ta-lib
+  - plotly
+  - dash
+  - jupyter-dash
+  - tortoise-orm
   # - elyra
   - pip
   - pip:
+    - lz4
+    - bokeh
     - tensorflow-addons
-    - ray
+    # - ray
     - modin[ray]
     - nengo-dl
     - nengo[all]

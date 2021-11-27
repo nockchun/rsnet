@@ -53,7 +53,7 @@ EOF
 #########################################################################################
 ### Install K3s Master Node
 #root:~$ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip=192.168.0.24 --flannel-iface=enp0s3 --no-deploy traefik" sh -
-root:~$ curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="--no-deploy traefik" sh -
+root:~$ curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="server --no-deploy traefik" sh -s -
 root:~$ systemctl status k3s
 root:~$ kubectl get node
 root:~$ kubectl get pod --all-namespaces
@@ -64,7 +64,7 @@ root:~$ source /usr/share/bash-completion/bash_completion
 
 ### Server Token Check
 user:~$ kubectl config view --raw >~/.kube/config
-user:~$ chmod 744 ~/.kube/config
+user:~$ chmod 600 ~/.kube/config
 user:~$ sudo cat /var/lib/rancher/k3s/server/node-token
 
 
@@ -90,8 +90,8 @@ root:~$ source /usr/share/bash-completion/bash_completion
 #########################################################################################
 ###                                  K3s Worker Node                                  ###
 #########################################################################################
-root:~$ curl -sfL https://get.k3s.io | K3S_URL=https://vmaster:6443 K3S_TOKEN=XXX sh -
-
+root:~$ curl -sfL http://get.k3s.io | K3S_URL=https://<master_IP>:6443 K3S_TOKEN=<join_token> sh -s -
+root:~$ systemctl status k3s-agent
 
 #########################################################################################
 ###                                   NGINX Ingress                                   ###
@@ -110,7 +110,7 @@ user:~$ watch kubectl get all -n ingress-nginx
 ###                                Kubernetes Dashboard                               ###
 #########################################################################################
 * Deploy Dashboard To k8s ---------------------------------------------------------------
-user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.3.0/aio/deploy/recommended.yaml
+user:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
 
 * Verifying the installation ------------------------------------------------------------
 $ watch kubectl get all -n kubernetes-dashboard
@@ -153,7 +153,7 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
   rules:
-  - host: k3board.realstudy.net
+  - host: board.k3s.lab
     http:
       paths:
       - pathType: Prefix

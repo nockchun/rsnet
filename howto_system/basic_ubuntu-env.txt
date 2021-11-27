@@ -186,6 +186,15 @@ root# systemctl restart sshd
 
 
 
+#########################################################################################
+###                                        XRDP                                       ###
+#########################################################################################
+user~# sudo apt install xrdp xfce4
+user~# echo "xfce4-session" > ~/.xsession
+user~# sudo systemctl restart xrdp
+
+
+
 
 #########################################################################################
 ###                                  Sublime Text 3                                   ###
@@ -304,9 +313,9 @@ user:~$ sudo apt install -y apt-transport-https ca-certificates curl software-pr
      && sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" \
      && sudo apt update \
      && sudo apt install -y docker-ce docker-ce-cli containerd.io \
-     && sudo apt-mark hold docker-ce docker-ce-cli \
      && sudo usermod -aG docker $USER \
      && sudo apt install -y docker-compose
+
 
 * Nvidia-Docker Install ----------------------------------------------------------------
 user:~$ curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
