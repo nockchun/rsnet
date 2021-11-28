@@ -36,6 +36,17 @@ user:~$ sudo add-apt-repository ppa:graphics-drivers/ppa
 user:~$ curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
 user:~$ sudo apt update
 
+* find model & stable driver
+user:~$ ubuntu-drivers devices
+
+* auto install
+user:~$ sudo ubuntu-drivers autoinstall
+
+* manual install
+user:~$ sudo apt install nvidia-driver-<version>
+
+* purge all packages
+user:~$ sudo apt remove --purge '^nvidia-.*'
 
 * bluetooth Sound Headset Drivers --------------------------------------------------------
 user:~$ sudo apt-get install bluez*
