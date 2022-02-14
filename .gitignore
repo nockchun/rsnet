@@ -3,3 +3,5 @@
 **/intermediate
 **/*.png
 **/*.h5
+**/data
+**/datas
