@@ -1,0 +1,17 @@
+#########################################################################################
+###                                  Basic Settings                                   ###
+#########################################################################################
+::: basic library -----------------------------------------------------------------------
+user$ sudo apt install apt-transport-https git
+
+
+#########################################################################################
+###                                   Visual Studio                                   ###
+#########################################################################################
+::: Add repository ----------------------------------------------------------------------
+user$ curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+user$ sudo install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
+user$ sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
+
+::: Install visual studio code ----------------------------------------------------------
+user$ sudo apt install code
