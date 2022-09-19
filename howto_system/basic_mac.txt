@@ -1,0 +1,2 @@
+brew install ansible
+brew install hudochenkov/sshpass/sshpass

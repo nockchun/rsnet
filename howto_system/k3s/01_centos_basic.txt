@@ -1,0 +1,55 @@
+#########################################################################################
+###                                   K3s All Node                                    ###
+#########################################################################################
+::: Set SELinux in permissive mode (effectively disabling it) ---------------------------
+root:~$ setenforce 0 \
+     && sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
+### Disable swap
+root:~$ swapoff -a \
+     && sed -e '/swap/s/^/#/g' -i /etc/fstab
+
+### Disable firewall starting from Kubernetes v1.19 onwards
+root# systemctl stop firewalld \
+   && systemctl disable firewalld
+
+root:~$ cat << EOF | sudo tee /etc/sysctl.d/k3s.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+root:~$ sysctl --system
+
+### Master & Node Host Domain Name Regist -------------------------------------------------
+root# cat >> /etc/hosts<<EOF
+
+192.168.0.24 vmaster
+192.168.0.25 vnode1
+192.168.0.26 vnode2
+192.168.0.27 vnode3
+192.168.0.28 vnode4
+192.168.0.29 vnode5
+192.168.0.30 vhub
+EOF
+
+
+
+
+
+
+
+#########################################################################################
+###                                     Firewalld                                     ###
+#########################################################################################
+::: Setting firewall on the master ------------------------------------------------------
+root:~$ firewall-cmd --permanent --add-port=6443/tcp
+root:~$ firewall-cmd --permanent --add-port=10250-10252/tcp
+root:~$ firewall-cmd --permanent --add-port=8285/udp
+root:~$ firewall-cmd --reload
+
+::: Setting firewall on the worker ------------------------------------------------------
+root:~$ firewall-cmd --permanent --add-port=10250/tcp
+root:~$ firewall-cmd --permanent --add-port=30000-32767/tcp
+root:~$ firewall-cmd --permanent --add-port=8285/udp
+root:~$ firewall-cmd --reload
+
+

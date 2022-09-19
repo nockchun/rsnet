@@ -30,6 +30,14 @@ EOF
 
 
 #########################################################################################
+###                               Driver On Virtualbox                                ###
+#########################################################################################
+::: Install guest additions -------------------------------------------------------------
+user:~$ sudo apt install build-essential module-assistant
+user:~$ sudo m-a prepare
+
+
+#########################################################################################
 ###                              DOCKER & DOCKER-COMPOSE                              ###
 #########################################################################################
 ::: Install docker & compose ------------------------------------------------------------
@@ -90,7 +98,24 @@ user:~$ curl https://www.virtualbox.org/download/oracle_vbox_2016.asc | gpg --de
     && echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian focal contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list \
     && sudo apt update
 
-::: Install virtualbox ------------------------------------------------------------------
+::: Install virtualbox on ubuntu --------------------------------------------------------
 user:~$ sudo apt install virtualbox-6.1
 
+::: Install virtualbox on mint ----------------------------------------------------------
+user:~$ sudo apt install virtualbox virtualbox-ext-pack virtualbox-guest-additions-iso
+
+
+#########################################################################################
+###                                      Ansible                                      ###
+#########################################################################################
+::: Add repository ----------------------------------------------------------------------
+user:~$ sudo apt-add-repository ppa:ansible/ansible
+user:~$ sudo cp /etc/apt/trusted.gpg /etc/apt/trusted.gpg.d
+
+::: Install ansible ---------------------------------------------------------------------
+user:~$ sudo apt update && sudo apt install ansible
+
+::: Install ansible ---------------------------------------------------------------------
+user:~$ ssh-keygen
+user:~$ ssh-copy-id [원격서버계정ID]@[원격서버IP]
 

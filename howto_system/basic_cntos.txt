@@ -1,0 +1,45 @@
+#########################################################################################
+###                                  Basic Settings                                   ###
+#########################################################################################
+::: Setting static ip -------------------------------------------------------------------
+root:~$ nmcli device
+root:~$ ifname=enp0s3 \
+    && nmcli connection modify $ifname ipv4.method manual \
+    && nmcli connection modify $ifname ipv4.addresses 192.168.24.61/24 \
+    && nmcli connection modify $ifname ipv4.gateway 192.168.24.1 \
+    && nmcli connection modify $ifname ipv4.dns 8.8.8.8
+root:~$ nmcli device show enp0s3
+
+::: Add user for admin ------------------------------------------------------------------
+root:~$ useradd user
+root:~$ passwd user
+root:~$ usermod -G wheel user
+root:~$ vi /etc/pam.d/su
+auth            required        pam_wheel.so use_uid
+root:~$ visudo
+user    ALL=(ALL)       ALL
+root:~$ vi /etc/aliases
+root:           rsnet
+
+::: Install basic library ---------------------------------------------------------------
+root:~$ yum install vim bash-completion epel-release
+
+::: Setting VI Editor -------------------------------------------------------------------
+root:~$ cat > /etc/vimrc << EOF
+
+set number
+set tabstop=4
+set shiftwidth=4
+set showmatch
+set title
+set hlsearch
+set fileencodings=utf-8,euc-kr
+set ruler
+set title
+set statusline=\ %<%l:%v\ [%P]%=%a\ %h%m%r\ %F\
+set rtp+=/usr/local/lib/python2.7/dist-packages/powerline/bindings/vim/
+set laststatus=2
+set t_Co=256
+
+syntax on
+EOF
