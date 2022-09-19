@@ -4,10 +4,10 @@
 ::: Setting static ip -------------------------------------------------------------------
 root:~$ nmcli device
 root:~$ ifname=enp0s3 \
-    && nmcli connection modify $ifname ipv4.method manual \
     && nmcli connection modify $ifname ipv4.addresses 192.168.24.61/24 \
     && nmcli connection modify $ifname ipv4.gateway 192.168.24.1 \
-    && nmcli connection modify $ifname ipv4.dns 8.8.8.8
+    && nmcli connection modify $ifname ipv4.dns 8.8.8.8 \
+    && nmcli connection modify $ifname ipv4.method manual
 root:~$ nmcli device show enp0s3
 
 ::: Add user for admin ------------------------------------------------------------------
