@@ -1,0 +1,47 @@
+version: '3.4'
+
+services:
+  cpu-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USERNAME=rsnet
+        - PASSWORD=rsnet
+        - uid=1000
+        - gid=1000
+        - VERSION_BASE=nockchun/miniconda-cpu-devel:py3.9
+        - LIB_PYTHON=lib_cpu
+    image: nockchun/dev-py:cpu-build2
+    command:
+      sleep infinity
+
+  cuda11.7.1_tf2.6_torch1.12:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USERNAME=rsnet
+        - PASSWORD=rsnet
+        - uid=1000
+        - gid=1000
+        - VERSION_BASE=nockchun/miniconda-gpu-devel:11.7.1-py3.9
+        - LIB_PYTHON=lib_gpu-tf2.6-torch1.12
+    image: nockchun/dev-gpu-py:cuda11.7.1_tf2.6_torch1.12-build2
+    command:
+      sleep infinity
+
+  cuda11.3.1_tf2.4_torch1.7:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USERNAME=rsnet
+        - PASSWORD=rsnet
+        - uid=1000
+        - gid=1000
+        - VERSION_BASE=nockchun/miniconda-gpu-devel:11.3.1-py3.9
+        - LIB_PYTHON=lib_gpu-tf2.6-torch1.11
+    image: nockchun/devcontainer:cuda11.3.1_tf2.4_torch1.7-build1
+    command:
+      sleep infinity

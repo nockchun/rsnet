@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  py3.9:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USERNAME=rsnet
+        - PASSWORD=rsnet
+        - UID=1000
+        - GID=1000
+        - VERSION_MINICONDA=latest
+        - VERSION_PYTHON=3.9
+    image: nockchun/miniconda-cpu-devel:py3.9
+    command:
+      sleep infinity
