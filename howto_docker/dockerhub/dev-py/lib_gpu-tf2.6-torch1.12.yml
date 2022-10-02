@@ -6,96 +6,54 @@ channels:
 dependencies:
   - python=3.9
   - poetry
-  # jupyterlab
-  - jupyter_console
-  - jupyter_contrib_nbextensions
-  - jupyter_nbextensions_configurator
-  - jupyterlab-git
-  - jupyterlab-drawio
-  - jupyter_bokeh
-  - jupyterlab-lsp
-  - jupyterlab-dash
-  - ipykernel
-  - ipywidgets
-  - ipytest
-  - ipympl
-  - jupyterlab
+  # machine learning library
+  - pandas
+  - numpy
+  - sympy
+  - seaborn
+  - hdf5
+  - asyncpg
+  - ta-lib
+  - bokeh
+  - scikit-learn
+  - scipy
+  - psycopg2
+  - tortoise-orm
+  - matplotlib
+  - psutil
+  - more-itertools
+  - statsmodels
+  - cython
+  - httplib2
+  - xlrd
+  - xlsxwriter
+  - xlwt
+  - protobuf
+  - beautifulsoup4
+  - html5lib
+  - aiohttp
+  - elasticsearch
+  - openpyxl
+  - pydot
+  - pyyaml
+  - pylint
+  - autopep8
+
   # tensorflow
   - tensorflow-gpu=2.6
-  - tensorboard=2.6
   - tensorflow-datasets
+
   # pytorch
   - pytorch=1.12
   - torchvision
   - torchaudio
-  # machine learning library
-  - pandas=1.4
-  - gym
-  - numpy
-  - sympy
-  - scikit-learn-intelex
-  - scipy
-  - statsmodels
-  - sentencepiece
-  - pandas-profiling
-  - pandas-datareader
-  - flatbuffers
-  - cython
-  - psutil
-  - blist
-  - widgetsnbextension
-  - pyyaml
-  - seaborn
-  - hdf5
-  - asyncpg
-  - bokeh
-  - python-language-server
-  - chktex
-  - texlab
-  - dm-tree
-  - starlette
-  - typing-extensions
-  - ta-lib
-  - dash
-  - cufflinks-py
-  - tortoise-orm
-  - html5lib
-  - more-itertools
-  - httplib2
-  - nodejs
-  - beautifulsoup4
-  - openpyxl
-  - xlrd
-  - xlsxwriter
-  - xlwt
-  - pillow
-  - matplotlib
-  - dill
-  - protobuf
-  - pydot
-  - pydotplus
-  - networkx
-  - graphviz
-  - python-graphviz
-  - pylint
-  - autopep8
-  - psycopg2
-  - pyarrow
-  - numexpr
-  - bqplot
-  - aiohttp=3.7
-  - py-opencv
-  - pyvirtualdisplay
-  - elasticsearch
-  - pyopengl
-  - croniter
+
   # celery
   - celery
   - celery[redis]
-  - amqp
-  - kombu
-  - vine
+  
   # services
   - redis
   - kubernetes
   - redis-py
+  - fastapi

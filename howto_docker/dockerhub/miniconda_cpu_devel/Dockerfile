@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 LABEL maintainer="RealStudy.NET <nockchun@gmail.com>"
 
 # Install system packages
@@ -14,9 +14,9 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
     libevent-dev libffi-dev libgdbm-dev libgeoip-dev libglib2.0-dev libgmp-dev libjpeg-dev libkrb5-dev liblzma-dev \
     libmagickcore-dev libmagickwand-dev libncurses5-dev libncursesw5-dev libpng-dev libpq-dev libreadline-dev xvfb \
     libsqlite3-dev libssl-dev libtool libwebp-dev libxml2-dev libxslt-dev libyaml-dev make patch unzip xz-utils zlib1g-dev \
-    iputils-ping dnsutils language-pack-ko python-opengl ffmpeg openjdk-11-jre-headless libatlas-base-dev libgflags-dev \
+    iputils-ping dnsutils language-pack-ko ffmpeg openjdk-11-jre-headless libatlas-base-dev libgflags-dev \
     libgoogle-glog-dev libhdf5-serial-dev libleveldb-dev liblmdb-dev libprotobuf-dev libsnappy-dev protobuf-compiler ghostscript python3-tk \
-    software-properties-common g++-7 gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor \
+    software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor \
  && apt-get autoclean && apt-get autoremove
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
  && locale-gen \
@@ -60,4 +60,5 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-${VERSION_MINICO
  && conda install -y libgcc tini python=${VERSION_PYTHON} \
  && conda config --system --prepend channels conda-forge \
  && conda update --all -y \
- && conda init bash
+ && conda init bash \
+ && conda clean -afy
