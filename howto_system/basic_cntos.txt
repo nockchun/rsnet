@@ -1,7 +1,7 @@
 #########################################################################################
 ###                                  Basic Settings                                   ###
 #########################################################################################
-::: Setting static ip -------------------------------------------------------------------
+::: Setting static ip with nmcli --------------------------------------------------------
 root:~$ nmcli device
 root:~$ ifname=enp0s3 \
     && nmcli connection modify $ifname ipv4.addresses 192.168.24.61/24 \
@@ -9,6 +9,9 @@ root:~$ ifname=enp0s3 \
     && nmcli connection modify $ifname ipv4.dns 8.8.8.8 \
     && nmcli connection modify $ifname ipv4.method manual
 root:~$ nmcli device show enp0s3
+
+::: Setting static ip -------------------------------------------------------------------
+root:~$ vi /etc/
 
 ::: Add user for admin ------------------------------------------------------------------
 root:~$ useradd user
@@ -43,3 +46,30 @@ set t_Co=256
 
 syntax on
 EOF
+
+
+#########################################################################################
+###                                        GPU                                        ###
+#########################################################################################
+::: Check NVIDIA GPU device -------------------------------------------------------------
+root:~$ dnf install epel-release pciutils \
+     && dnf update
+root:~$ lspci | grep -E "VGA.*NVIDIA"
+
+::: Default driver off ------------------------------------------------------------------
+root:~$ echo "blacklist nouveau" >> /etc/modprobe.d/blacklist.conf
+root:~$ vi /etc/default/grub
+root:~$ grub2-mkconfig -o /boot/efi/EFI/$(. /etc/os-release;echo $ID)/grub.cfg
+root:~$ reboot
+
+::: Install NVIDIA driver ---------------------------------------------------------------
+root:~$ dnf config-manager --add-repo http://developer.download.nvidia.com/compute/cuda/repos/rhel9/$(uname -i)/cuda-rhel9.repo \
+     && dnf update
+root:~$ dnf install -y kernel-headers kernel-devel tar bzip2 make automake gcc gcc-c++ pciutils elfutils-libelf-devel libglvnd-opengl libglvnd-glx libglvnd-devel acpid pkgconfig dkms
+root:~$ dnf module list nvidia-driver
+root:~$ dnf module install nvidia-driver:520-dkms
+
+
+::: Reset for another driver ------------------------------------------------------------
+root:~$ dnf module reset nvidia-driver:520-dkms
+
