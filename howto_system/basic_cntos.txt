@@ -59,6 +59,7 @@ root:~$ lspci | grep -E "VGA.*NVIDIA"
 ::: Default driver off ------------------------------------------------------------------
 root:~$ echo "blacklist nouveau" >> /etc/modprobe.d/blacklist.conf
 root:~$ vi /etc/default/grub
+GRUB_CMDLINE_LINUX="... rd.driver.blacklist=nouveau"
 root:~$ grub2-mkconfig -o /boot/efi/EFI/$(. /etc/os-release;echo $ID)/grub.cfg
 root:~$ reboot
 
