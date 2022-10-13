@@ -1,0 +1,28 @@
+#########################################################################################
+###                                  Basic Settings                                   ###
+#########################################################################################
+::: NVM Install -------------------------------------------------------------------------
+# nvm is a version manager for node.js
+# ref : https://github.com/nvm-sh/nvm
+user:~$ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+user:~$ . ~/.profile
+user:~$ nvm ls-remote
+user:~$ nvm install v16.17.1
+user:~$ node --version
+
+::: yarn Install ------------------------------------------------------------------------
+# npm : Node Packaged Manager. 자바스크립트 라브리 설치하고 버전을 관리
+# npm은 https://www.npmjs.com에서 node_modules라는 폴더에 라이브러리를 내려받아 저장하고,
+#      package.json 파일에 설치된 라이브러리의 정보를 저장 관리 한다.
+# yarn은 npm과 동작은 비슷. facebook에서 npm의 단점을 보완하여 성능과 속도를 개선한 라이브러리 관리 도구.
+#      packages 병렬 설치, 자동 lock 파일 생성, npm보다 강화된 보안.
+user:~$ npm install -g yarn
+user:~$ yarn global add create-react-app
+
+::: Create project ----------------------------------------------------------------------
+user:~$ yarn create react-app <project-name>
+user:~$ cd <project-name>
+user:~$ yarn start
+user:~$ 
+user:~$ 
+
