@@ -23,6 +23,42 @@ user:~$ yarn global add create-react-app
 user:~$ yarn create react-app <project-name>
 user:~$ cd <project-name>
 user:~$ yarn start
-user:~$ 
-user:~$ 
+
+
+#########################################################################################
+###                                 craco module alias                                ###
+#########################################################################################
+user:~$ yarn add @craco/craco --save
+
+# 프로젝트 루트에 craco.config.js 생성 및 아래 설정 등록
+const path = require('path');
+
+module.exports = {
+  webpack: {
+    alias: {
+      '@': path.resolve(__dirname, 'src/'),
+      '@components': path.resolve(__dirname, 'src/components'),
+      '@shared': path.resolve(__dirname, 'src/components/shared'),
+      '@constants': path.resolve(__dirname, 'src/constants'),
+      '@views': path.resolve(__dirname, 'src/views'),
+    },
+  },
+};
+
+# package.json 파일 수정
+"scripts": {
+-   "start": "react-scripts start",
++   "start": "craco start",
+-   "build": "react-scripts build",
++   "build": "craco build"
+-   "test": "react-scripts test",
++   "test": "craco test"
+}
+
+# alias 사용 방법
+...
+import Template from '@shared/Template/Template';
+...
+
+
 
