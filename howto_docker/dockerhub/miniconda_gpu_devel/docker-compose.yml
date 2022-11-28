@@ -1,7 +1,7 @@
 version: '3.4'
 
 services:
-  11.7.1-py3.9:
+  11.8.0-py3.9:
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,10 +10,10 @@ services:
         - PASSWORD=rsnet
         - UID=1000
         - GID=1000
-        - VERSION_CUDA=11.7.1-devel-ubuntu22.04
+        - VERSION_CUDA=11.8.0-devel-ubuntu22.04
         - VERSION_MINICONDA=latest
         - VERSION_PYTHON=3.9
-    image: nockchun/miniconda-gpu-devel:11.7.1-py3.9
+    image: nockchun/miniconda-gpu-devel:11.8.0-py3.9
     command:
       sleep infinity
   

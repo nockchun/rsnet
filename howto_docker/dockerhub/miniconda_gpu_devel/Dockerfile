@@ -51,7 +51,7 @@ WORKDIR $HOME
 
 # Install Miniconda
 ARG VERSION_MINICONDA=latest
-ARG VERSION_PYTHON=3.8
+ARG VERSION_PYTHON=3.9
 ENV CONDA_DIR $HOME/miniconda3
 ENV PATH=${CONDA_DIR}/bin:$PATH
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-${VERSION_MINICONDA}-Linux-x86_64.sh -O ~/miniconda.sh \
