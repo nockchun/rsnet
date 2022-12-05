@@ -3,6 +3,7 @@ channels:
   - anaconda
   - conda-forge
   - pytorch
+  - nvidia
 dependencies:
   - python=3.9
   - poetry
@@ -26,8 +27,10 @@ dependencies:
   - tensorflow-datasets
   # pytorch
   - pytorch=1.13
+  - pytorch-cuda=11.6
   - torchvision
   - torchaudio
+  - torchmetrics
   # machine learning library
   - pandas=1.5
   - gym
