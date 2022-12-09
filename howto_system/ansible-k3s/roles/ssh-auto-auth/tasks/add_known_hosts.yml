@@ -1,0 +1,27 @@
+- name: search host key value for ip
+  connection: local
+  command: ssh-keyscan -t ecdsa {{ ansible_host }}
+  register: keyscan_ip
+
+- name: search host key value for hostname
+  connection: local
+  command: ssh-keyscan -t ecdsa {{ inventory_hostname }}
+  register: keyscan_hostname
+
+- name: regist host key for ip to known_hosts
+  connection: local
+  lineinfile:
+    path: ~/.ssh/known_hosts
+    create: yes
+    line: "{{ item }}"
+  with_items:
+    - "{{ keyscan_ip.stdout_lines }}"
+
+- name: regist host key for hostname to known_hosts
+  connection: local
+  lineinfile:
+    path: ~/.ssh/known_hosts
+    create: yes
+    line: "{{ item }}"
+  with_items:
+    - "{{ keyscan_hostname.stdout_lines }}"

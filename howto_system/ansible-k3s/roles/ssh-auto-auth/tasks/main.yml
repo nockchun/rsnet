@@ -1,0 +1,5 @@
+- name: add all hosts key to known_hosts
+  import_tasks: add_known_hosts.yml
+
+- name: ssh copy id for auto authorized
+  import_tasks: auto_auth.yml

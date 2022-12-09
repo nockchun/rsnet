@@ -1,0 +1,63 @@
+base:
+  user: kwp
+  group: kwp
+  timezone: "Asia/Seoul"
+  package:
+    - wget
+    - bash-completion
+    - git
+    - tar
+    - zip
+    - jq
+    - pciutils
+  hosts_domain:
+    - 10.2.13.77 registry.kwp.lab
+    - 10.2.13.76 k3s.lab
+
+service_nfs:
+  server_host: vmaster2
+  share_path: /data/nfshare
+  share_mode: "0777"
+
+k3s_cluster:
+  # default(flannel, svclb), develop(calico, svclb), product(calico)
+  mode: develop
+  cluster_cidr: 10.42.0.0/16
+
+kube_certmanager:
+  ca_path: /etc/k3sca
+  owner: kwp
+  group: kwp
+
+kube_registry:
+  domain: registry.kwp.lab
+  storage: 200Gi
+  storage_class: nfs-client
+
+kube_postgresql:
+  storage: 100Gi
+  postgresPassword: postgres
+  username: kwp
+  password: kwp
+  database: kwp
+  node: kmaster1
+  port_expose: 5432
+
+kube_rabbitmq:
+  storage: 10Gi
+  username: kwp
+  password: kwp
+  port_expose: 5672
+  dashboard_domain: rabbit.kwp.lab
+
+kube_redis:
+  storage: 10Gi
+  password: kwp
+  port_expose: 6379
+
+docker:
+  # nvidia driver Value 
+  nvidia_driver: 450
+
+
+  

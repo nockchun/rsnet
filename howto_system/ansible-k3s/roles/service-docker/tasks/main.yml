@@ -1,0 +1,20 @@
+- name: Register number of GPU processors
+  shell: lspci 2>/dev/null | grep VGA|grep NVIDIA | wc -l
+  register: gpu_count
+
+- name: Install Docker PR
+  import_tasks: docker.yml
+  when: 
+    - gpu_count.stdout|int > 0 or "k3s_cluster.mode|string == 'develop'"
+
+- name: Register docker_installed
+  shell: ps -ef | grep docker
+  register: docker_installed
+  when: 
+    - gpu_count.stdout|int > 0 or "k3s_cluster.mode|string == 'develop'"
+
+- name: Install Nvidia Docker
+  import_tasks: nvidia_docker.yml
+  when:
+    - gpu_count.stdout|int > 0
+    - docker_installed is defined

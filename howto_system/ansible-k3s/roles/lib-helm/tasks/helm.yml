@@ -1,0 +1,22 @@
+- name: Remove Helm 3
+  shell: rm -rf /usr/local/bin/helm
+  args:
+    warn: false
+  
+- name: Install Helm 3
+  shell: |
+    curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 \
+    && chmod u+x get_helm.sh \
+    && ./get_helm.sh \
+    && rm -rf get_helm.sh
+  args:
+    warn: false
+  
+- name: Install Helm Auto-Complete
+  shell: |
+    helm completion bash > /etc/bash_completion.d/helm \
+    && source /usr/share/bash-completion/bash_completion
+  args:
+    warn: false
+    executable: /bin/bash
+ 

@@ -1,0 +1,3 @@
+- name: Install Helm 3
+  import_tasks: helm.yml
+  when: inventory_hostname in groups["masters"]

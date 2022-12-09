@@ -1,0 +1,7 @@
+- name: Create SSH Environments
+  hosts: all
+  serial: 1
+  gather_facts: no
+  become: false
+  roles:
+    - ssh-auto-auth

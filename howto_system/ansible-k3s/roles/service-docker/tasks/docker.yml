@@ -1,0 +1,101 @@
+# Debian Docker Install
+- name: Install yum-utils
+  yum: 
+    name:
+      - yum-utils
+    state: latest
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Install yum-utils
+  shell: |
+    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  args:
+    warn: false
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Install Docker on RedHat
+  yum: 
+    name:
+      - docker-ce 
+      - docker-ce-cli 
+      - containerd.io 
+      - docker-compose-plugin
+    state: latest
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Add user to docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+  
+- name: Start Docker
+  shell: |
+    systemctl start docker \
+    && systemctl enable docker
+  args:
+    warn: false
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Docker Auto-complete
+  shell: |
+    curl -s -L https://raw.githubusercontent.com/docker/docker-ce/master/components/cli/contrib/\
+    completion/bash/docker -o /etc/bash_completion.d/doc
+  args:
+    warn: false
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Install Docker-compose  
+  shell: |
+    curl -L "https://github.com/docker/compose/releases/download/v2.5.1/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose \
+    && chmod 755 /usr/local/bin/docker-compose
+  args:
+    warn: false
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Auto-complete Docker-compose
+  shell: |
+    curl -L https://raw.githubusercontent.com/docker/compose/master/contrib/\
+    completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
+  args:
+    warn: false
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+# Ubuntu Docker Install
+- name: Make keyrings directory
+  shell: |
+    mkdir -p /etc/apt/keyrings
+  args:
+    warn: false
+  when: ansible_facts['os_family'] in ["Debian", "Ubuntu"]
+
+- name: Download Docker.gpg
+  shell: |
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  args:
+    warn: false
+  when: ansible_facts['os_family'] in ["Debian", "Ubuntu"]
+
+- name: Add apt repository
+  shell: |
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu jammy stable" \
+    | tee /etc/apt/sources.list.d/docker.list > /dev/null
+  args:
+    warn: false
+  when: ansible_facts['os_family'] in ["Debian", "Ubuntu"]
+
+- name: Install Docker on Ubuntu
+  shell: |
+    apt update \
+    && apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+  args:
+    warn: false
+  when: ansible_facts['os_family'] in ["Debian", "Ubuntu"]
+
+- name: Add user to docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+  when: ansible_facts['os_family'] in ["Debian", "Ubuntu"]

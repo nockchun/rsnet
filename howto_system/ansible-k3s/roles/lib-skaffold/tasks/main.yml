@@ -1,0 +1,7 @@
+- name: Install skaffold
+  shell: |
+    curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 \
+    && install skaffold /usr/local/bin/
+  args:
+    warn: false
+  when: inventory_hostname in groups["masters"]

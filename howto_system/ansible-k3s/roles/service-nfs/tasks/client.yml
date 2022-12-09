@@ -1,0 +1,31 @@
+- name: Install package for RedHat.
+  yum:
+    name:
+      - nfs-utils
+    state: latest
+  when:
+    - ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Install package for Debian/Ubuntu.
+  apt:
+    name:
+      - nfs-common
+    state: latest
+  when:
+    - ansible_facts['os_family'] in ["Debian", "Ubuntu"]
+
+- name: Make shared directory for server
+  file:
+    state: directory
+    path: "{{ service_nfs.share_path }}"
+    mode: "{{ service_nfs.share_mode }}"
+    owner: "{{ base.user }}"
+    group: "{{ base.group }}"
+    recurse: yes
+
+- name: Make mount point for client
+  mount:
+    path: "{{ service_nfs.share_path }}"
+    src: "{{ service_nfs.server_host }}:{{ service_nfs.share_path }}"
+    fstype: nfs
+    state: mounted

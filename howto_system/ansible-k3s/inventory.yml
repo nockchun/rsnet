@@ -12,10 +12,10 @@ all:
   children:
     masters:
       children:
-        ha_master:
+        master:
           hosts:
             vmaster1:
-        ha_extra:
+        extra:
           hosts:
             vmaster2:
     nodes:

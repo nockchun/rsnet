@@ -1,0 +1,7 @@
+- name: Install Docker
+  hosts: all
+  become: yes
+  vars_files:
+    - values.yml
+  roles:
+    - lib-helm

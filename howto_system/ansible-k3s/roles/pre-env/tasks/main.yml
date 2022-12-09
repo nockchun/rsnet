@@ -1,0 +1,10 @@
+- name: Setting Base System Configuration
+  import_tasks: sysconf.yml
+
+- name: Setting Base Environments
+  import_tasks: env.yml
+
+- name: Reboot System (wait for server active)
+  reboot:
+    reboot_timeout: 600
+    test_command: uptime

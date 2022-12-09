@@ -1,6 +1,23 @@
-#########################################################################################
-###                                 Inventory Setting                                 ###
-#########################################################################################
 ::: Inventory Setting -------------------------------------------------------------------
 # test inventory
 user:~$ ansible masters -i inventory.yml --list-hosts
+
+::: SSH Auto Setting --------------------------------------------------------------------
+user:~$ ansible-playbook install_ssh_auth.yml -k
+
+::: Pre Environments Setting ------------------------------------------------------------
+user:~$ ansible-playbook install_pre-base-envs.yml
+
+::: Create NFS Environments -------------------------------------------------------------
+user:~$ ansible-playbook install_pre-nfs.yml
+
+::: Install Docker ----------------------------------------------------------------------
+user:~$ ansible-playbook install_pre-docker.yml
+
+::: Install Helm Library ----------------------------------------------------------------
+user:~$ ansible-playbook install_pre-helm.yml
+
+::: Install Skaffold Library ----------------------------------------------------------------
+user:~$ ansible-playbook install_pre-skaffold.yml
+
+

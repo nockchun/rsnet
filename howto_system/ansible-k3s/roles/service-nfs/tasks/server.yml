@@ -1,0 +1,41 @@
+- name: Install package for RedHat.
+  yum:
+    name:
+      - nfs-utils
+    state: latest
+  when:
+    - ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Install package for Debian/Ubuntu.
+  apt:
+    name:
+      - nfs-common
+      - nfs-kernel-server
+      - rpcbind
+      - portmap
+    state: latest
+  when:
+    - ansible_facts['os_family'] in ["Debian", "Ubuntu"]
+
+- name: Make shared directory for server
+  file:
+    state: directory
+    path: "{{ service_nfs.share_path }}"
+    mode: "{{ service_nfs.share_mode }}"
+    owner: "{{ base.user }}"
+    group: "{{ base.group }}"
+    recurse: yes
+  
+- name: Regist exports hosts for server
+  lineinfile:
+    path: /etc/exports
+    line: "{{ service_nfs.share_path }} {{ item }}(rw,sync,no_root_squash)"
+  with_items:
+    -  "{{ groups.all }}"
+
+- name: Enable & Start NFS-Server
+  systemd:
+    name: nfs-server
+    enabled: yes
+    state: restarted
+  

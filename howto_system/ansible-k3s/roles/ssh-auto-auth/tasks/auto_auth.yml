@@ -1,0 +1,21 @@
+- name: ssh-keygen
+  connection: local
+  command: "ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N ''"
+  ignore_errors: yes
+  run_once: true
+  
+- name: read id_rsa.pub
+  connection: local
+  command: "cat ~/.ssh/id_rsa.pub"
+  register: id_pub
+  run_once: true
+  
+- name: remote lineinfile for authorized_keys
+  lineinfile:
+    dest: ~/.ssh/authorized_keys
+    create: yes
+    mode: g-w
+    line: "{{ id_pub.stdout }}"
+
+- name: ssh-keygen
+  command: "chmod g-w ~/.ssh"

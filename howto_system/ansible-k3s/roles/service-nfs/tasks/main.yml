@@ -1,0 +1,7 @@
+- name: Create NFS Server
+  import_tasks: server.yml
+  when: "service_nfs.server_host == inventory_hostname"
+
+- name: Create NFS Client
+  import_tasks: client.yml
+  when: "service_nfs.server_host != inventory_hostname"

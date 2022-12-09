@@ -1,0 +1,28 @@
+- name: Check Install Commands HA-Extra
+  debug:
+    msg: "{{ lookup('template', 'extra.j2') }}"
+
+# - name: Create default(flannel, svclb) CPU Version
+#   shell: |
+#     {{ lookup('template', 'master.j2') }}
+#   register: master_log
+#   # when:
+#   #   - "k3s_cluster.mode|string == 'default'"
+#   #   - hostvars[inventory_hostname]['gpu_count'].stdout|int == 0
+
+- name: Install Kubectl Auto-Complete
+  shell: |
+    kubectl completion bash > /etc/bash_completion.d/kubectl \
+    && source /usr/share/bash-completion/bash_completion
+  args:
+    warn: false
+    executable: /bin/bash
+  
+- name: Set kubernetes environments for user
+  become: false
+  shell: |
+    mkdir -p ~/.kube \
+    && kubectl config view --raw >~/.kube/config \
+    && chmod 600 ~/.kube/config
+  args:
+    warn: false

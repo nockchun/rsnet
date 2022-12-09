@@ -1,0 +1,140 @@
+# Debian NVIDIA Docker Install
+- name: Nouveau Driver Off 1
+  shell: |
+    echo 'blacklist nouveau' >> /etc/modprobe.d/blacklist.conf
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Nouveau Driver Off 2
+  shell: |
+    rpm -e xorg-x11-drivers xorg-x11-drv-nouveau
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Add GRUB_CMDLINE to /etc/default/grub
+  copy:
+    content: GRUB_CMDLINE_LINUX="... rd.driver.blacklist=nouveau"
+    dest: /etc/default/grub
+    mode: "u=rw,g=,o="
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+  
+- name: Grub setting (BIOS USER run this)
+  shell: |
+    grub2-mkconfig -o /boot/grub2/grub.cfg
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Grub setting (UEFI USER run this)
+  shell: |
+    grub2-mkconfig -o /boot/efi/EFI/$(. /etc/os-release;echo $ID)/grub.cfg
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Reboot System (wait for server active)
+  reboot:
+    reboot_timeout: 600
+    test_command: uptime
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+
+- name: Add Nvidia Driver Repository (dnf config-manager)
+  shell: |
+    dnf config-manager --set-enabled powertools \
+    && dnf update
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Add Nvidia Driver Repository (dnf config-manager)
+  shell: |
+    dnf install -y epel-release \
+    && dnf install -y tar bzip2 make automake gcc gcc-c++ pciutils elfutils-libelf-devel libglvnd-devel \
+    && dnf install -y kernel kernel-devel dkms
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Add Nvidia Driver Repository (dnf config-manager-add)
+  shell: |
+    distribution=rhel8 \
+    && ARCH=$( /bin/arch ) \
+    && dnf config-manager --add-repo http://developer.download.nvidia.com/compute/cuda/repos/$distribution/${ARCH}/cuda-$distribution.repo \
+    && dnf update -y
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Dnf clean packages
+  shell: |
+    dnf clean packages
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Dnf module Install
+  shell: |
+    dnf module install -y nvidia-driver:{{ docker.nvidia_driver }}-dkms/default
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Dnf module Install
+  shell: |
+    nvidia-smi
+  register: nvidia_log
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Install Nvidia Docker 2
+  shell: |
+    distribution=rhel8.5 \
+    && curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.repo | tee /etc/yum.repos.d/nvidia-docker.repo
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+
+- name: Install Nvidia Docker 2
+  shell: |
+    yum install -y nvidia-docker2
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+
+# Setting Docker for nvidia GPU 해야됨 !!!!
+- name: Insert default-runtime in /etc/docker/daemon.json
+  lineinfile:
+    path: /etc/docker/daemon.json
+    insertafter: '^{'
+    line: '    "default-runtime": "nvidia",'
+
+- name: Change nvidia path in /etc/docker/daemon.json
+  replace:
+    path: /etc/docker/daemon.json
+    regexp: '"path":[\w "-]*'
+    replace: '"path": "/usr/bin/nvidia-container-runtime"'
+
+- name: Apply to k3s & docker
+  shell: |
+    wget https://k3d.io/v4.4.8/usage/guides/cuda/config.toml.tmpl -O /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Docker & k3s Agent restart
+  shell: |
+    systemctl daemon-reload \
+    && systemctl restart docker \
+    && systemctl restart k3s # or k3s-agent
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+
+# Ubuntu Docker Install
+- name: Nvidia docker Install 
+  shell: |
+    distribution=ubuntu22.04 \
+    && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+    && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+    tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+  when: ansible_facts['os_family'] in ["Debian", "Ubuntu"]
+
+- name: yum update && install nvidia-docker 2
+  shell: |
+    apt update \
+    && apt install -y nvidia-docker2
+  when: ansible_facts['os_family'] in ["Debian", "Ubuntu"]
+
+# Setting Docker for nvidia GPU 해야됨 !!!!
+- name: Add apt repository
+  shell: |
+    !@#$!@#!@#
+  when: ansible_facts['os_family'] in ["Debian", "Ubuntu"]
+
+
+- name: Restart daemon, docker
+  shell: |
+    systemctl daemon-reload \
+    && systemctl restart docke
+  when: ansible_facts['os_family'] in ["Debian", "Ubuntu"]
