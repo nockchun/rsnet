@@ -1,14 +1,12 @@
-- name: Check Install Commands Master
+- name: Check Install Commands For Master K3s
   debug:
     msg: "{{ lookup('template', 'master.j2') }}"
 
-# - name: Create default(flannel, svclb) CPU Version
-#   shell: |
-#     {{ lookup('template', 'master.j2') }}
-#   register: master_log
-#   # when:
-#   #   - "k3s_cluster.mode|string == 'default'"
-#   #   - hostvars[inventory_hostname]['gpu_count'].stdout|int == 0
+- name: Install Master For K3s
+  shell: |
+    {{ lookup('template', 'master.j2') }}
+  args:
+    warn: false
 
 - name: Install Kubectl Auto-Complete
   shell: |
@@ -17,7 +15,7 @@
   args:
     warn: false
     executable: /bin/bash
-  
+
 - name: Set kubernetes environments for user
   become: false
   shell: |

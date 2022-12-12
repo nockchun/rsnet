@@ -8,18 +8,40 @@
     - "'master' in groups"
     - inventory_hostname in groups["master"]
 
-# - name: Register the server token
-#   command: cat /var/lib/rancher/k3s/server/node-token
-#   register: k3s_token
-#   when:
-#     - "'master' in groups"
-#     - inventory_hostname in groups["master"]
+- name: Pause for 1 minutes for k3s startup
+  pause:
+    seconds: 30
+  when: inventory_hostname in groups["master"]
+
+- name: Install calico cni
+  import_tasks: calico.yml
+  when:
+    - "'master' in groups"
+    - inventory_hostname in groups["master"]
+    - "'default' not in k3s_cluster.mode|string"
+
+- name: Wait for pods to come up
+  become: false
+  shell: kubectl get pods --all-namespaces -o json | jq '.items | map(select(.status.phase != "Running")) | length'
+  register: kubectl_get_pods
+  until: kubectl_get_pods.stdout == "0"
+  retries: 200
+  delay: 10
+  when: inventory_hostname in groups["master"]
+
+- name: Register the server token
+  command: cat /var/lib/rancher/k3s/server/node-token
+  register: k3s_token
+  when:
+    - "'master' in groups"
+    - inventory_hostname in groups["master"]
+
+- name: Check Master Token
+  debug:
+    msg: "{{ hostvars[groups['master'][0]]['k3s_token'].stdout }}"
 
 - name: Install K3s HA-Master
   import_tasks: extra.yml
   when:
     - "'extra' in groups"
     - inventory_hostname in groups["extra"]
-
-
-

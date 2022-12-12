@@ -1,14 +1,12 @@
-- name: Check Install Commands HA-Extra
+- name: Check Install Commands For HA-Extra K3s
   debug:
     msg: "{{ lookup('template', 'extra.j2') }}"
 
-# - name: Create default(flannel, svclb) CPU Version
-#   shell: |
-#     {{ lookup('template', 'master.j2') }}
-#   register: master_log
-#   # when:
-#   #   - "k3s_cluster.mode|string == 'default'"
-#   #   - hostvars[inventory_hostname]['gpu_count'].stdout|int == 0
+- name: Install HA-Extra For K3s
+  shell: |
+    {{ lookup('template', 'extra.j2') }}
+  args:
+    warn: false
 
 - name: Install Kubectl Auto-Complete
   shell: |

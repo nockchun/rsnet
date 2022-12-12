@@ -19,3 +19,5 @@
 
 - name: ssh-keygen
   command: "chmod g-w ~/.ssh"
+  args:
+    warn: false

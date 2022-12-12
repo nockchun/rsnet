@@ -1,24 +1,23 @@
-{% set install_exec = [] %}
-{% set gpu_docker = "" %}
+{%- set install_exec = [] -%}
+{%- set gpu_docker = "" -%}
 {# ###################### Basic Setting For Master & HA-Master ###################### #}
-{% if "extra" in groups and 0 < groups["extra"] | length %}
+{%- if "extra" in groups and 0 < groups["extra"] | length -%}
     {{ install_exec.append("server --cluster-init --disable=traefik --cluster-cidr=" + k3s_cluster.cluster_cidr) }}
-{% else %}
+{%- else -%}
     {{ install_exec.append("--disable=traefik --cluster-cidr=" + k3s_cluster.cluster_cidr) }}
-{% endif %}
-{# ###################### For Develop(calico, svclib) ###################### #}
-{% if k3s_cluster.mode == "develop" %}
+{%- endif -%}
+{# ########################## For Develop(calico, svclib) ########################### #}
+{%- if k3s_cluster.mode == "develop" -%}
     {{ install_exec.append("--flannel-backend=none --disable-network-policy") }}
-    {% set gpu_docker = "--docker" %}
-{% endif %}
-{# ###################### For Product(calico) ###################### #}
-{% if k3s_cluster.mode == "product" %}
+    {%- set gpu_docker = "--docker" -%}
+{%- endif -%}
+{# ############################## For Product(calico) ############################### #}
+{%- if k3s_cluster.mode == "product" -%}
     {{ install_exec.append("--flannel-backend=none --disable-network-policy --disable=servicelb") }}
-{% endif %}
-{# ###################### For GPU ###################### #}
-{% if hostvars[inventory_hostname]['gpu_count'].stdout|int > 0 %}
-    {% set gpu_docker = "--docker" %}
-{% endif %}
+{%- endif -%}
+{# #################################### For GPU ##################################### #}
+{%- if hostvars[inventory_hostname]['gpu_count'].stdout|int > 0 -%}
+    {%- set gpu_docker = "--docker" -%}
+{%- endif -%}
 {# ###################### Install Command For Master ###################### #}
-curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" \
-INSTALL_K3S_EXEC="{{ ' '.join(install_exec) }}" sh -s - {{ gpu_docker }}
+curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC="{{ ' '.join(install_exec) }}" sh -s - {{ gpu_docker }}
