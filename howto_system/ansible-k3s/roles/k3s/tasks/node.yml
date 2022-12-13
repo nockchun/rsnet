@@ -1,0 +1,9 @@
+- name: Check Install Commands For Node K3s
+  debug:
+    msg: "{{ lookup('template', 'node.j2') }}"
+
+- name: Install k3s nodes
+  shell: |
+    {{ lookup('template', 'node.j2') }}
+  args:
+    warn: false

@@ -15,5 +15,5 @@
 {%- if hostvars[inventory_hostname]['gpu_count'].stdout|int > 0 -%}
     {%- set gpu_docker = "--docker" -%}
 {%- endif -%}
-{# ########################### Install Command For Master ########################### #}
+{# ######################### Install Command For HA-Master ########################## #}
 curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" K3S_TOKEN={{ hostvars[groups['master'][0]]['k3s_token'].stdout }} INSTALL_K3S_EXEC="{{ ' '.join(install_exec) }}" sh -s - {{ gpu_docker }}

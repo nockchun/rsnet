@@ -1,0 +1,11 @@
+{%- set gpu_docker = "" -%}
+{# ########################## For Develop(calico, svclib) ########################### #}
+{%- if k3s_cluster.mode == "develop" -%}
+    {%- set gpu_docker = "--docker" -%}
+{%- endif -%}
+{# #################################### For GPU ##################################### #}
+{%- if hostvars[inventory_hostname]['gpu_count'].stdout|int > 0 -%}
+    {%- set gpu_docker = "--docker" -%}
+{%- endif -%}
+{# ############################ Install Command For Node ############################ #}
+curl -sfL https://get.k3s.io | K3S_URL=https://{{ groups["master"][0] }}:6443 K3S_TOKEN={{ hostvars[groups['master'][0]]['k3s_token'].stdout }} sh -s - {{ gpu_docker }}
