@@ -1,0 +1,7 @@
+{%- set external_ips = [] -%}
+{# ####################### Basic Setting For Master & Master ######################## #}
+{%- for master in groups['masters'] -%}
+    {{ external_ips.append(hostvars[master].ansible_host) }}
+{%- endfor -%}
+{# ########################### Install Command For Master ########################### #}
+kubectl patch service ingress-nginx-controller -n ingress-nginx -p '{ "spec": { "type": "LoadBalancer", "externalIPs":{{ external_ips | tojson }} }}'

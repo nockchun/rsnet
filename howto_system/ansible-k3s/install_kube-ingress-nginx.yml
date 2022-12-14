@@ -1,0 +1,7 @@
+- name: Install Docker
+  hosts: master
+  become: yes
+  vars_files:
+    - values.yml
+  roles:
+    - kube-ingress-nginx

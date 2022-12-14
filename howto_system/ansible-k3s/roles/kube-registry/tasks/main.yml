@@ -1,0 +1,91 @@
+- name: Add Helm Repository
+  become: false
+  kubernetes.core.helm_repository:
+    name: twuni
+    repo_url: "https://helm.twun.io"
+
+- name: Make Namespace
+  become: false
+  shell: |
+    kubectl create namespace registry
+
+- name: Make Certificate
+  become: false
+  shell: |
+    cat << EOF | kubectl apply -f -
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: registry-tls
+      namespace: registry
+    spec:
+      secretName: registry-tls
+      issuerRef:
+        name: k3s-ca-issuer
+        kind: ClusterIssuer
+      commonName: {{ kube_registry.domain }}
+      dnsNames:
+      - {{ kube_registry.domain }}
+    EOF
+
+- name: Install Docker-Registry Chart
+  become: false
+  kubernetes.core.helm:
+    name: registry
+    chart_ref: twuni/docker-registry
+    release_namespace: registry
+    release_values:
+      image:
+        repository: registry
+        tag: 2.8.1
+        pullPolicy: IfNotPresent
+      # ingress 설정
+      ingress:
+        enabled: true
+        className: nginx
+        path: /
+        # Used to create an Ingress record.
+        hosts:
+          - "{{ kube_registry.domain }}"
+        annotations: {
+          nginx.ingress.kubernetes.io/proxy-body-size: "100G",
+          nginx.ingress.kubernetes.io/proxy-read-timeout: "1300",
+          nginx.ingress.kubernetes.io/proxy-send-timeout: "1300"
+        }
+        labels: {}
+        tls:
+          # Secrets must be manually created in the namespace.
+          - secretName: "registry-tls"
+            hosts:
+              - "{{ kube_registry.domain }}"
+      
+      # 볼륨 지정 (NFS 사용할 경우)
+      persistence:
+        accessMode: 'ReadWriteMany'
+        enabled: true
+        size: "{{ kube_registry.storage }}"
+        storageClass: "{{ kube_registry.storage_class }}"
+      
+      secrets:
+        haSharedSecret: ""
+        htpasswd: "registry:$2y$05$vJ7Ykg.eYMSmwYZXlFstCehO4Scx8sghgeT15GwWuYoZ3BcCMrRNa"
+      
+      # Private Docker Registry에서 Push한 Image를 HTTP API를 활용해 삭제하기 위해 delete 옵션을 enabled 시킴.
+      configData:
+        version: 0.1
+        log:
+          fields:
+            service: registry
+        storage:
+          cache:
+            blobdescriptor: inmemory
+          delete:
+            enabled: true
+
+- name: Wait for pods to come up
+  become: false
+  shell: kubectl get pods -n register -o json | jq '.items | map(select(.status.phase != "Running")) | length'
+  register: kubectl_get_pods
+  until: kubectl_get_pods.stdout == "0"
+  retries: 200
+  delay: 10

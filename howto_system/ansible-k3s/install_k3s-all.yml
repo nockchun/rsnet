@@ -1,0 +1,12 @@
+- name: Create K3S Cluster
+  hosts: all
+  become: yes
+  vars_files:
+    - values.yml
+  roles:
+    - pre-env
+    - service-nfs
+    - service-docker
+    - lib-helm
+    - lib-skaffold
+    - k3s

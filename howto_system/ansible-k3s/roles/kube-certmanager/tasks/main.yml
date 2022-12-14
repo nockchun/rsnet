@@ -1,0 +1,20 @@
+- name: Create cert manager
+  import_tasks: cert_manager.yml
+
+- name: Create Self-Signed Issuer
+  import_tasks: create_rootca.yml
+
+- name: Restart k3s
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: k3s
+
+- name: Fetch the server token 
+  fetch:
+    src: /etc/k3sca/ca.crt
+    dest: "~/ca.crt"
+    flat: yes
+
+- name: Copy CA & Trust It at each node.
+  import_tasks: trust_ca_copy.yml

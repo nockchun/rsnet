@@ -1,0 +1,32 @@
+- name: Add Helm Repository
+  become: false
+  kubernetes.core.helm_repository:
+    name: ingress-nginx
+    repo_url: "https://kubernetes.github.io/ingress-nginx"
+
+- name: Install Nginx Chart
+  become: false
+  kubernetes.core.helm:
+    name: ingress-nginx
+    chart_ref: ingress-nginx/ingress-nginx
+    release_namespace: ingress-nginx
+    create_namespace: true
+ 
+- name: Wait for pods to come up
+  become: false
+  shell: kubectl get pods -n ingress-nginx -o json | jq '.items | map(select(.status.phase != "Running")) | length'
+  register: kubectl_get_pods
+  until: kubectl_get_pods.stdout == "0"
+  retries: 60
+  delay: 10
+
+- name: Check Patch Commands For External IP
+  debug:
+    msg: "{{ lookup('template', 'external_ip.j2') }}"
+
+- name: Install Master For K3s
+  shell: |
+    {{ lookup('template', 'external_ip.j2') }}
+  args:
+    warn: false
+

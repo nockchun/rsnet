@@ -1,0 +1,58 @@
+- name: Make CA directory
+  file:
+    path: "{{ kube_certmanager.ca_path }}"
+    state: directory
+    owner: "{{ kube_certmanager.owner }}"
+    group: "{{ kube_certmanager.group }}"
+    recurse: yes
+
+- name: Generate Key
+  become: false
+  shell: |
+    [[ -f ca.key ]] || openssl genrsa -out ca.key 2048
+  args:
+    chdir: "{{ kube_certmanager.ca_path }}"
+
+- name: Generate CA Certificate
+  become: false
+  shell: |
+    [[ -f ca.crt ]] || openssl req -x509 -new -nodes -key ca.key -subj "/CN=local_k3s" -days 3650 -reqexts v3_req -extensions v3_ca -out ca.crt
+  args:
+    chdir: "{{ kube_certmanager.ca_path }}"
+
+- name: Make Secret of the key & cert
+  become: false
+  shell: |
+    kubectl create secret tls k3s-root-ca --cert=ca.crt --key=ca.key --namespace=cert-manager
+  args:
+    chdir: "{{ kube_certmanager.ca_path }}"
+
+- name: Make cluster issuer
+  become: false
+  shell: |
+    cat << EOF | kubectl apply -f -
+    apiVersion: cert-manager.io/v1
+    kind: ClusterIssuer
+    metadata:
+      name: k3s-ca-issuer
+      namespace: cert-manager
+    spec:
+      ca:
+        secretName: k3s-root-ca
+    EOF
+
+- name: RedHat > Make sure our master-node trusts this CA
+  shell: |
+    cp ca.crt /etc/pki/ca-trust/source/anchors && update-ca-trust
+  args:
+    chdir: "{{ kube_certmanager.ca_path }}"
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Ubuntu > Make sure our master-node trusts this CA
+  shell: |
+    cp ca.crt /usr/local/share/ca-certificates && update-ca-certificates
+  args:
+    chdir: "{{ kube_certmanager.ca_path }}"
+  when: ansible_facts['os_family'] in ["Debian", "Ubuntu"]
+
+
