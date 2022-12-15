@@ -21,6 +21,7 @@ service_nfs:
 
 k3s_cluster:
   # default(flannel, svclb), develop(calico, svclb), product(calico)
+  version: v1.24.8+k3s1
   mode: develop
   cluster_cidr: 10.42.0.0/16
 
