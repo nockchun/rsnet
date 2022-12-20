@@ -11,11 +11,11 @@ base:
     - jq
     - pciutils
   hosts_domain:
-    - 192.168.7.51 registry.kwp.lab
-    - 192.168.7.52 k3s.lab
+    - 10.2.13.77 registry.kwp.lab
+    - 10.2.13.76 k3s.lab
 
 service_nfs:
-  server_host: tmaster
+  server_host: vmaster2
   share_path: /data/nfshare
   share_mode: "0777"
 
@@ -58,7 +58,7 @@ kube_redis:
 
 docker:
   # nvidia driver Value 
-  nvidia_driver: 520
+  nvidia_driver: 450
 
 
   

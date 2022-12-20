@@ -6,7 +6,7 @@
     state: latest
   when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
 
-- name: Install yum-utils
+- name: Add Docker Repository
   shell: |
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
   args:
@@ -46,21 +46,21 @@
     warn: false
   when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
 
-- name: Install Docker-compose  
-  shell: |
-    curl -L "https://github.com/docker/compose/releases/download/v2.5.1/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose \
-    && chmod 755 /usr/local/bin/docker-compose
-  args:
-    warn: false
-  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+# - name: Install Docker-compose  
+#   shell: |
+#     curl -L "https://github.com/docker/compose/releases/download/v2.5.1/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose \
+#     && chmod 755 /usr/local/bin/docker-compose
+#   args:
+#     warn: false
+#   when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
 
-- name: Auto-complete Docker-compose
-  shell: |
-    curl -L https://raw.githubusercontent.com/docker/compose/master/contrib/\
-    completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
-  args:
-    warn: false
-  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+# - name: Auto-complete Docker-compose
+#   shell: |
+#     curl -L https://raw.githubusercontent.com/docker/compose/master/contrib/\
+#     completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
+#   args:
+#     warn: false
+#   when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
 
 # Ubuntu Docker Install
 - name: Make keyrings directory

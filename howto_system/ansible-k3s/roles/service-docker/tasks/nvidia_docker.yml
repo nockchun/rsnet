@@ -6,7 +6,8 @@
 
 - name: Nouveau Driver Off 2
   shell: |
-    rpm -e xorg-x11-drivers xorg-x11-drv-nouveau
+    if rpm -q xorg-x11-drivers > /dev/null; then rpm -e xorg-x11-drivers; fi \
+    && if rpm -q xorg-x11-drv-nouveau > /dev/null; then rpm -e xorg-x11-drv-nouveau; fi
   when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
 
 - name: Add GRUB_CMDLINE to /etc/default/grub
@@ -16,7 +17,6 @@
     mode: "u=rw,g=,o="
   when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
 
-  
 - name: Grub setting (BIOS USER run this)
   shell: |
     grub2-mkconfig -o /boot/grub2/grub.cfg
@@ -33,25 +33,23 @@
     test_command: uptime
   when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
 
-
-- name: Add Nvidia Driver Repository (dnf config-manager)
+- name: Add REPL Repository
   shell: |
-    dnf config-manager --set-enabled powertools \
+    dnf config-manager --set-enabled crb \
+    && dnf install -y \
+      https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm \
+      https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-9.noarch.rpm \
     && dnf update
   when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
 
-- name: Add Nvidia Driver Repository (dnf config-manager)
+- name: Add Nvidia Driver Repository
   shell: |
-    dnf install -y epel-release \
-    && dnf install -y tar bzip2 make automake gcc gcc-c++ pciutils elfutils-libelf-devel libglvnd-devel \
-    && dnf install -y kernel kernel-devel dkms
+    dnf config-manager --add-repo http://developer.download.nvidia.com/compute/cuda/repos/rhel9/$(uname -i)/cuda-rhel9.repo
   when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
 
-- name: Add Nvidia Driver Repository (dnf config-manager-add)
+- name: Install required dependencies
   shell: |
-    distribution=rhel8 \
-    && ARCH=$( /bin/arch ) \
-    && dnf config-manager --add-repo http://developer.download.nvidia.com/compute/cuda/repos/$distribution/${ARCH}/cuda-$distribution.repo \
+    dnf install -y kernel-headers-$(uname -r) kernel-devel-$(uname -r) tar bzip2 make automake gcc gcc-c++ pciutils elfutils-libelf-devel libglvnd-opengl libglvnd-glx libglvnd-devel acpid pkgconfig dkms \
     && dnf update -y
   when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
 
@@ -73,8 +71,7 @@
 
 - name: Install Nvidia Docker 2
   shell: |
-    distribution=rhel8.5 \
-    && curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.repo | tee /etc/yum.repos.d/nvidia-docker.repo
+    curl https://nvidia.github.io/nvidia-docker/rhel9.0/nvidia-docker.repo > /etc/yum.repos.d/nvidia-docker.repo
   when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
 
 

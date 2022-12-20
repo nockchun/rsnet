@@ -1,24 +1,16 @@
 all:
   hosts:
-    vmaster1:
-      ansible_host: 192.168.24.51
-    vmaster2:
-      ansible_host: 192.168.24.52
-    vnode1:
-      ansible_host: 192.168.24.61
-    vnode2:
-      ansible_host: 192.168.24.62
+    tmaster:
+      ansible_host: 192.168.7.51
+    tnode1:
+      ansible_host: 192.168.7.52
 
   children:
     masters:
       children:
         master:
           hosts:
-            vmaster1:
-        extra:
-          hosts:
-            vmaster2:
+            tmaster:
     nodes:
       hosts:
-        vnode1:
-        vnode2:
+        tnode1:
