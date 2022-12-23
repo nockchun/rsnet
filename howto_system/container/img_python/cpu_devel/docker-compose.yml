@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  pycommon_devel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=nockchun/miniconda-cpu-devel:py3.9
+        - USER=dev
+        - USER_UID=1000
+        - LIB=lib_common.yml
+    image: nockchun/pycommon-devel:cpu-build001
+    command:
+      sleep infinity
