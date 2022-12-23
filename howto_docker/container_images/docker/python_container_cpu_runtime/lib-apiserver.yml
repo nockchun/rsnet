@@ -1,0 +1,19 @@
+name: base
+channels:
+  - conda-forge
+dependencies:
+  - celery
+  - yaml
+  - pyyaml
+  - jinja2
+  - python-dateutil
+  - loguru
+  - pip
+  - pip:
+    - danbi
+    - datetime
+    - tk 
+    - psycopg2-binary
+    - pandas
+    - asyncpg
+    - kafka-python

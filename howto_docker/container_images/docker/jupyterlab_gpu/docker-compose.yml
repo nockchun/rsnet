@@ -1,0 +1,48 @@
+version: '3.4'
+
+services:
+  11.3.1-tf2.6_torch1.11:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USERNAME=kwp
+        - PASSWORD=1234!@#$qwer
+        - UID=1000
+        - GID=1000
+        - VERSION_BASE=11.3.1-py3.9
+        - LIB_PYTHON=lib-11.3.1_tf2.6_torch1.11
+    image: registry.k3s.lab/jupyterlab-gpu:11.3.1-tf2.6_torch1.11_build1
+    # command:
+    #   sleep infinity
+    command:
+      jupyter lab --notebook-dir=/notebooks --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
+    networks:
+      - rsnet
+    ports:
+      - "8888:8888"
+
+  11.0.3-tf2.4_torch1.7:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USERNAME=kwp
+        - PASSWORD=1234!@#$qwer
+        - UID=1000
+        - GID=1000
+        - VERSION_BASE=11.0.3-py3.9
+        - LIB_PYTHON=lib-11.0.3_tf2.4_torch1.7
+    image: registry.k3s.lab/jupyterlab-gpu:11.0.3-tf2.4_torch1.7_build1
+    # command:
+    #   sleep infinity
+    command:
+      jupyter lab --notebook-dir=/notebooks --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
+    networks:
+      - rsnet
+    ports:
+      - "8888:8888"
+
+networks:
+  rsnet:
+    driver: bridge

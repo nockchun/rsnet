@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  python-env-runtime:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USERNAME=kwp
+        - uid=1000
+        - gid=1000
+        - VERSION_BASE=registry.kwp.lab/miniconda-cpu-runtime:py3.9
+        - LIB_PYTHON=lib-apiserver
+    image: registry.kwp.lab/python-runtime-env:1.0.3
+    command:
+      sleep infinity
+
+networks:
+  rsnet:
+    driver: bridge
+
