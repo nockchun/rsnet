@@ -1,0 +1,105 @@
+# Container values for python development.
+# certificate, configmap - name 변경
+# domain name,  service port 변경
+
+host:
+  name: dev-api
+  etc_hosts:
+    - ip: 10.2.13.76
+      hostnames:
+        - kmaster1
+        - registry.kwp.lab
+    - ip: 10.2.13.77
+      hostnames:
+        - kmaster2
+    - ip: 10.2.11.41
+      hostnames:
+        - knode1
+    - ip: 10.2.12.97
+      hostnames:
+        - knode2
+
+command: sleep infinity
+
+restart_policy: Always
+
+image:
+  name: registry.kwp.lab/py-devel:cpu-build001
+  pull_secrets: registry-creds
+  pull_policy: Always
+
+service:
+  - name: apiserver
+    service_port: 8811
+    container_port: 8000
+    protocol: TCP
+
+volume:
+  - name: src
+    pvc_name: nfs-dev-client
+    mount_path: /workspace
+    read_only: false
+  - name: cleverops
+    pvc_name: nfs-cleverops
+    mount_path: /cleverops
+    read_only: false
+
+certificate:
+  - name: certificate-hs
+    create_issue:
+      issuer_ref_name: k3s-ca-issuer
+      common_name: kwpapi.hs.lab
+      dns_names:
+        - kwpapi.hs.lab
+    mount:
+      mount_path: /crt
+      read_only: true
+
+ingress:
+  annotations:
+    - key: backend-protocol
+      value: HTTPS
+    - key: client-max-body-size
+      value: 10000m
+    - key: proxy-body-size
+      value: 10000m
+    - key: proxy-read-timeout
+      value: "600000"
+    - key: proxy-send-timeout
+      value: "600000"
+    - key: rewrite-target
+      value: /
+  domain: kwpapi.hs.lab
+  service_port: 8811
+  secret_name: dev-api-certificate
+
+configmap:
+  - name: postgresql
+    mount:
+      mount_path: /config/tortoise
+      read_only: true
+  - name: celery
+    mount:
+      mount_path: /config/celery
+      read_only: true
+  - name: jinja-hs
+    datas:
+      - file_name: jinja.yaml
+        file_namespace: jinja
+        file_tag: 1.0
+        file_data:
+          - key: JINJA2MAPPER
+            value: True
+          - key: JINJA2MAPPER_CONF_PACKAGE
+            value: "apiserver.dao.sqlmap"
+          - key: JINJA2MAPPER_CONFS
+            value: ["check_sqlmap.yaml", "dashboard_sqlmap.yaml", "tags_sqlmap.yaml", "events_sqlmap.yaml", "models_sqlmap.yaml", "settings_sqlmap.yaml"]
+          - key: JINJA2MAPPER_NAMESPACE
+            value: "kwp-sql"
+          - key: JINJA2MAPPER_TAG
+            value: 1.0
+    mount:
+      mount_path: /config/jinja
+      read_only: true
+  
+

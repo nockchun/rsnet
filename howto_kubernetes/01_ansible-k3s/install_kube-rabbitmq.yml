@@ -1,0 +1,7 @@
+- name: Install kube rabbitmq
+  hosts: master
+  become: yes
+  vars_files:
+    - values.yml
+  roles:
+    - kube-rabbitmq

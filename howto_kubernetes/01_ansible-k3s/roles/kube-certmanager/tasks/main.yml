@@ -1,0 +1,32 @@
+- name: Create cert manager
+  import_tasks: cert_manager.yml
+  when: 
+    - "'master' in groups"
+    - inventory_hostname in groups["master"]
+
+- name: Create Self-Signed Issuer
+  import_tasks: create_rootca.yml
+  when: 
+    - "'master' in groups"
+    - inventory_hostname in groups["master"]
+
+- name: Restart k3s
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: k3s
+  when: 
+    - "'master' in groups"
+    - inventory_hostname in groups["master"]
+
+- name: Fetch the server token 
+  fetch:
+    src: /etc/k3sca/ca.crt
+    dest: "~/ca.crt"
+    flat: yes
+  when: 
+    - "'master' in groups"
+    - inventory_hostname in groups["master"]
+  
+- name: Copy CA & Trust It at each node.
+  import_tasks: trust_ca_copy.yml

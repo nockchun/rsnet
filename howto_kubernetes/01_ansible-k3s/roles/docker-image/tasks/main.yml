@@ -1,0 +1,11 @@
+- name: Export Images
+  import_tasks: export.yml
+  when:
+    - "'export' in groups"
+    - inventory_hostname in groups["export"]
+
+- name: Import Images
+  import_tasks: import.yml
+  when:
+    - "'import' in groups"
+    - inventory_hostname in groups["import"]

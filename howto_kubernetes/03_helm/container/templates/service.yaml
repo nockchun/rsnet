@@ -1,0 +1,18 @@
+{{ if .Values.service }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  type: ClusterIP
+  ports:
+    {{- range .Values.service }}
+    - name: {{ .name }}
+      port: {{ .service_port }}
+      targetPort: {{ .container_port }}
+      protocol: {{ .protocol }}
+    {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ .Values.host.name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{ end }}

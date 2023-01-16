@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+  py_devel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=registry.kwp.lab/miniconda-cpu-devel:py3.9
+        - USER=kwp
+        - USER_UID=1000
+        - LIB=lib_dev_common.yml
+    image: registry.kwp.lab/py-devel:cpu-build001
+    command:
+      sleep infinity
+
+  pyml_devel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=registry.kwp.lab/miniconda-cpu-devel:py3.9
+        - USER=kwp
+        - USER_UID=1000
+        - LIB=lib_dev_ml.yml
+    image: registry.kwp.lab/pyml-devel:cpu-build001
+    command:
+      sleep infinity

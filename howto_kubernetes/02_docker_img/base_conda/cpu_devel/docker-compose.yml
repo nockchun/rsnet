@@ -1,0 +1,16 @@
+version: '3.4'
+
+services:
+  py3.9:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=ubuntu:22.10
+        - VERSION_MINICONDA=latest
+        - VERSION_PYTHON=3.9
+        - USER=kwp
+        - USER_UID=1000
+    image: registry.kwp.lab/miniconda-cpu-devel:py3.9
+    command:
+      sleep infinity

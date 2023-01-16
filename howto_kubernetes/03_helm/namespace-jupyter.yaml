@@ -1,0 +1,14 @@
+image_credentials:
+  registry: registry.kwp.lab
+  username: registry
+  password: 1234!@#$qwer
+
+volumes:
+  - storage_class: nfs-client
+    name: nfs-vol-notebook
+    storage: 100Gi
+    access_mode: ReadWriteMany
+  - storage_class: nfs-client
+    name: nfs-vol-data
+    storage: 500Gi
+    access_mode: ReadWriteMany

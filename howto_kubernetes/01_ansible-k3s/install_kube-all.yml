@@ -1,0 +1,27 @@
+- name: Include a play after another play
+  import_playbook: install_kube-certmanager.yml
+
+- name: Install Ingress Nginx
+  import_playbook: install_kube-ingress-nginx.yml
+
+- name: Install NFS Provisioner
+  import_playbook: install_kube-nfs-provisioner.yml
+
+- name: Install registry
+  import_playbook: install_kube-registry.yml
+  
+- name: Install postgresql
+  import_playbook: install_kube-postgresql.yml
+
+- name: Install rabbitmq
+  import_playbook: install_kube-rabbitmq.yml
+
+# - name: Install redis
+#   import_playbook: install_kube-redis.yml
+
+- name: Install nvidia plugin
+  import_playbook: install_kube-nvidia-plugin.yml
+
+- name: Install kafka
+  import_playbook: install_kube-kafka.yml
+

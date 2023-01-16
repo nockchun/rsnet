@@ -1,0 +1,57 @@
+#########################################################################################
+###                           Install Extra Ansible Library                           ###
+#########################################################################################
+user:~$ ansible-galaxy collection install kubernetes.core
+
+#########################################################################################
+###                               Install Step By Step                                ###
+#########################################################################################
+::: Inventory Setting -------------------------------------------------------------------
+# test inventory
+user:~$ ansible masters -i inventory.yml --list-hosts
+
+::: SSH Auto Setting --------------------------------------------------------------------
+user:~$ ansible-playbook install_ssh_auth.yml -k
+
+::: Pre Environments Setting ------------------------------------------------------------
+user:~$ ansible-playbook install_pre-base-envs.yml
+
+::: Create NFS Environments -------------------------------------------------------------
+user:~$ ansible-playbook install_pre-nfs.yml
+
+::: Install Docker ----------------------------------------------------------------------
+user:~$ ansible-playbook install_pre-docker.yml
+
+::: Install Helm Library ----------------------------------------------------------------
+user:~$ ansible-playbook install_pre-helm.yml
+
+::: Install Skaffold Library ------------------------------------------------------------
+user:~$ ansible-playbook install_pre-skaffold.yml
+
+::: Install K3s -------------------------------------------------------------------------
+user:~$ ansible-playbook install_k3s.yml
+
+#########################################################################################
+###                                Install All At Once                                ###
+#########################################################################################
+::: SSH Auto Setting --------------------------------------------------------------------
+user:~$ ansible-playbook install_ssh_auth.yml -k
+
+::: Install All Pre-Environments --------------------------------------------------------
+user:~$ ansible-playbook install_pre-all.yml
+
+::: Install K3s -------------------------------------------------------------------------
+user:~$ ansible-playbook install_k3s.yml
+
+
+# kernel.perf_cpu_time_max_percent_rate 에러 해결책
+user:~$ sudo vi /etc/sysctl.conf    # 설정 변경
+kernel.perf_cpu_time_max_percent=0 추가
+user:~$ sudo sysctl -p              # 설정 적용
+
+#########################################################################################
+###                        NVIDIA Driver Switching streams                            ###
+#########################################################################################
+user:~$ sudo dnf remove nvidia-driver
+user:~$ sudo dnf module reset nvidia-driver
+user:~$ sudo dnf module install nvidia-driver:450/default

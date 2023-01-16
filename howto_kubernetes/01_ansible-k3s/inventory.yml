@@ -1,0 +1,32 @@
+all:
+  hosts:
+    kmaster1:
+      ansible_host: 10.2.13.76
+    kmaster2:
+      ansible_host: 10.2.13.77
+    knode1:
+      ansible_host: 10.2.11.41
+    knode2:
+      ansible_host: 10.2.12.97
+
+  children:
+    masters:
+      children:
+        master:
+          hosts:
+            kmaster1:
+        extra:
+          hosts:
+            kmaster2:
+    nodes:
+      hosts:
+        knode1:
+        knode2:
+    images:
+      children:
+        export:
+          hosts:
+            kmaster1:
+        import:
+          hosts:
+            knode1:

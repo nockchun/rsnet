@@ -1,0 +1,22 @@
+- name: Apply to k3s & docker on GPU
+  shell: |
+    mkdir -p /var/lib/rancher/k3s/agent/etc/containerd/ && \
+    wget https://k3d.io/v4.4.8/usage/guides/cuda/config.toml.tmpl -O /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
+  
+- name: Docker & k3s Agent restart on GPU Master
+  shell: |
+    systemctl daemon-reload \
+    && systemctl restart docker \
+    && systemctl restart k3s
+  when:
+    - "'masters' in groups"
+    - inventory_hostname in groups["masters"]
+
+- name: Docker & k3s Agent restart on GPU Worker
+  shell: |
+    systemctl daemon-reload \
+    && systemctl restart docker \
+    && systemctl restart k3s-agent
+  when: 
+    - "'nodes' in groups"
+    - inventory_hostname in groups["nodes"]

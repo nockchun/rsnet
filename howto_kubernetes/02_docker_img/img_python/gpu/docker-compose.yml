@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  py_devel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=registry.kwp.lab/miniconda-gpu-devel:11.7.1-py3.9
+        - USER=kwp
+        - USER_UID=1000
+        - LIB=lib_dev_common.yml
+    image: registry.kwp.lab/py-devel:gpu-build001
+    command:
+      sleep infinity

@@ -1,0 +1,44 @@
+name: base
+channels:
+  - anaconda
+  - conda-forge
+  - pytorch
+dependencies:
+  - python=3.9
+  - poetry
+  # pytorch
+  - pytorch
+  - torchvision
+  - torchaudio
+  - setuptools=59.5.0
+  # basic library
+  - nodejs
+  - beautifulsoup4
+  - uvicorn=0.16
+  - passlib
+  - kombu
+  - python-multipart
+  - matplotlib
+  - pandas
+  - numpy
+  - psutil
+  - asyncpg
+  - tortoise-orm
+  - psycopg2
+  - celery=5
+  - fastapi
+  - fastapi_utils
+  - bokeh=3
+  - humanize
+  - pyyaml
+  - jinja2
+  - python-dateutil
+  - loguru
+  - pip
+  - pip:
+    - ray[default]
+    - fastcore
+    - async_lru
+    - tensorboard
+    - einops
+    - kafka-python 

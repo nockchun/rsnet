@@ -1,0 +1,24 @@
+- name: Copy tar images(local -> remote)
+  copy:
+    src: "{{ image.tar.localPath }}/{{ image.tar.name }}"
+    dest: "{{ image.tar.importPath }}"
+
+- name: Load Docker images
+  shell: |
+    docker load -i {{ image.tar.importPath }}/{{ image.tar.name }}
+
+# # import 쪽 private registry에 image push
+# - name: Change registry
+#   shell: |
+#     docker tag {{ image.export.registry }}/{{ item  }} {{ image.import.registry }}/{{ item  }}
+#   loop: "{{ image.name }}"
+
+# - name: Docker login
+#   shell: |
+#     docker login -u {{ image.import.id }} -p '{{ image.import.passwd }}' {{ image.import.registry }}
+
+# - name: Push image to import registry
+#   shell: |
+#     docker push {{ image.import.registry }}/{{ item  }}
+#   loop: "{{ image.name }}"
+

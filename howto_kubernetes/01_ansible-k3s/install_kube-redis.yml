@@ -1,0 +1,7 @@
+- name: Install kube redis
+  hosts: master
+  become: yes
+  vars_files:
+    - values.yml
+  roles:
+    - kube-redis

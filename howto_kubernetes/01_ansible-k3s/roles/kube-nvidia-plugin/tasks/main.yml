@@ -1,0 +1,23 @@
+- name: Add Helm Repository
+  become: false
+  kubernetes.core.helm_repository:
+    name: nvdp
+    repo_url: "https://nvidia.github.io/k8s-device-plugin"
+
+- name: Install NVIDIA Plugin Chart
+  become: false
+  kubernetes.core.helm:
+    name: nvidia-plugin
+    chart_ref: nvdp/nvidia-device-plugin
+    release_namespace: kube-system
+    release_values:
+      compatWithCPUManager: true
+      migStrategy: mixed
+
+- name: Wait for pods to come up
+  become: false
+  shell: kubectl get pods -n kube-system -o json | jq '.items | map(select(.status.phase != "Running")) | length'
+  register: kubectl_get_pods
+  until: kubectl_get_pods.stdout == "0"
+  retries: 60
+  delay: 10

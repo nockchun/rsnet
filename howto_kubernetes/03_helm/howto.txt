@@ -1,0 +1,27 @@
+# helm install [NAME] [CHART] [flags]
+
+# create namespace
+user:~$  helm install namespace namespace -f namespace-dev.yaml -n dev-test --create-namespace
+
+# create container
+user:~$ helm install devpy-test container -f dev-py.yaml -n dev-test
+
+
+
+
+
+
+
+
+
+
+
+# jupyterlab1
+user:~$ helm install jupyterlab1 jupyterlab -f jupyter1.yaml --namespace jupyterlab --create-namespace
+user:~$ helm install jupyterlab2 jupyterlab -f jupyter2.yaml --namespace jupyterlab
+
+# develope container for gpu python
+user:~$ helm install nadia-detector dev-python -f dev-pygpu.yaml --namespace dev
+
+# python develope container
+user:~$ helm install dev-restapi dev-python -f dev-py.yaml --namespace dev

@@ -1,0 +1,7 @@
+- name: Install kube certmanager
+  hosts: all
+  become: yes
+  vars_files:
+    - values.yml
+  roles:
+    - kube-certmanager

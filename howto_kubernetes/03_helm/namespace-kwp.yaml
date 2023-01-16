@@ -1,0 +1,42 @@
+image_credentials:
+  registry: registry.kwp.lab
+  username: registry
+  password: 1234!@#$qwer
+
+volumes:
+  - storage_class: nfs-client
+    name: nfs-cleverops
+    storage: 50Gi
+    access_mode: ReadWriteMany
+
+configmap:
+  - name: postgresql
+    datas:
+      - file_name: tortoise.yaml
+        file_namespace: kwp
+        file_tag: 1.0
+        file_data:
+          - key: DB_HOST
+            value: "postgresql-hl.postgresql"
+          - key: DB_NAME
+            value: "kwp"
+          - key: DB_USER
+            value: "kwp"
+          - key: DB_PASS
+            value: "kwp"
+          - key: DB_PORT
+            value: 5432
+  - name: celery
+    datas:
+      - file_name: celery.yaml
+        file_namespace: kwp
+        file_tag: 1.0
+        file_data:
+          - key: CELERY_HOST
+            value: "rabbitmq.rabbitmq"
+          - key: CELERY_PORT
+            value: 5672
+          - key: CELERY_USER
+            value: "kwp"
+          - key: CELERY_PASS
+            value: "kwp"

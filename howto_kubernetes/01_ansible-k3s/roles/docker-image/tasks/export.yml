@@ -1,0 +1,22 @@
+- name: Docker login
+  shell: |
+    docker login -u {{ image.export.id }} -p '{{ image.export.passwd }}' {{ image.export.registry }}
+
+- name: Pull images
+  shell: |
+    docker pull {{ image.export.registry }}/{{ item  }}
+  loop: "{{ image.name }}"
+    
+- name: Make Docker images to tar file
+  shell: |
+    docker save -o {{ image.tar.name }} {{ [image.export.registry+'/'] | product(image.name) | map('join') | join(' ') }}
+
+- name: Register pwd
+  command: pwd
+  register: pwd
+  
+- name: Fetch tar images(remote -> local)
+  fetch:
+    src: "{{ pwd.stdout }}/{{ image.tar.name }}"
+    dest: "{{ image.tar.localPath }}"
+    flat: yes

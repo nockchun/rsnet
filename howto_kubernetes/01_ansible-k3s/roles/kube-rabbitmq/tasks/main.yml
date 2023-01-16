@@ -1,0 +1,95 @@
+- name: Add Helm Repository
+  become: false
+  kubernetes.core.helm_repository:
+    name: bitnami
+    repo_url: "https://charts.bitnami.com/bitnami"
+  
+- name: Make Namespace
+  become: false
+  shell: |
+    kubectl create namespace rabbitmq
+
+- name: Make Local Volume
+  become: false
+  shell: |
+    cat << EOF | kubectl apply -f -
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: locvol-rabbitmq
+      namespace: rabbitmq
+    spec:
+      storageClassName: local-path
+      resources:
+        requests:
+          storage: {{ kube_rabbitmq.storage }}
+      accessModes:
+        - ReadWriteOnce
+    EOF
+
+- name: Install RqbbitMQ Chart
+  become: false
+  kubernetes.core.helm:
+    name: rabbitmq
+    chart_ref: bitnami/rabbitmq
+    release_namespace: rabbitmq
+    release_values:
+      auth:
+        username: "{{ kube_rabbitmq.username }}"
+        password: "{{ kube_rabbitmq.password }}"
+      persistence:
+        existingClaim: "locvol-rabbitmq"
+
+- name: Make Develop Service
+  become: false
+  shell: |
+    cat << EOF | kubectl apply -f -
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: rabbitmq-dev
+      namespace: rabbitmq
+    spec:
+      type: LoadBalancer
+      ports:
+        - port: {{ kube_rabbitmq.port_expose }}
+          targetPort: 5672
+          protocol: TCP
+      selector:
+        app.kubernetes.io/instance: rabbitmq
+        app.kubernetes.io/name: rabbitmq
+    EOF
+  when: 
+    - k3s_cluster.mode != 'product'
+
+- name: Make Board Ingress
+  become: false
+  shell: |
+    cat << EOF | kubectl apply -f -
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: rabbitmq-board
+      namespace: rabbitmq
+    spec:
+      ingressClassName: nginx
+      rules:
+      - host: {{ kube_rabbitmq.dashboard_domain }}
+        http:
+          paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rabbitmq
+                port:
+                  number: 15672
+    EOF
+
+- name: Wait for pods to come up
+  become: false
+  shell: kubectl get pods -n rabbitmq -o json | jq '.items | map(select(.status.phase != "Running")) | length'
+  register: kubectl_get_pods
+  until: kubectl_get_pods.stdout == "0"
+  retries: 60
+  delay: 10

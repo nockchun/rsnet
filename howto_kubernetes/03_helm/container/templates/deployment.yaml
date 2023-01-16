@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replica_cnt | default 1 }}
+  selector:
+    matchLabels:
+      name: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}
+        app.kubernetes.io/name: {{ .Values.host.name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      {{ if .Values.host.node }}
+      nodeName: {{ .Values.host.node }}
+      {{ end }}
+      hostname: {{ .Values.host.name }}
+      restartPolicy: {{ .Values.restart_policy }}
+      hostAliases:
+        {{- with .Values.host.etc_hosts }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      imagePullSecrets:
+        - name: {{ .Values.image.pull_secrets }}
+      containers:
+        - name: {{ .Release.Name }}
+          image: {{ .Values.image.name }}
+          imagePullPolicy: {{ .Values.image.pull_policy }}
+          {{ if .Values.image.env }}
+          env:
+            {{- range $k, $v := .Values.image.env }}
+            - name: {{ $k }}
+              value: !!string {{ $v }}
+            {{- end }}
+          {{ end }}
+          {{ if .Values.service }}
+          ports:
+            {{- range .Values.service }}
+            - containerPort: {{ .container_port }}
+            {{- end }}
+          {{ end }}
+          {{ if .Values.command }}
+          command:
+            - /bin/bash
+            - -c
+            - {{ .Values.command }}
+          {{ end }}
+          volumeMounts:
+            {{ if .Values.volume }}
+            {{- range .Values.volume }}
+            - name: {{ .name }}
+              mountPath: {{ .mount_path }}
+              readOnly: {{ .read_only }}
+            {{- end }}
+            {{ end }}
+            {{ if .Values.certificate }}
+            {{- range .Values.certificate }}
+            {{ if .mount }}
+            - name: {{ .name }}
+              mountPath: {{ .mount.mount_path }}
+              readOnly: {{ .mount.read_only }}
+            {{ end }}
+            {{- end }}
+            {{ end }}
+            {{ if .Values.configmap }}
+            {{- range .Values.configmap }}
+            {{ if .mount }}
+            - name: {{ .name }}
+              mountPath: {{ .mount.mount_path }}
+              readOnly: {{ .mount.read_only }}
+            {{ end }}
+            {{- end }}
+            {{ end }}
+      volumes:
+      {{ if .Values.volume}}
+      {{- range .Values.volume }}
+      - name: {{ .name }}
+        persistentVolumeClaim:
+          claimName: {{ .pvc_name }}
+      {{- end }}
+      {{ end }}
+      {{ if .Values.certificate }}
+      {{- range .Values.certificate }}
+      {{ if .mount }}
+      - name: {{ .name }}
+        secret:
+          secretName: {{ .name }}
+      {{ end }}
+      {{- end }}
+      {{ end }}
+      {{ if .Values.configmap }}
+      {{- range .Values.configmap }}
+      - name: {{ .name }}
+        configMap:
+          name: {{ .name }}
+      {{- end }}
+      {{ end }}

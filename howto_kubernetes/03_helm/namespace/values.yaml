@@ -1,0 +1,48 @@
+# image_credentials:
+#   registry: registry.kwp.lab
+#   username: registry
+#   password: registry
+
+# volumes:
+#   - storage_class: nfs-client
+#     name: nfs-dev-client
+#     storage: 300Gi
+#   - storage_class: nfs-gpu
+#     name: nfs-dev-gpu
+#     storage: 50Gi
+
+# configmap:
+#   - name: postgresql
+#     datas:
+#       - file_name: tortoise.yaml
+#         file_namespace: tortoise
+#         file_tag: 1.0
+#         file_data:
+#           - key: dbpool
+#             value: TortoiseORM.settings
+#           - key: dbpool.DB_HOST
+#             value: "postgresql-hl.postgresql"
+#           - key: dbpool.DB_NAME
+#             value: "kwp"
+#           - key: dbpool.DB_USER
+#             value: "kwp"
+#           - key: dbpool.DB_PASS
+#             value: "kwp"
+#           - key: dbpool.DB_POOL_MAX
+#             value: 5
+#           - key: dbpool.DB_POOL_MIN
+#             value: 1
+#           - key: dbpool.ORM_GENERATE_SCHEMAS
+#             value: False
+#           - key: dbpool.JINJA2MAPPER
+#             valye: True
+#           - key: dbpool.JINJA2MAPPER_CONF_PACKAGE
+#             value: "apiserver.dao.sqlmap"
+#           - key: dbpool.JINJA2MAPPER_CONFS
+#             value: ["check_sqlmap.yaml", "dashboard_sqlmap.yaml", "tags_sqlmap.yaml", "events_sqlmap.yaml", "models_sqlmap.yaml", "settings_sqlmap.yaml"]
+#           - key: dbpool.JINJA2MAPPER_TAG
+#             value: 1.0
+#           - key: dbpool.ORM_MODELS
+#             value: 
+#               - "apiserver.model"
+      

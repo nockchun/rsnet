@@ -1,0 +1,23 @@
+{{ if .Values.configmap }}
+{{- range .Values.configmap }}
+{{ if .datas }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .name }}
+data:
+  {{- range .datas }}
+  {{ .file_name }}: |-
+    namespace: {{ .file_namespace }}
+    tag: {{ .file_tag }}
+    {{- range .file_data }}
+    {{ .key }}:
+    {{- with .value }}
+      {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- end }}
+  {{- end }}
+{{ end }}
+{{- end }}
+{{ end }}

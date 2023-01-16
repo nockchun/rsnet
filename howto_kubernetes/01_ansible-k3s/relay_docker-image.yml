@@ -1,0 +1,7 @@
+- name: Docker Image Processing
+  hosts: images
+  become: no
+  vars_files:
+    - values.yml
+  roles:
+    - docker-image

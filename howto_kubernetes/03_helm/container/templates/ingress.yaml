@@ -1,0 +1,29 @@
+{{ if .Values.ingress }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  annotations:
+    {{- range .Values.ingress.annotations }}
+    nginx.ingress.kubernetes.io/{{ .key }}: !!string {{ .value }}
+    {{- end }}
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: {{ .Values.ingress.domain }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Release.Name }}
+            port:
+              number: {{ .Values.ingress.service_port }}
+  {{ if .Values.ingress.secret_name }}
+  tls:
+  - hosts:
+    - {{ .Values.ingress.domain }}
+    secretName: {{ .Values.ingress.secret_name }}
+  {{ end }}
+{{ end }}

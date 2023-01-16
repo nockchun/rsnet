@@ -1,0 +1,59 @@
+- name: RedHat > Copying files.
+  copy:
+    src: "~/ca.crt"
+    dest: "/etc/pki/ca-trust/source/anchors"
+  when: ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+  
+- name: Ubuntu > Copying files.
+  copy:
+    src: "~/ca.crt"
+    dest: "/usr/local/share/ca-certificates"
+  when: ansible_facts['os_family'] in ["Debian", "Ubuntu"]
+
+- name: RedHat > Make sure our worker-node trusts this CA
+  shell: |
+    update-ca-trust \
+    && systemctl restart k3s-agent
+  when:
+    - inventory_hostname in groups["nodes"]
+    - ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Ubuntu > Make sure our worker-node trusts this CA
+  shell: |
+    update-ca-certificates \
+    && systemctl restart k3s-agent
+  when:
+    - inventory_hostname in groups["nodes"]
+    - ansible_facts['os_family'] in ["Debian", "Ubuntu"]
+
+- name: RedHat > Make sure our master-node trusts this CA
+  shell: |
+    update-ca-trust \
+    && systemctl restart k3s
+  when:
+    - inventory_hostname in groups["masters"]
+    - ansible_facts['os_family'] in ["RedHat", "CentOS", "Rocky"]
+
+- name: Ubuntu > Make sure our master-node trusts this CA
+  shell: |
+    update-ca-certificates \
+    && systemctl restart k3s
+  when:
+    - inventory_hostname in groups["masters"]
+    - ansible_facts['os_family'] in ["Debian", "Ubuntu"]
+
+- name: Reboot System (wait for server active)
+  reboot:
+    reboot_timeout: 600
+    test_command: uptime
+
+- name: Wait for master pods to come up
+  become: false
+  shell: kubectl get pods --all-namespaces -o json | jq '.items | map(select(.status.phase != "Running")) | length'
+  register: kubectl_get_pods
+  until: kubectl_get_pods.stdout == "0"
+  retries: 200
+  delay: 10
+  when:
+    - "'master' in groups"
+    - inventory_hostname in groups["master"]

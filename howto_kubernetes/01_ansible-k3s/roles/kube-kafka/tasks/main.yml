@@ -1,0 +1,110 @@
+- name: Add Helm Repository
+  become: false
+  kubernetes.core.helm_repository:
+    name: bitnami
+    repo_url: "https://charts.bitnami.com/bitnami"
+
+- name: Make Namespace
+  become: false
+  shell: |
+    kubectl create namespace kafka 
+
+- name: Make Local Volume
+  become: false
+  shell: |
+    cat << EOF | kubectl apply -f -
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: local-kafka 
+      namespace: kafka 
+    spec:
+      storageClassName: local-path
+      resources:
+        requests:
+          storage: {{ kube_kafka.storage }}
+      accessModes:
+        - ReadWriteOnce
+    EOF
+
+- name: Create Certificate 
+  become: false
+  shell: |
+    cat << EOF  | kubectl apply -f -
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+       name: kafka-tls
+       namespace: kafka
+    spec:
+      secretName: kafka-tls
+      issuerRef:
+        name: k3s-ca-issuer
+        kind: ClusterIssuer
+      commonName: kafka-0.kafka-headless
+      dnsNames:
+      - kafka-0.kafka-headless.kafka.svc.cluster.local
+      - kafka.kafka.svc.cluster.local
+      - kafka-0.kafka-headless.kafka
+      - kafka.kafka
+      - kafka-0.kafka-headless
+      - kafka
+    EOF
+
+- name: Install Kafka Chart
+  become: false
+  kubernetes.core.helm:
+    name: kafka
+    chart_ref: bitnami/kafka
+    release_namespace: kafka
+    release_values:
+      provisioning:
+        enabled: enable
+        topics:
+          - name: kube_kafka.topicname
+            partitions: 1
+            replicationFactor: 1
+            config:
+              max.message.bytes: 64000
+              flush.messages: 1
+      nodeSelector: {
+        "kubernetes.io/hostname": "{{ kube_kafka.node }}"
+      }
+      persistence:
+        existingClaim: "local-kafka"
+      auth:
+        clientProtocol: tls
+        interBrokerProtocol: tls
+        tls:
+          type: pem
+          existingSecrets: ["kafka-tls"]
+
+- name: Make Develop Service
+  become: false
+  shell: |
+    cat << EOF | kubectl apply -f -
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: kafka-dev
+      namespace: kafka 
+    spec:
+      type: LoadBalancer
+      ports:
+        - port: {{ kube_kafka.port_expose }}
+          targetPort: 9092 
+          protocol: TCP
+      selector:
+        app.kubernetes.io/instance: kafka 
+        app.kubernetes.io/name: kafka 
+    EOF
+  when: k3s_cluster.mode != 'product'
+
+- name: Wait for pods to come up
+  become: false
+  shell: kubectl get pods -n kafka -o json | jq '.items | map(select(.status.phase != "Running")) | length'
+  register: kubectl_get_pods
+  until: kubectl_get_pods.stdout == "0"
+  retries: 60
+  delay: 10
+

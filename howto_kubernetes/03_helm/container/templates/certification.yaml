@@ -1,0 +1,24 @@
+{{ if .Values.certificate }}
+{{- range .Values.certificate }}
+{{ if .create_issue }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .name }}
+  labels:
+    app.kubernetes.io/name: {{ .name }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+spec:
+  secretName: {{ .name }}
+  issuerRef:
+    kind: ClusterIssuer
+    name: {{ .create_issue.issuer_ref_name }}
+  commonName: {{ .create_issue.common_name }}
+  {{- with .create_issue.dns_names }}
+  dnsNames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{ end }}
+{{- end }}
+{{ end }}

@@ -1,0 +1,55 @@
+# Container values for python development.
+# certificate, configmap - name 변경
+# domain name,  service port 변경
+
+host:
+  name: dev-rule
+  etc_hosts:
+    - ip: 10.2.13.76
+      hostnames:
+        - kmaster1
+        - registry.kwp.lab
+    - ip: 10.2.13.77
+      hostnames:
+        - kmaster2
+    - ip: 10.2.11.41
+      hostnames:
+        - knode1
+    - ip: 10.2.12.97
+      hostnames:
+        - knode2
+
+command: sleep infinity
+
+restart_policy: Always
+
+image:
+  name: registry.kwp.lab/py-devel:cpu-build001
+  pull_secrets: registry-creds
+  pull_policy: Always
+
+service:
+  - name: rule
+    service_port: 8815
+    container_port: 3000
+    protocol: TCP
+
+volume:
+  - name: src
+    pvc_name: nfs-dev-client 
+    mount_path: /workspace
+    read_only: false
+  - name: cleverops
+    pvc_name: nfs-cleverops
+    mount_path: /cleverops
+    read_only: false
+
+configmap:
+  - name: postgresql
+    mount:
+      mount_path: /config/tortoise
+      read_only: true
+  - name: celery
+    mount:
+      mount_path: /config/celery
+      read_only: true
