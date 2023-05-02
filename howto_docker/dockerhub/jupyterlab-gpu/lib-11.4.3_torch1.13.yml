@@ -1,0 +1,112 @@
+name: base
+channels:
+  - anaconda
+  - conda-forge
+  - pytorch
+  - nvidia
+dependencies:
+  - python=3.8
+  - nodejs=18
+  - poetry
+  - numpy
+  - pandas=1.5
+  - pandas-profiling
+  - pandas-datareader
+  # pytorch
+  - pytorch==1.13.1
+  - torchvision==0.14.1
+  - torchaudio==0.13.1
+  - pytorch-cuda=11.7
+  # machine learning library
+  - gym
+  - sympy
+  - scikit-learn-intelex
+  - scipy
+  - statsmodels
+  - sentencepiece
+  - flatbuffers
+  - cython
+  - psutil
+  - blist
+  - widgetsnbextension
+  - pyyaml
+  - seaborn
+  - hdf5
+  - asyncpg
+  - bokeh
+  - chktex
+  - texlab
+  - dm-tree
+  - starlette
+  - typing-extensions
+  - ta-lib
+  - dash
+  - cufflinks-py
+  - tortoise-orm
+  - html5lib
+  - more-itertools
+  - httplib2
+  - beautifulsoup4
+  - openpyxl
+  - xlrd
+  - xlsxwriter
+  - xlwt
+  - pillow
+  - matplotlib
+  # - dill
+  # - protobuf
+  # - pydot
+  - pydotplus
+  - networkx
+  - graphviz
+  - python-graphviz
+  - pylint
+  - autopep8
+  - psycopg2
+  - pyarrow
+  - numexpr
+  - bqplot
+  - aiohttp
+  # - pyvirtualdisplay
+  # - elasticsearch
+  # - pyopengl
+  - croniter
+  # celery
+  - celery
+  - celery[redis]
+  # services
+  - redis
+  - kubernetes
+  - redis-py
+  - pip
+  - pip:
+    # jupyterlab
+    - jupyter_console
+    - jupyter_contrib_nbextensions
+    - jupyter_nbextensions_configurator
+    - jupyterlab-git
+    - jupyterlab-drawio
+    - jupyter_bokeh
+    - jupyterlab-lsp
+    - jupyterlab-dash
+    - ipykernel
+    - ipywidgets
+    - ipytest
+    - ipympl
+    - jupyterlab
+    - jupyterlab-interactive-dashboard-editor
+    # library
+    - ray[tune]
+    - ray[rllib]
+    - ray[serve]
+    - nengo-dl
+    - nengo[all]
+    - lz4
+    - tables
+    - pandas-ta
+    - opencv-python
+    - gym-notebook-wrapper
+    - neptune-notebooks
+    - nltk
+    - transitions
+    - plotly

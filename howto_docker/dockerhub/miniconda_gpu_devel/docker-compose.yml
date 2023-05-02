@@ -1,34 +1,100 @@
 version: '3.4'
 
 services:
-  11.8.0-py3.9:
+  11.8.0-py_3.8:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        - USERNAME=rsnet
-        - PASSWORD=rsnet
-        - UID=1000
-        - GID=1000
-        - VERSION_CUDA=11.8.0-devel-ubuntu22.04
+        - BASE_IMAGE=nvidia/cuda:11.8.0-devel-ubuntu22.04
         - VERSION_MINICONDA=latest
-        - VERSION_PYTHON=3.9
-    image: nockchun/miniconda-gpu-devel:11.8.0-py3.9
+        - VERSION_PYTHON=3.8
+        - USER=rsnet
+        - USER_UID=1000
+    image: nockchun/miniconda-gpu-devel:11.8.0-py_3.8
+    command:
+      sleep infinity
+
+  11.4.3-py_3.8:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=nvidia/cuda:11.4.3-devel-ubuntu20.04
+        - VERSION_MINICONDA=latest
+        - VERSION_PYTHON=3.8
+        - USER=rsnet
+        - USER_UID=1000
+    image: nockchun/miniconda-gpu-devel:11.4.3-py_3.8
+    command:
+      sleep infinity
+
+  11.4.1-py_3.8:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=nvidia/cuda:11.4.1-devel-ubuntu20.04
+        - VERSION_MINICONDA=latest
+        - VERSION_PYTHON=3.8
+        - USER=rsnet
+        - USER_UID=1000
+    image: nockchun/miniconda-gpu-devel:11.4.1-py_3.8
+    command:
+      sleep infinity
+
+  11.7.1-py_3.8:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=nvidia/cuda:11.7.1-devel-ubuntu22.04 
+        - VERSION_MINICONDA=latest
+        - VERSION_PYTHON=3.8
+        - USER=rsnet
+        - USER_UID=1000
+    image: nockchun/miniconda-gpu-devel:11.7.1-py3.8
     command:
       sleep infinity
   
-  11.0.3-py3.9:
+  11.3.1-py_3.8:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        - USERNAME=rsnet
-        - PASSWORD=rsnet
-        - UID=1000
-        - GID=1000
-        - VERSION_CUDA=11.0.3-devel-ubuntu20.04
+        - BASE_IMAGE=nvidia/cuda:11.3.1-devel-ubuntu20.04
         - VERSION_MINICONDA=latest
-        - VERSION_PYTHON=3.9
-    image: nockchun/miniconda-gpu-devel:11.0.3-py3.9
+        - VERSION_PYTHON=3.8
+        - USER=rsnet
+        - USER_UID=1000
+    image: nockchun/miniconda-gpu-devel:11.3.1-py3.8
+    command:
+      sleep infinity
+
+  11.2.2-py_3.8:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=nvidia/cuda:11.2.2-devel-ubuntu20.04
+        - VERSION_MINICONDA=latest
+        - VERSION_PYTHON=3.8
+        - USER=rsnet
+        - USER_UID=1000
+    image: nockchun/miniconda-gpu-devel:11.2.2-py_3.8
+    command:
+      sleep infinity
+
+  11.0.3-py_3.8:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=nvidia/cuda:11.0.3-devel-ubuntu20.04
+        - VERSION_MINICONDA=latest
+        - VERSION_PYTHON=3.8
+        - USER=rsnet
+        - USER_UID=1000
+    image: nockchun/miniconda-gpu-devel:11.0.3-py3.8
     command:
       sleep infinity

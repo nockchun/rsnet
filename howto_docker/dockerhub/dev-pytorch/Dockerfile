@@ -10,15 +10,15 @@ ENV HOME /home/$USER
 RUN conda install -c conda-forge --yes jupyterlab \
  && jupyter notebook --generate-config
 
-# RUN conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.7 -c pytorch -c nvidia
+RUN conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.7 -c pytorch -c nvidia
 
-# Create Python Library Environments
-ARG LIB_PYTHON
-ADD ${LIB_PYTHON} environment.yml
-RUN conda env update --file environment.yml \
- && rm -rf environment.yml \
- && conda clean -afy
-
+# # Create Python Library Environments
+# ARG LIB_PYTHON
+# ADD ${LIB_PYTHON} environment.yml
+# RUN conda env update --file environment.yml \
+#  && rm -rf environment.yml \
+#  && conda clean -afy
+ 
 # RUN jupyter serverextension enable --py jupyterlab --sys-prefix \
 #  && jupyter labextension install @jupyter-widgets/jupyterlab-manager \
 #     @jupyterlab/application-extension @jupyterlab/apputils-extension @jupyterlab/codemirror-extension @jupyterlab/completer-extension \
@@ -34,9 +34,8 @@ RUN conda env update --file environment.yml \
 # RUN jupyter labextension install jupyterlab-dash jupyterlab-interactive-dashboard-editor \
 #  && jupyter lab build
 
-# RUN conda install -c conda-forge --yes nodejs=18
-# RUN jupyter serverextension enable --py jupyterlab --sys-prefix
-# RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager
+RUN conda install -c conda-forge --yes nodejs=18
+RUN jupyter labextension install --no-build @jupyter-widgets/jupyterlab-manager
 #     @jupyterlab/application-extension @jupyterlab/apputils-extension @jupyterlab/codemirror-extension @jupyterlab/completer-extension \
 #     @jupyterlab/console-extension @jupyterlab/csvviewer-extension @jupyterlab/docmanager-extension @jupyterlab/documentsearch-extension \
 #     @jupyterlab/extensionmanager-extension @jupyterlab/filebrowser-extension @jupyterlab/fileeditor-extension @jupyterlab/help-extension \

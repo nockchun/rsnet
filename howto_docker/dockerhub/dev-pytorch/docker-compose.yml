@@ -1,0 +1,25 @@
+version: '3.4'
+
+services:
+  11.7.1-torch1.13:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USERNAME=rsnet
+        - PASSWORD=rsnet
+        - UID=1000
+        - GID=1000
+        - BASE_IMAGE=nockchun/miniconda-gpu-devel:11.7.1-py3.8
+        - LIB_PYTHON=lib-torch1.13
+    image: nockchun/jupyterlab-gpu:11.7.1-torch1.13_build11
+    command:
+      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
+    networks:
+      - rsnet
+    ports:
+      - "8888:8888"
+
+networks:
+  rsnet:
+    driver: bridge
