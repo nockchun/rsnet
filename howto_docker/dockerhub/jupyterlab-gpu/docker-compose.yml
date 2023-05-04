@@ -34,8 +34,8 @@ services:
       - rsnet
     ports:
       - "8888:8888"
-
-  11.4.3-torch1.13:
+ 
+  11.4.3-torch1.13_tf2.11:
     build:
       context: .
       dockerfile: Dockerfile
@@ -44,7 +44,7 @@ services:
         - USER=rsnet
         - USER_UID=1000
         - LIB_PYTHON=lib-11.4.3_torch1.13.yml
-    image: nockchun/jupyterlab-gpu:11.4.3-torch1.13_build1
+    image: nockchun/jupyterlab-gpu:11.4.3-torch1.13_tf2.11
     command:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
     networks:
