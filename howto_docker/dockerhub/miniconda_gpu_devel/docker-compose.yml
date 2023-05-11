@@ -29,6 +29,20 @@ services:
     command:
       sleep infinity
 
+  11.4.3-py_3.9:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=nvidia/cuda:11.4.3-devel-ubuntu20.04
+        - VERSION_MINICONDA=latest
+        - VERSION_PYTHON=3.9
+        - USER=rsnet
+        - USER_UID=1000
+    image: nockchun/miniconda-gpu-devel:11.4.3-py_3.9
+    command:
+      sleep infinity
+
   11.4.1-py_3.8:
     build:
       context: .
