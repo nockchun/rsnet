@@ -7,9 +7,6 @@ ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 ENV HOME /home/$USER
 
-RUN conda install -c conda-forge --yes jupyterlab \
- && jupyter notebook --generate-config
-
 # Create Python Library Environments
 ARG LIB_PYTHON
 ADD ${LIB_PYTHON} environment.yml
@@ -18,11 +15,14 @@ RUN conda env update --file environment.yml \
  && conda clean -afy
 
 # Create Tensorflow Environments
-RUN sudo apt-get upgrade -y \
- && sudo apt-get install libcudnn8-dev -y \
- && sudo apt-get autoclean && sudo apt-get autoremove
-RUN conda install -c conda-forge jupyterlab-lsp python-lsp-server
-RUN pip install tensorflow-gpu==2.11.0
+ARG TF_VERSION
+RUN pip install tensorrt tensorflow-gpu==${TF_VERSION}
+
+# Create Jupyterlab Environments
+RUN conda install -c conda-forge --yes jupyterlab \
+ && jupyter lab --generate-config
+RUN pip install jupyterlab-lsp python-lsp-server jupyter_console jupyter_contrib_nbextensions jupyter_nbextensions_configurator \
+    jupyterlab-git jupyterlab-drawio jupyter_bokeh jupyterlab-lsp jupyterlab-dash ipykernel ipywidgets ipytest ipympl jupyterlab jupyterlab-interactive-dashboard-editor
 
 # Set notebook
 EXPOSE 8888

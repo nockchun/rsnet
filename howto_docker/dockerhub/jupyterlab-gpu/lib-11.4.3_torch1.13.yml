@@ -12,6 +12,7 @@ dependencies:
   - pandas=1.5
   - pandas-profiling
   - pandas-datareader
+  - nomkl
   # pytorch
   - pytorch==1.13.1
   - torchvision==0.14.1
@@ -80,22 +81,7 @@ dependencies:
   - redis-py
   - pip
   - pip:
-    # jupyterlab
-    - jupyter_console
-    - jupyter_contrib_nbextensions
-    - jupyter_nbextensions_configurator
-    - jupyterlab-git
-    - jupyterlab-drawio
-    - jupyter_bokeh
-    - jupyterlab-lsp
-    - jupyterlab-dash
-    - ipykernel
-    - ipywidgets
-    - ipytest
-    - ipympl
-    - jupyterlab
-    - jupyterlab-interactive-dashboard-editor
-    # library
+    - ray[default]
     - ray[tune]
     - ray[rllib]
     - ray[serve]

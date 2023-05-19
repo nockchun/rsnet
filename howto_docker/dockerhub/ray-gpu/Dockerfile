@@ -19,8 +19,8 @@ RUN conda env update --file environment.yml \
 
 # Create Tensorflow Environments
 # RUN conda install -c conda-forge cudatoolkit cudnn tensorflow-gpu
-RUN pip install tensorflow-gpu==2.10.0
-RUN conda install -c anaconda tensorflow-gpu
+RUN pip install tensorrt tensorflow-gpu==2.10.0
+# RUN conda install -c anaconda tensorflow-gpu
 
 # Set notebook
 EXPOSE 8888

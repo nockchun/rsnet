@@ -1,16 +1,17 @@
 version: '3.4'
 
 services:
-  11.4.3-torch1.13_tf2.11:
+  11.8.0-torch2.0_tf2.11:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        - BASE_IMAGE=nockchun/miniconda-gpu-devel:11.4.3-py_3.8
+        - BASE_IMAGE=nockchun/miniconda-gpu-devel:11.8.0-py_3.10
         - USER=rsnet
         - USER_UID=1000
-        - LIB_PYTHON=lib-11.4.3_torch1.13.yml
-    image: nockchun/jupyterlab-gpu:11.4.3-torch1.13_tf2.11
+        - LIB_PYTHON=lib-11.8.0_torch2.0.yml
+        - TF_VERSION=2.11.0
+    image: nockchun/jupyterlab-gpu:11.8.0-torch2.0_tf2.11
     command:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
     networks:
@@ -18,16 +19,17 @@ services:
     ports:
       - "8888:8888"
 
-  11.8.0-torch2.0_tf2.11:
+  11.4.3-torch1.13_tf2.11:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        - BASE_IMAGE=nockchun/miniconda-gpu-devel:11.8.0-py_3.8
-        - USER=kwp
+        - BASE_IMAGE=nockchun/miniconda-gpu-devel:11.4.3-py_3.10
+        - USER=rsnet
         - USER_UID=1000
-        - LIB_PYTHON=lib-11.8.0_torch2.0.yml
-    image: nockchun/jupyterlab-gpu:11.8.0-torch2.0_tf2.11
+        - LIB_PYTHON=lib-11.4.3_torch1.13.yml
+        - TF_VERSION=2.11.0
+    image: nockchun/jupyterlab-gpu:11.4.3-torch1.13_tf2.11
     command:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
     networks:

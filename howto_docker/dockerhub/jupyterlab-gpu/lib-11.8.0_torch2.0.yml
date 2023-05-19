@@ -9,18 +9,19 @@ dependencies:
   - nodejs=18
   - poetry
   - numpy
-  - pandas=1.5
+  - pandas=2.0
   - pandas-profiling
   - pandas-datareader
+  - nomkl
   # pytorch
-  - pytorch=2
+  - pytorch=2.0.0
   - pytorch-cuda=11.8
-  - torchvision
-  - torchaudio
+  - torchvision=0.15.0
+  - torchaudio=2.0.0
   # machine learning library
   - gym
   - sympy
-  - scikit-learn-intelex
+  - scikit-learn
   - scipy
   - statsmodels
   - sentencepiece
@@ -80,22 +81,8 @@ dependencies:
   - redis-py
   - pip
   - pip:
-    # jupyterlab
-    - jupyter_console
-    - jupyter_contrib_nbextensions
-    - jupyter_nbextensions_configurator
-    - jupyterlab-git
-    - jupyterlab-drawio
-    - jupyter_bokeh
-    - jupyterlab-lsp
-    - jupyterlab-dash
-    - ipykernel
-    - ipywidgets
-    - ipytest
-    - ipympl
-    - jupyterlab
-    - jupyterlab-interactive-dashboard-editor
-    # library
+    - ray[default]
+    - ray[air]
     - ray[tune]
     - ray[rllib]
     - ray[serve]
