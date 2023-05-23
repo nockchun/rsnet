@@ -4,7 +4,6 @@ channels:
   - conda-forge
   - pytorch
   - nvidia
-  - bokeh
 dependencies:
   - python=3.9
   - nodejs=18
@@ -14,10 +13,6 @@ dependencies:
   - pandas-profiling
   - pandas-datareader
   - nomkl
-  - ipykernel
-  - ipywidgets
-  - ipytest
-  - ipympl
   # pytorch
   - pytorch=2.0.0
   - pytorch-cuda=11.8
@@ -34,20 +29,14 @@ dependencies:
   - cython
   - psutil
   - blist
-  - widgetsnbextension
   - pyyaml
   - seaborn
   - hdf5
   - asyncpg
-  - bokeh=3.1.1
-  - chktex
-  - texlab
   - dm-tree
   - starlette
   - typing-extensions
   - ta-lib
-  - dash
-  - cufflinks-py
   - tortoise-orm
   - html5lib
   - more-itertools
@@ -58,30 +47,17 @@ dependencies:
   - xlsxwriter
   - xlwt
   - pillow
-  - matplotlib
-  # - dill
-  # - protobuf
-  # - pydot
-  - pydotplus
-  - networkx
-  - graphviz
-  - python-graphviz
-  - pylint
-  - autopep8
   - psycopg2
   - pyarrow
   - numexpr
   - bqplot
   - aiohttp
-  # - pyvirtualdisplay
-  # - elasticsearch
-  # - pyopengl
   - croniter
   # celery
-  - celery==5.2.6
-  - kombu==5.2.4
-  - amqp=5.0.9
-  - vine==5.0.0
+  - celery
+  - kombu
+  - amqp
+  - vine
   # services
   - redis
   - kubernetes

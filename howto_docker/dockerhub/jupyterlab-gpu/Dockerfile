@@ -19,10 +19,9 @@ ARG TF_VERSION
 RUN pip install tensorrt tensorflow-gpu==${TF_VERSION}
 
 # Create Jupyterlab Environments
-RUN pip install jupyter_server==2.5 jupyterlab==4.0 \
+RUN pip install jupyter_server==2.5 jupyterlab jupyterlab-lsp python-lsp-server python-language-server jupyterlab-git jupyterlab-drawio jupyter_bokeh ipywidgets gym-notebook-wrapper \
+    jupyter_contrib_nbextensions jupyter_nbextensions_configurator \
  && jupyter lab --generate-config
-RUN pip install jupyterlab-lsp python-lsp-server jupyter_console jupyter_contrib_nbextensions jupyter_nbextensions_configurator gym-notebook-wrapper \
-    jupyterlab-git jupyterlab-drawio jupyter_bokeh jupyterlab-lsp jupyterlab-dash ipykernel ipywidgets ipytest ipympl jupyterlab jupyterlab-interactive-dashboard-editor
 
 # Set notebook
 EXPOSE 8888
