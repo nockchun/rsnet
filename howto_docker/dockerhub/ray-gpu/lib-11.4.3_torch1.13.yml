@@ -71,6 +71,5 @@ dependencies:
     - tables
     - pandas-ta
     - opencv-python
-    - neptune-notebooks
     - nltk
     - transitions

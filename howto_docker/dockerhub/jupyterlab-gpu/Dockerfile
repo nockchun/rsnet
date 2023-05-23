@@ -19,9 +19,9 @@ ARG TF_VERSION
 RUN pip install tensorrt tensorflow-gpu==${TF_VERSION}
 
 # Create Jupyterlab Environments
-RUN conda install -c conda-forge --yes jupyterlab \
+RUN pip install jupyter_server==2.5 jupyterlab==4.0 \
  && jupyter lab --generate-config
-RUN pip install jupyterlab-lsp python-lsp-server jupyter_console jupyter_contrib_nbextensions jupyter_nbextensions_configurator \
+RUN pip install jupyterlab-lsp python-lsp-server jupyter_console jupyter_contrib_nbextensions jupyter_nbextensions_configurator gym-notebook-wrapper \
     jupyterlab-git jupyterlab-drawio jupyter_bokeh jupyterlab-lsp jupyterlab-dash ipykernel ipywidgets ipytest ipympl jupyterlab jupyterlab-interactive-dashboard-editor
 
 # Set notebook

@@ -4,8 +4,9 @@ channels:
   - conda-forge
   - pytorch
   - nvidia
+  - bokeh
 dependencies:
-  - python=3.8
+  - python=3.9
   - nodejs=18
   - poetry
   - numpy
@@ -34,7 +35,7 @@ dependencies:
   - seaborn
   - hdf5
   - asyncpg
-  - bokeh
+  - bokeh=3.1.1
   - chktex
   - texlab
   - dm-tree
@@ -74,7 +75,9 @@ dependencies:
   - croniter
   # celery
   - celery
-  - celery[redis]
+  - kombu
+  - amqp
+  - vine
   # services
   - redis
   - kubernetes
@@ -92,8 +95,6 @@ dependencies:
     - tables
     - pandas-ta
     - opencv-python
-    - gym-notebook-wrapper
-    - neptune-notebooks
     - nltk
     - transitions
     - plotly

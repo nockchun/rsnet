@@ -5,7 +5,7 @@ channels:
   - pytorch
   - nvidia
 dependencies:
-  - python=3.8
+  - python=3.9
   - nodejs=18
   - poetry
   - numpy
@@ -92,7 +92,6 @@ dependencies:
     - pandas-ta
     - opencv-python
     - gym-notebook-wrapper
-    - neptune-notebooks
     - nltk
     - transitions
     - plotly

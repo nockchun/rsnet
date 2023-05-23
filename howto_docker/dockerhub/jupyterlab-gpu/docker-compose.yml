@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - BASE_IMAGE=nockchun/miniconda-gpu-devel:11.8.0-py_3.10
+        - BASE_IMAGE=nockchun/miniconda-gpu-devel:11.8.0-py_3.9
         - USER=rsnet
         - USER_UID=1000
         - LIB_PYTHON=lib-11.8.0_torch2.0.yml
@@ -24,7 +24,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - BASE_IMAGE=nockchun/miniconda-gpu-devel:11.4.3-py_3.10
+        - BASE_IMAGE=nockchun/miniconda-gpu-devel:11.4.3-py_3.9
         - USER=rsnet
         - USER_UID=1000
         - LIB_PYTHON=lib-11.4.3_torch1.13.yml
