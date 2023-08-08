@@ -1,6 +1,24 @@
 version: '3.4'
 
 services:
+  11.8.0-torch2.0_tf2.13:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=nockchun/miniconda-gpu-devel:11.8.0-py_3.10
+        - USER=rsnet
+        - USER_UID=1000
+        - LIB_PYTHON=lib-11.8.0_torch2.0.yml
+        - TF_VERSION=2.11.0
+    image: nockchun/jupyterlab-gpu:11.8.0-torch2.0_tf2.13
+    command:
+      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
+    networks:
+      - rsnet
+    ports:
+      - "8888:8888"
+
   11.8.0-torch2.0_tf2.11:
     build:
       context: .
