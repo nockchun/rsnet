@@ -1,0 +1,27 @@
+version: '3.4'
+
+services:
+  11.8.0-py_3.10:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=nvidia/cuda:11.8.0-devel-ubuntu22.04
+        - VERSION_PYTHON=3.10
+        - NB_USER=rsnet
+        - NB_UID=1000
+        - NB_GID=100
+    environment:
+      GRANT_SUDO: "yes"
+      JUPYTER_ENABLE_LAB: "yes"
+      NB_UID: ${JUPYTER_UID:-1000}
+      NB_GID: ${JUPYTER_GID:-1000}
+    image: nockchun/miniconda-gpu-devel:11.8.0-py_3.10
+    volumes:
+      - /notebook:/notebook
+    ports:
+      - "8888:8888"
+    command:
+      # jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
+      # start-notebook.sh
+      sleep infinity

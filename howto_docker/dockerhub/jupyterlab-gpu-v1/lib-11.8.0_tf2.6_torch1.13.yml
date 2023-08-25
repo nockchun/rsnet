@@ -4,32 +4,44 @@ channels:
   - conda-forge
   - pytorch
   - nvidia
-  - bokeh
 dependencies:
-  - python=3.10
-  - nodejs=18
+  - python=3.9
   - poetry
-  - numpy
-  - pandas=2.0
-  - pandas-profiling
-  - pandas-datareader
-  - nomkl
+  # jupyterlab
+  - jupyter_console
+  - jupyter_contrib_nbextensions
+  - jupyter_nbextensions_configurator
+  - jupyterlab-git
+  - jupyterlab-drawio
+  - jupyter_bokeh
+  - jupyterlab-lsp
+  - jupyterlab-dash
   - ipykernel
   - ipywidgets
   - ipytest
   - ipympl
+  - jupyterlab
+  # tensorflow
+  - tensorflow-gpu=2.6
+  - tensorboard=2.6
+  - tensorflow-datasets
   # pytorch
-  - pytorch=2.0.0
-  - pytorch-cuda=11.8
-  - torchvision=0.15.0
-  - torchaudio=2.0.0
+  - pytorch=1.13
+  - pytorch-cuda=11.6
+  - torchvision
+  - torchaudio
+  - torchmetrics
   # machine learning library
+  - pandas=1.5
   - gym
+  - numpy
   - sympy
-  - scikit-learn
+  - scikit-learn-intelex
   - scipy
   - statsmodels
   - sentencepiece
+  - pandas-profiling
+  - pandas-datareader
   - flatbuffers
   - cython
   - psutil
@@ -40,6 +52,7 @@ dependencies:
   - hdf5
   - asyncpg
   - bokeh
+  - python-language-server
   - chktex
   - texlab
   - dm-tree
@@ -52,6 +65,7 @@ dependencies:
   - html5lib
   - more-itertools
   - httplib2
+  - nodejs
   - beautifulsoup4
   - openpyxl
   - xlrd
@@ -59,9 +73,9 @@ dependencies:
   - xlwt
   - pillow
   - matplotlib
-  # - dill
-  # - protobuf
-  # - pydot
+  - dill
+  - protobuf
+  - pydot
   - pydotplus
   - networkx
   - graphviz
@@ -73,32 +87,19 @@ dependencies:
   - numexpr
   - bqplot
   - aiohttp
-  # - pyvirtualdisplay
-  # - elasticsearch
-  # - pyopengl
+  - py-opencv
+  - pyvirtualdisplay
+  - elasticsearch
+  - pyopengl
   - croniter
   # celery
-  - celery==5.2.6
-  - kombu==5.2.4
-  - amqp=5.0.9
-  - vine==5.0.0
+  - celery
+  - celery[redis]
+  # - amqp=2.6
+  # - kombu=4.6
+  # - vine=1.3
   # services
   - redis
   - kubernetes
   - redis-py
   - pip
-  - pip:
-    - ray[default]
-    - ray[air]
-    - ray[tune]
-    - ray[rllib]
-    - ray[serve]
-    - nengo-dl
-    - nengo[all]
-    - lz4
-    - tables
-    - pandas-ta
-    - opencv-python
-    - nltk
-    - transitions
-    - plotly
