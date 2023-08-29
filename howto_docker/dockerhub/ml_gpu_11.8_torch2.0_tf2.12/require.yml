@@ -1,0 +1,20 @@
+name: base
+dependencies:
+  - pip
+  - pip:
+    - ray[tune]
+    - ray[rllib]
+    - ray[serve]
+    - nengo-dl
+    - nengo[all]
+    - lz4
+    - tables
+    - pandas-ta
+    - opencv-python
+    - gym-notebook-wrapper
+    - neptune-notebooks
+    - nltk
+    - transitions
+    - jupyterlab-interactive-dashboard-editor
+    - plotly
+    - chart-studio

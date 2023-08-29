@@ -11,17 +11,18 @@ services:
         - NB_USER=rsnet
         - NB_UID=1000
         - NB_GID=100
+        - TF_VERSION=2.11
     environment:
       GRANT_SUDO: "yes"
       JUPYTER_ENABLE_LAB: "yes"
       NB_UID: ${JUPYTER_UID:-1000}
       NB_GID: ${JUPYTER_GID:-1000}
-    image: nockchun/miniconda-gpu-devel:11.8.0-py_3.10
+    image: nockchun/jupyterlab-gpu-devel:11.8.0-py_3.10
     volumes:
       - /notebook:/notebook
     ports:
       - "8888:8888"
     command:
-      # jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
+      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
       # start-notebook.sh
-      sleep infinity
+      # sleep infinity

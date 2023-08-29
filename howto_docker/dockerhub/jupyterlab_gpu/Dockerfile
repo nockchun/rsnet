@@ -27,7 +27,7 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
     libsqlite3-dev libssl-dev libtool libwebp-dev libxml2-dev libxslt-dev libyaml-dev make patch unzip xz-utils zlib1g-dev \
     iputils-ping dnsutils language-pack-ko ffmpeg openjdk-17-jre-headless libatlas-base-dev libgflags-dev \
     libgoogle-glog-dev libhdf5-serial-dev libleveldb-dev liblmdb-dev libprotobuf-dev libsnappy-dev protobuf-compiler ghostscript python3-tk \
-    htop \
+    htop cm-super dvipng \
     software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor libcudnn8-dev tensorrt tini \
  && apt-get autoclean && apt-get autoremove \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -67,7 +67,8 @@ RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
     chmod g+w /etc/passwd && \
     fix-permissions "${HOME}" && \
     fix-permissions "${CONDA_DIR}"
-
+RUN echo "${NB_USER}:${NB_USER}" | sudo chpasswd \
+ && echo "${NB_USER} ALL=(ALL:ALL) ALL" >> /etc/sudoers
 USER ${NB_UID}
 ARG VERSION_PYTHON=3.10
 
@@ -121,11 +122,6 @@ RUN set -x && \
 RUN pip install --no-cache-dir --upgrade \
     distributed==2023.3.0 \
     jupyter-server==2.4 \
-    # fix permissions of conda
- && fix-permissions "${CONDA_DIR}" \
- && fix-permissions "/home/${NB_USER}"
-
-RUN pip install --no-cache-dir \
     # install extension manager
     jupyter_contrib_nbextensions==0.7.0 \
     jupyter_nbextensions_configurator==0.6.1 \
@@ -144,7 +140,7 @@ RUN pip install --no-cache-dir \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 
-EXPOSE 8888
+RUN pip install jupyter_nbextensions_configurator jupyter_bokeh jupyterlab-lsp jupyterlab-dash ipykernel ipywidgets ipytest ipympl jupyter_scheduler
 
 # Configure container startup
 ENTRYPOINT ["tini", "-g", "--"]
@@ -172,7 +168,77 @@ HEALTHCHECK  --interval=15s --timeout=3s --start-period=5s --retries=3 \
     CMD wget -O- --no-verbose --tries=1 --no-check-certificate \
     http${GEN_CERT:+s}://localhost:8888${JUPYTERHUB_SERVICE_PREFIX:-/}api || exit 1
 
-# Switch back to jovyan to avoid accidental container runs as root
 USER ${NB_UID}
+# Install scipy ##############################################################################################
+RUN mamba install --quiet --yes \
+    'altair' \
+    'beautifulsoup4' \
+    'bokeh' \
+    'bottleneck' \
+    'cloudpickle' \
+    'conda-forge::blas=*=openblas' \
+    'cython' \
+    'dask' \
+    'dill' \
+    'h5py' \
+    'ipympl'\
+    'ipywidgets' \
+    'matplotlib-base' \
+    'numba' \
+    'numexpr' \
+    'pandas' \
+    'patsy' \
+    'protobuf==3.20' \
+    'pytables' \
+    'scikit-image' \
+    'scikit-learn' \
+    'scipy' \
+    'seaborn' \
+    'sqlalchemy' \
+    'statsmodels' \
+    'sympy' \
+    'widgetsnbextension'\
+    'xlrd' \
+    'nengo[all]' 'lz4' 'pandas-ta' 'nltk' \
+ && mamba clean --all -f -y \
+ && fix-permissions "${CONDA_DIR}" \
+ && fix-permissions "/home/${NB_USER}"
 
-WORKDIR "${HOME}"
+# Install facets which does not have a pip or conda package at the moment
+WORKDIR /tmp
+RUN git clone https://github.com/PAIR-code/facets.git && \
+    jupyter nbextension install facets/facets-dist/ --sys-prefix && \
+    rm -rf /tmp/facets && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
+
+# Import matplotlib the first time to build the font cache.
+ENV XDG_CACHE_HOME="/home/${NB_USER}/.cache/"
+
+RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
+    fix-permissions "/home/${NB_USER}"
+
+# Install pytorch ##############################################################################################
+RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+
+# Install tensorflow ###########################################################################################
+ARG TF_VERSION
+RUN pip install tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow-gpu==${TF_VERSION} tensorflow-addons
+
+# Install etc library ##########################################################################################
+# RUN conda install gym sentencepiece flatbuffers psutil blist pyyaml hdf5 asyncpg chktex texlab dm-tree starlette psycopg2 pyarrow bqplot celery
+# RUN pip install ray[all] nengo[all] lz4 tables pandas-ta opencv-python nltk
+RUN conda install -c conda-forge gym sentencepiece
+RUN pip install ray[all] tables
+# 'nengo[all]' 'lz4' 'pandas-ta' 'nltk'
+
+# Switch back to jovyan to avoid accidental container runs as root
+USER root
+RUN mkdir -p "/notebook" \
+ && chown "${NB_USER}:${NB_GID}" "/notebook" \
+ && fix-permissions "/notebook"
+
+# USER ${NB_UID}
+EXPOSE 8888
+VOLUME /notebook
+WORKDIR /notebook

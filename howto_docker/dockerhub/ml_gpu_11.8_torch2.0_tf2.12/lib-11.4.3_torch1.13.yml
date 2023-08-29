@@ -1,0 +1,103 @@
+name: base
+channels:
+  - anaconda
+  - conda-forge
+  - pytorch
+  - nvidia
+dependencies:
+  - python=3.9
+  - nodejs=18
+  - poetry
+  - numpy
+  - pandas=1.5
+  - pandas-profiling
+  - pandas-datareader
+  - nomkl
+  - ipykernel
+  - ipywidgets
+  - ipytest
+  - ipympl
+  # pytorch
+  - pytorch==1.13.1
+  - torchvision==0.14.1
+  - torchaudio==0.13.1
+  - pytorch-cuda=11.7
+  # machine learning library
+  - gym
+  - sympy
+  - scikit-learn-intelex
+  - scipy
+  - statsmodels
+  - sentencepiece
+  - flatbuffers
+  - cython
+  - psutil
+  - blist
+  - widgetsnbextension
+  - pyyaml
+  - seaborn
+  - hdf5
+  - asyncpg
+  - bokeh
+  - chktex
+  - texlab
+  - dm-tree
+  - starlette
+  - typing-extensions
+  - ta-lib
+  - dash
+  - cufflinks-py
+  - tortoise-orm
+  - html5lib
+  - more-itertools
+  - httplib2
+  - beautifulsoup4
+  - openpyxl
+  - xlrd
+  - xlsxwriter
+  - xlwt
+  - pillow
+  - matplotlib
+  # - dill
+  # - protobuf
+  # - pydot
+  - pydotplus
+  - networkx
+  - graphviz
+  - python-graphviz
+  - pylint
+  - autopep8
+  - psycopg2
+  - pyarrow
+  - numexpr
+  - bqplot
+  - aiohttp
+  # - pyvirtualdisplay
+  # - elasticsearch
+  # - pyopengl
+  - croniter
+  # celery
+  - celery==5.2.6
+  - kombu==5.2.4
+  - amqp=5.0.9
+  - vine==5.0.0
+  # services
+  - redis
+  - kubernetes
+  - redis-py
+  - pip
+  - pip:
+    - ray[default]
+    - ray[air]
+    - ray[tune]
+    - ray[rllib]
+    - ray[serve]
+    - nengo-dl
+    - nengo[all]
+    - lz4
+    - tables
+    - pandas-ta
+    - opencv-python
+    - nltk
+    - transitions
+    - plotly
