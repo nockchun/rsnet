@@ -140,7 +140,7 @@ RUN pip install --no-cache-dir --upgrade \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 
-RUN pip install jupyter_nbextensions_configurator jupyter_bokeh jupyterlab-lsp jupyterlab-dash ipykernel ipywidgets ipytest ipympl jupyter_scheduler
+RUN pip install jupyter_bokeh jupyterlab-lsp jupyterlab-dash ipykernel ipytest ipympl jupyter_scheduler
 
 # Configure container startup
 ENTRYPOINT ["tini", "-g", "--"]
@@ -182,13 +182,11 @@ RUN mamba install --quiet --yes \
     'dill' \
     'h5py' \
     'ipympl'\
-    'ipywidgets' \
     'matplotlib-base' \
     'numba' \
     'numexpr' \
     'pandas' \
     'patsy' \
-    'protobuf==3.20' \
     'pytables' \
     'scikit-image' \
     'scikit-learn' \
@@ -199,7 +197,7 @@ RUN mamba install --quiet --yes \
     'sympy' \
     'widgetsnbextension'\
     'xlrd' \
-    'nengo[all]' 'lz4' 'pandas-ta' 'nltk' \
+    'psycopg2' 'asyncpg' \
  && mamba clean --all -f -y \
  && fix-permissions "${CONDA_DIR}" \
  && fix-permissions "/home/${NB_USER}"
@@ -218,19 +216,19 @@ ENV XDG_CACHE_HOME="/home/${NB_USER}/.cache/"
 RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
     fix-permissions "/home/${NB_USER}"
 
-# Install pytorch ##############################################################################################
-RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+# Install etc library ##########################################################################################
+RUN conda install -c anaconda redis
+RUN conda install -c conda-forge gym sentencepiece protobuf pandas-profiling pandas-datareader hdf5 typing-extensions ta-lib dash tortoise-orm \
+ html5lib more-itertools httplib2 celery python-kubernetes redis-py 
+RUN pip install ray[all] tables nengo[all] lz4 pandas-ta nltk danbi poetry
+# protobuf==3.20 
 
 # Install tensorflow ###########################################################################################
 ARG TF_VERSION
 RUN pip install tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow-gpu==${TF_VERSION} tensorflow-addons
 
-# Install etc library ##########################################################################################
-# RUN conda install gym sentencepiece flatbuffers psutil blist pyyaml hdf5 asyncpg chktex texlab dm-tree starlette psycopg2 pyarrow bqplot celery
-# RUN pip install ray[all] nengo[all] lz4 tables pandas-ta opencv-python nltk
-RUN conda install -c conda-forge gym sentencepiece
-RUN pip install ray[all] tables
-# 'nengo[all]' 'lz4' 'pandas-ta' 'nltk'
+# Install pytorch ##############################################################################################
+RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
 
 # Switch back to jovyan to avoid accidental container runs as root
 USER root

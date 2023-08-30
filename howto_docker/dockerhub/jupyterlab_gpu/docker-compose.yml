@@ -1,7 +1,7 @@
 version: '3.4'
 
 services:
-  11.8.0-py_3.10:
+  11.8-tf2.11-torch2.0:
     build:
       context: .
       dockerfile: Dockerfile
@@ -17,9 +17,10 @@ services:
       JUPYTER_ENABLE_LAB: "yes"
       NB_UID: ${JUPYTER_UID:-1000}
       NB_GID: ${JUPYTER_GID:-1000}
-    image: nockchun/jupyterlab-gpu-devel:11.8.0-py_3.10
+    image: nockchun/jupyterlab-gpu-devel:11.8-tf2.11-torch2.0
     volumes:
-      - /notebook:/notebook
+      - /data/notebook:/notebook
+      - /data/notebook_data:/data
     ports:
       - "8888:8888"
     command:
