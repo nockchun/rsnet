@@ -139,8 +139,9 @@ RUN pip install --no-cache-dir --upgrade \
     # fix permissions of conda
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
-
-RUN pip install jupyter_bokeh jupyterlab-lsp jupyterlab-dash ipykernel ipytest ipympl jupyter_scheduler
+RUN conda install -c conda-forge jupyter_bokeh jupyterlab-lsp jupyter-lsp-python jupyterlab-dash ipykernel ipytest ipympl
+RUN pip install jupyter_scheduler \
+ && jupyter lab --generate-config
 
 # Configure container startup
 ENTRYPOINT ["tini", "-g", "--"]
@@ -217,18 +218,18 @@ RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
     fix-permissions "/home/${NB_USER}"
 
 # Install etc library ##########################################################################################
-RUN conda install -c anaconda redis
-RUN conda install -c conda-forge gym sentencepiece protobuf pandas-profiling pandas-datareader hdf5 typing-extensions ta-lib dash tortoise-orm \
- html5lib more-itertools httplib2 celery python-kubernetes redis-py 
-RUN pip install ray[all] tables nengo[all] lz4 pandas-ta nltk danbi poetry
-# protobuf==3.20 
+RUN conda install -c anaconda redis openpyxl
+RUN conda install -c conda-forge gym sentencepiece pandas-profiling pandas-datareader hdf5 typing-extensions ta-lib dash tortoise-orm \
+ html5lib more-itertools httplib2 celery python-kubernetes redis-py pyts einops pykalman gplearn opencv cudatoolkit
+RUN pip install ray[all] tables nengo[all] lz4 ta pandas-ta nltk danbi poetry tsaug seasonal
 
 # Install tensorflow ###########################################################################################
 ARG TF_VERSION
-RUN pip install tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow-gpu==${TF_VERSION} tensorflow-addons
+RUN pip install tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow-gpu==${TF_VERSION} tensorflow-addons streamlit protobuf==3.19.1
 
 # Install pytorch ##############################################################################################
 RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+# RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 # Switch back to jovyan to avoid accidental container runs as root
 USER root
