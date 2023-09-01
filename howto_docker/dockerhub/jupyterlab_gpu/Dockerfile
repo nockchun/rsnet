@@ -208,6 +208,7 @@ WORKDIR /tmp
 RUN git clone https://github.com/PAIR-code/facets.git && \
     jupyter nbextension install facets/facets-dist/ --sys-prefix && \
     rm -rf /tmp/facets && \
+    jupyter lab build \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 
@@ -228,8 +229,8 @@ ARG TF_VERSION
 RUN pip install tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow-gpu==${TF_VERSION} tensorflow-addons streamlit protobuf==3.19.1
 
 # Install pytorch ##############################################################################################
-RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
-# RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 # Switch back to jovyan to avoid accidental container runs as root
 USER root
