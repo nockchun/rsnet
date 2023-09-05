@@ -18,19 +18,25 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
  && apt-get update --fix-missing \
  && apt-get upgrade -y \
  && apt-get install -yq --no-install-recommends debconf apt wget git curl bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 \
-    tzdata fonts-liberation vim net-tools openssh-client graphviz libgraphviz-dev libgl1-mesa-glx libhdf5-dev openmpi-bin pandoc run-one \
+    tzdata fonts-liberation fonts-nanum* vim net-tools openssh-client graphviz libgraphviz-dev libgl1-mesa-glx libhdf5-dev openmpi-bin pandoc run-one \
     autoconf automake dpkg-dev file build-essential g++ gcc imagemagick libbz2-dev libc6-dev libcurl4-openssl-dev libdb-dev cmake \
     libevent-dev libffi-dev libgdbm-dev libgeoip-dev libglib2.0-dev libgmp-dev libjpeg-dev libkrb5-dev liblzma-dev htop cm-super dvipng \
     libmagickcore-dev libmagickwand-dev libncurses5-dev libncursesw5-dev libpng-dev libpq-dev libreadline-dev xvfb less \
     libsqlite3-dev libssl-dev libtool libwebp-dev libxml2-dev libxslt-dev libyaml-dev make patch unzip xz-utils zlib1g-dev \
     iputils-ping dnsutils language-pack-ko ffmpeg openjdk-17-jre-headless libatlas-base-dev libgflags-dev inkscape texlive-xetex texlive-fonts-recommended texlive-plain-generic \
     libgoogle-glog-dev libhdf5-serial-dev libleveldb-dev liblmdb-dev libprotobuf-dev libsnappy-dev protobuf-compiler ghostscript python3-tk \
-    software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor libcudnn8-dev tensorrt tini \
- && apt-get autoclean && apt-get autoremove
+    software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor libcudnn8-dev tensorrt tini
+
+# Install OpenCL & libboost
+RUN apt-get install -y ocl-icd-libopencl1 clinfo libboost-all-dev && \
+    mkdir -p /etc/OpenCL/vendors && \
+    echo "libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd
+
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
  && locale-gen \
  && rm -rf /bin/sh \
  && ln -s /bin/bash /bin/sh \
+ && apt-get autoclean && apt-get autoremove \
  && rm -rf /var/lib/apt/lists/*
 
 # 사용자 'myuser'를 생성합니다.
@@ -71,7 +77,8 @@ RUN pip install --no-cache-dir --upgrade \
     ipyleaflet ipywidgets jupyterlab-spellchecker
 RUN conda install -c conda-forge jupyter_bokeh jupyterlab-lsp jupyter-lsp-python jupyterlab-dash ipykernel ipytest ipympl
 RUN pip install jupyter_scheduler \
- && jupyter lab --generate-config
+ && jupyter lab --generate-config \
+ && jupyter nbextensions_configurator enable
 
 # Install tensorflow ###########################################################################################
 ARG VERSION_TF
@@ -79,14 +86,20 @@ RUN pip install tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensor
 
 # Install pytorch ##############################################################################################
 # RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 \
+ && pip install torchtext
 
 # Install library ##############################################################################################
-RUN conda install -c anaconda redis openpyxl statsmodels
-RUN conda install -c conda-forge scikit-learn sentencepiece pykalman gplearn
+RUN conda install -c anaconda redis openpyxl statsmodels mkl
+RUN conda install -c conda-forge scikit-learn sentencepiece pykalman gplearn pillow
 RUN pip install opencv-python gym ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops pandas-profiling pandas-datareader typing-extensions \
-    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg
+    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm
 RUN pip install danbi ta pandas-ta
+
+# matplotlib에 Nanum 폰트 추가
+RUN cp /usr/share/fonts/truetype/nanum/Nanum* $HOME/miniconda3/lib/python3.10/site-packages/matplotlib/mpl-data/fonts/ttf/ \
+ && fc-cache -fv \
+ && rm -rf ~/.cache/matplotlib/*
 
 EXPOSE 8888
 VOLUME /notebook
