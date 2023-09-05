@@ -221,16 +221,16 @@ RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
 # Install etc library ##########################################################################################
 RUN conda install -c anaconda redis openpyxl
 RUN conda install -c conda-forge gym sentencepiece pandas-profiling pandas-datareader hdf5 typing-extensions ta-lib dash tortoise-orm \
- html5lib more-itertools httplib2 celery python-kubernetes redis-py pyts einops pykalman gplearn opencv cudatoolkit
-RUN pip install ray[all] tables nengo[all] lz4 ta pandas-ta nltk danbi poetry tsaug seasonal
+ html5lib more-itertools httplib2 celery python-kubernetes redis-py pyts einops pykalman gplearn opencv cudatoolkit==11.8 cudnn
+RUN pip install ray[all] tables nengo[all] lz4 ta pandas-ta nltk danbi poetry tsaug seasonal pydot
 
 # Install tensorflow ###########################################################################################
-ARG TF_VERSION
-RUN pip install tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow-gpu==${TF_VERSION} tensorflow-addons streamlit protobuf==3.19.1
+ARG VERSION_TF
+RUN pip install tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow-gpu==${VERSION_TF} tensorflow-addons streamlit protobuf==3.19.1
 
 # Install pytorch ##############################################################################################
-# RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+RUN conda install pytorch==2.0.0 torchvision==0.15.0 torchaudio==2.0.0 pytorch-cuda==11.8 -c pytorch -c nvidia
+# RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 # Switch back to jovyan to avoid accidental container runs as root
 USER root
