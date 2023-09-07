@@ -12,10 +12,11 @@ services:
         - VERSION_PYTHON=3.10
         - VERSION_TF=2.13
     image: nockchun/jupyterlab:tf2.13-torch2.0
+    container_name: jupyter
     volumes:
       - /data/notebook:/notebook
       - /data/notebook_data:/data
     ports:
       - "8888:8888"
     command:
-      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='rsnet'
+      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
