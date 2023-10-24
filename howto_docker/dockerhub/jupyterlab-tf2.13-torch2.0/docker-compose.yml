@@ -1,7 +1,27 @@
 version: '3.4'
 
 services:
-  tf2.13-torch2.0:
+  tf2.14-torch2.1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USERNAME=rsnet
+        - IMAGE_BASE=tensorflow/tensorflow:2.14.0-gpu
+        - VERSION_MINICONDA=latest
+        - VERSION_PYTHON=3.10
+        - VERSION_TF=2.14
+    image: nockchun/jupyterlab:tf2.14-torch2.1
+    container_name: jupyter
+    volumes:
+      - /data/notebook:/notebook
+      - /data/notebook_data:/data
+    ports:
+      - "8888:8888"
+    command:
+      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
+
+  tf2.13-torch2.1:
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,7 +31,7 @@ services:
         - VERSION_MINICONDA=latest
         - VERSION_PYTHON=3.10
         - VERSION_TF=2.13
-    image: nockchun/jupyterlab:tf2.13-torch2.0
+    image: nockchun/jupyterlab:tf2.13-torch2.1
     container_name: jupyter
     volumes:
       - /data/notebook:/notebook
