@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
       args:
         - USERNAME=rsnet
-        - IMAGE_BASE=tensorflow/tensorflow:2.14.0-gpu
+        - IMAGE_BASE=tensorflow/tensorflow:nightly-gpu
         - VERSION_MINICONDA=latest
         - VERSION_PYTHON=3.10
         - VERSION_TF=2.14
