@@ -1,3 +1,6 @@
+#########################################################################################
+###                         Ubuntu 20.04 NOETIC ROS1 Install                          ###
+#########################################################################################
 ::: Configure Repositories --------------------------------------------------------------
 user:~$ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 user:~$ curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
@@ -17,6 +20,46 @@ user:~$ sudo apt install python3-rosdep python3-rosinstall python3-rosinstall-ge
 user:~$ sudo rosdep init
 user:~$ rosdep update
 
+#########################################################################################
+###                                 DEV Environments                                  ###
+#########################################################################################
+::: catkin workspace --------------------------------------------------------------------
+user:~$ mkdir -p test/src
+user:~$ cd test/src
+user:~$ catkin_init_workspace
+user:~$ cd ..
+user:~$ catkin_make
 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
+user:~$ 
 
 
