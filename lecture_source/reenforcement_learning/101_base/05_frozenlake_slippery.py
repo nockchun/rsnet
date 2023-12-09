@@ -27,8 +27,8 @@ for episode_idx in range(episode_length):
 
         # update Q-Table
         q_learn = reward + discount_gamma * np.max(Q[new_state, :])
-        # Q[state, action] = q_learn
-        Q[state, action] += learning_alpha * (q_learn - Q[state, action])
+        Q[state, action] = q_learn
+        # Q[state, action] += learning_alpha * (q_learn - Q[state, action])
         state = new_state
 
         # End episode
