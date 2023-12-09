@@ -8,20 +8,19 @@ def argmax_random(vector):
     vidx = np.where(vector == vmax)[0]
     return np.random.choice(vidx)
 
-discount_gamma = 0.9
-
 Q = np.zeros([env.observation_space.n, env.action_space.n])
 for episode_idx in range(2000):
+    print(f"episode {episode_idx}")
     state, info = env.reset()
     terminated = False
-    e = 1. / ((episode_idx/100)+1)
+    e = 1. / ((episode_idx/100)+1) # 100 episode 이후에 0.5% 이하로 탐험.
 
-    while not terminated:
+    while True:
         # policy에 따라 action 선택 + decaying E-Greedy (exploit vs exploration)
-        if np.random.rand(1) < e:
+        if np.random.rand(1)[0] < e:
             action = env.action_space.sample()
-            while Q[state, action] == -1: # 인식된 hole에는 다시 빠지지 않음.
-                action = env.action_space.sample()
+            # while Q[state, action] == -1: # 인식된 hole에는 다시 빠지지 않음.
+            #     action = env.action_space.sample()
         else:
             action = argmax_random(Q[state, :])
 
@@ -34,6 +33,9 @@ for episode_idx in range(2000):
             reward = -1
         
         # update Q-Table
-        Q[state, action] = reward + (discount_gamma * np.max(Q[new_state, :]))
-
+        Q[state, action] = reward + np.max(Q[new_state, :])
         state = new_state
+
+        # End episode
+        if terminated or truncated:
+            break
