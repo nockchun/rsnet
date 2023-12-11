@@ -91,10 +91,10 @@ RUN pip install torch torchvision torchaudio --index-url https://download.pytorc
 
 # Install library ##############################################################################################
 RUN conda install -c anaconda redis openpyxl statsmodels mkl
-RUN conda install -c conda-forge scikit-learn sentencepiece pykalman gplearn pillow
-RUN pip install opencv-python gym ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops pandas-profiling pandas-datareader typing-extensions \
+RUN conda install -c conda-forge scikit-learn sentencepiece pykalman gplearn pillow firefox geckodriver
+RUN pip install opencv-python gym gymnasium ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops pandas-profiling pandas-datareader typing-extensions \
     python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm
-RUN pip install danbi ta pandas-ta
+RUN pip install danbi ta pandas-ta selenium 
 
 # matplotlib에 Nanum 폰트 추가
 RUN cp /usr/share/fonts/truetype/nanum/Nanum* $HOME/miniconda3/lib/python3.10/site-packages/matplotlib/mpl-data/fonts/ttf/ \

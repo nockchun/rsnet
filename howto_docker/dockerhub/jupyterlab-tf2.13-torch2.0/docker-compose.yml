@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
       args:
         - USERNAME=rsnet
-        - IMAGE_BASE=tensorflow/tensorflow:nightly-gpu
+        - IMAGE_BASE=tensorflow/tensorflow:2.14.0-gpu
         - VERSION_MINICONDA=latest
         - VERSION_PYTHON=3.10
         - VERSION_TF=2.14
@@ -18,6 +18,7 @@ services:
       - /data/notebook_data:/data
     ports:
       - "8888:8888"
+      - "6006:6006"
     command:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
 
