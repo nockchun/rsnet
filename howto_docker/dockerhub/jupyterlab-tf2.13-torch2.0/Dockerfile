@@ -21,11 +21,16 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
     tzdata fonts-liberation fonts-nanum* vim net-tools openssh-client graphviz libgraphviz-dev libgl1-mesa-glx libhdf5-dev openmpi-bin pandoc run-one \
     autoconf automake dpkg-dev file build-essential g++ gcc imagemagick libbz2-dev libc6-dev libcurl4-openssl-dev libdb-dev cmake \
     libevent-dev libffi-dev libgdbm-dev libgeoip-dev libglib2.0-dev libgmp-dev libjpeg-dev libkrb5-dev liblzma-dev htop cm-super dvipng \
-    libmagickcore-dev libmagickwand-dev libncurses5-dev libncursesw5-dev libpng-dev libpq-dev libreadline-dev xvfb less \
+    libmagickcore-dev libmagickwand-dev libncurses5-dev libncursesw5-dev libpng-dev libpq-dev libreadline-dev xvfb less libtcmalloc-minimal4 \
     libsqlite3-dev libssl-dev libtool libwebp-dev libxml2-dev libxslt-dev libyaml-dev make patch unzip xz-utils zlib1g-dev \
-    iputils-ping dnsutils language-pack-ko ffmpeg openjdk-17-jre-headless libatlas-base-dev libgflags-dev inkscape texlive-xetex texlive-fonts-recommended texlive-plain-generic \
-    libgoogle-glog-dev libhdf5-serial-dev libleveldb-dev liblmdb-dev libprotobuf-dev libsnappy-dev protobuf-compiler ghostscript python3-tk \
-    software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor libcudnn8-dev tensorrt tini
+    iputils-ping dnsutils language-pack-ko ffmpeg openjdk-17-jre-headless libatlas-base-dev libgflags-dev inkscape texlive texlive-xetex texlive-fonts-recommended texlive-plain-generic \
+    texlive-latex-extra texlive-fonts-extra texlive-latex-recommended texlive-science tipa \
+    libgoogle-glog-dev libhdf5-serial-dev libleveldb-dev liblmdb-dev libprotobuf-dev libsnappy-dev protobuf-compiler ghostscript python3-tk python3-dev \
+    software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor libcudnn8-dev tensorrt tini \
+    sox libcairo2-dev libpango1.0-dev
+
+RUN LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4 \
+ && echo "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4" >> /etc/profile
 
 # Install OpenCL & libboost
 RUN apt-get install -y ocl-icd-libopencl1 clinfo libboost-all-dev && \
@@ -86,15 +91,20 @@ RUN pip install tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensor
 
 # Install pytorch ##############################################################################################
 # RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 \
- && pip install torchtext
+RUN conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia -y
+# RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 \
+#  && pip install torchtext
 
 # Install library ##############################################################################################
 RUN conda install -c anaconda redis openpyxl statsmodels mkl
-RUN conda install -c conda-forge scikit-learn sentencepiece pykalman gplearn pillow firefox geckodriver
+RUN conda install -c conda-forge scikit-learn sentencepiece pykalman gplearn pillow firefox geckodriver ta-lib apscheduler manim jupyterlab-git
 RUN pip install opencv-python gym gymnasium ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops pandas-profiling pandas-datareader typing-extensions \
     python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm
-RUN pip install danbi ta pandas-ta selenium 
+RUN conda install -c rapidsai -c conda-forge jupyterlab-nvdashboard jupyterlab-lsp
+RUN pip install danbi ta pandas-ta selenium
+
+# Error Fix ####################################################################################################
+# RUN conda install libffi==3.3
 
 # matplotlib에 Nanum 폰트 추가
 RUN cp /usr/share/fonts/truetype/nanum/Nanum* $HOME/miniconda3/lib/python3.10/site-packages/matplotlib/mpl-data/fonts/ttf/ \
