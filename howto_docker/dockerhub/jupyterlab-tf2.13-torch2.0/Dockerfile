@@ -96,9 +96,9 @@ RUN conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c
 #  && pip install torchtext
 
 # Install library ##############################################################################################
-RUN conda install -c anaconda redis openpyxl statsmodels mkl
-RUN conda install -c conda-forge scikit-learn sentencepiece pykalman gplearn pillow firefox geckodriver ta-lib apscheduler manim jupyterlab-git
-RUN pip install opencv-python gym gymnasium ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops pandas-profiling pandas-datareader typing-extensions \
+RUN conda install -c anaconda redis openpyxl statsmodels mkl graphviz
+RUN conda install -c conda-forge scikit-learn sentencepiece pykalman gplearn pillow firefox geckodriver ta-lib apscheduler manim jupyterlab-git pandas pandas-profiling pandas-datareader
+RUN pip install opencv-python gym gymnasium ray[all]==2.23.0 tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
     python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm
 RUN conda install -c rapidsai -c conda-forge jupyterlab-nvdashboard jupyterlab-lsp
 RUN pip install danbi ta pandas-ta selenium
