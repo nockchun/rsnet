@@ -87,7 +87,7 @@ RUN pip install jupyter_scheduler \
 
 # Install tensorflow ###########################################################################################
 ARG VERSION_TF
-RUN pip install tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow==${VERSION_TF} tensorflow-addons streamlit tensorflow-datasets
+RUN pip install tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow==${VERSION_TF} tensorflow-addons streamlit tensorflow-datasets tensorflow-probability
 
 # Install pytorch ##############################################################################################
 # RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
@@ -100,8 +100,8 @@ RUN conda install -c anaconda redis openpyxl statsmodels mkl graphviz
 RUN conda install -c conda-forge scikit-learn sentencepiece pykalman gplearn pillow firefox geckodriver ta-lib apscheduler manim jupyterlab-git pandas pandas-profiling pandas-datareader
 RUN pip install opencv-python gym gymnasium ray[all]==2.23.0 tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
     python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm
-RUN conda install -c rapidsai -c conda-forge jupyterlab-nvdashboard jupyterlab-lsp
-RUN pip install danbi ta pandas-ta selenium
+RUN conda install -c rapidsai -c conda-forge jupyterlab-nvdashboard jupyterlab-lsp python-lsp-server filterpy
+RUN pip install danbi ta pandas-ta selenium jupyterlab-system-monitor 
 
 # Error Fix ####################################################################################################
 # RUN conda install libffi==3.3
