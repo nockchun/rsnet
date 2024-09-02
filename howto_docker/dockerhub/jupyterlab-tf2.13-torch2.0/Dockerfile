@@ -27,15 +27,15 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
     texlive-latex-extra texlive-fonts-extra texlive-latex-recommended texlive-science tipa \
     libgoogle-glog-dev libhdf5-serial-dev libleveldb-dev liblmdb-dev libprotobuf-dev libsnappy-dev protobuf-compiler ghostscript python3-tk python3-dev \
     software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor libcudnn8-dev tensorrt tini \
-    sox libcairo2-dev libpango1.0-dev
+    sox libcairo2-dev libpango1.0-dev libboost-all-dev
 
 RUN LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4 \
  && echo "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4" >> /etc/profile
 
-# Install OpenCL & libboost
-RUN apt-get install -y ocl-icd-libopencl1 clinfo libboost-all-dev && \
-    mkdir -p /etc/OpenCL/vendors && \
-    echo "libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd
+# # Install OpenCL & libboost
+# RUN apt-get install -y ocl-icd-libopencl1 clinfo libboost-all-dev && \
+#     mkdir -p /etc/OpenCL/vendors && \
+#     echo "libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd
 
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
  && locale-gen \
@@ -87,27 +87,24 @@ RUN pip install jupyter_scheduler \
 
 # Install tensorflow ###########################################################################################
 ARG VERSION_TF
-RUN pip install tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow==${VERSION_TF} tensorflow-addons streamlit tensorflow-datasets tensorflow-probability
+RUN pip install --upgrade tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow==${VERSION_TF} tensorflow-addons streamlit tensorflow-datasets tensorflow-probability
 
 # Install pytorch ##############################################################################################
 # RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
-RUN conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia -y
+RUN conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia -y
 # RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 \
 #  && pip install torchtext
 
 # Install library ##############################################################################################
-RUN conda install -c anaconda redis openpyxl statsmodels mkl graphviz
+RUN conda install -c anaconda redis openpyxl statsmodels mkl graphviz pyopencl
 RUN conda install -c conda-forge scikit-learn sentencepiece pykalman gplearn pillow firefox geckodriver ta-lib apscheduler manim jupyterlab-git pandas pandas-profiling pandas-datareader
-RUN pip install opencv-python gym gymnasium ray[all]==2.23.0 tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
-    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm
+RUN pip install opencv-python gym gymnasium gymnasium[classic-control] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
+    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm deap
 RUN conda install -c rapidsai -c conda-forge jupyterlab-nvdashboard jupyterlab-lsp python-lsp-server filterpy
-RUN pip install danbi ta pandas-ta selenium jupyterlab-system-monitor 
-
-# Error Fix ####################################################################################################
-# RUN conda install libffi==3.3
+RUN pip install danbi ta pandas-ta selenium jupyterlab-system-monitor backtrader yfinance
 
 # matplotlib에 Nanum 폰트 추가
-RUN cp /usr/share/fonts/truetype/nanum/Nanum* $HOME/miniconda3/lib/python3.10/site-packages/matplotlib/mpl-data/fonts/ttf/ \
+RUN cp /usr/share/fonts/truetype/nanum/Nanum* $HOME/miniconda3/lib/python${VERSION_PYTHON}/site-packages/matplotlib/mpl-data/fonts/ttf/ \
  && fc-cache -fv \
  && rm -rf ~/.cache/matplotlib/*
 
