@@ -7,8 +7,10 @@
 user:~$ helm repo add bitnami https://charts.bitnami.com/bitnami
 user:~$ helm repo update
 
+### check setting option  ###############################################################
 helm show values bitnami/postgresql > postgresql-values.yaml
 
+### install #############################################################################
 user:~$ helm install postgresql bitnami/postgresql --namespace postgresql --create-namespace \
   --set image.repository=nockchun/postgresql_ext \
   --set image.tag=0.1 \
@@ -17,13 +19,10 @@ user:~$ helm install postgresql bitnami/postgresql --namespace postgresql --crea
   --set global.postgresql.auth.password=sss \
   --set global.postgresql.auth.database=sss \
   --set primary.persistence.storageClass=local-path \
-  --set primary.persistence.size=50Gi \
-  --set service.type=LoadBalancer \
-  --set service.ports.postgresql=5432
+  --set primary.persistence.size=50Gi
 
-
-
-cat << EOF | kubectl apply -f -
+### export port for dev #################################################################
+user:~$ cat << EOF | kubectl apply -f -
 apiVersion: v1
 kind: Service
 metadata:
