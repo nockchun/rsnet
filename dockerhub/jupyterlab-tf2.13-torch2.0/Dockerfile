@@ -27,7 +27,7 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
     texlive-latex-extra texlive-fonts-extra texlive-latex-recommended texlive-science tipa \
     libgoogle-glog-dev libhdf5-serial-dev libleveldb-dev liblmdb-dev libprotobuf-dev libsnappy-dev protobuf-compiler ghostscript python3-tk python3-dev \
     software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor libcudnn8-dev tensorrt tini \
-    sox libcairo2-dev libpango1.0-dev libboost-all-dev
+    sox libcairo2-dev libpango1.0-dev libboost-all-dev swig libarchive-dev
 
 RUN LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4 \
  && echo "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4" >> /etc/profile
@@ -79,7 +79,7 @@ RUN conda install -c conda-forge --yes notebook jupyterhub jupyterlab \
 RUN pip install --no-cache-dir --upgrade \
     jupyter-server jupyter_contrib_nbextensions jupyter_nbextensions_configurator \
     jupyterlab-git plotly jupyterlab-drawio rise \
-    ipyleaflet ipywidgets jupyterlab-spellchecker
+    ipyleaflet ipywidgets jupyterlab-spellchecker jupyter-dash
 RUN conda install -c conda-forge jupyter_bokeh jupyterlab-lsp jupyter-lsp-python jupyterlab-dash ipykernel ipytest ipympl
 RUN pip install jupyter_scheduler \
  && jupyter lab --generate-config \
@@ -91,17 +91,34 @@ RUN pip install --upgrade tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispa
 
 # Install pytorch ##############################################################################################
 # RUN conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
-RUN conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia -y
+RUN conda install pytorch torchvision torchaudio -c pytorch -c nvidia -y
 # RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 \
 #  && pip install torchtext
 
+
+
+# # Install library ##############################################################################################
+# RUN conda install -c anaconda redis openpyxl statsmodels mkl pyopencl
+# RUN conda config --set solver classic \
+#  && conda install -c conda-forge libarchive conda-libmamba-solver graphviz
+# # RUN conda install -c conda-forge graphviz
+# RUN conda install -c conda-forge scikit-learn sentencepiece pykalman gplearn pillow firefox geckodriver ta-lib apscheduler manim jupyterlab-git pandas pandas-profiling pandas-datareader
+# RUN pip install opencv-python gym gymnasium ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
+#     python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm
+# RUN conda install -c rapidsai -c conda-forge jupyterlab-nvdashboard jupyterlab-lsp python-lsp-server filterpy
+# RUN pip install danbi ta pandas-ta selenium jupyterlab-system-monitor backtrader gymnasium[classic-control] deap gymnasium[atari,accept-rom-license] gymnasium[box2d] stable-baselines3[extra]
+
+
 # Install library ##############################################################################################
 RUN conda install -c anaconda redis openpyxl statsmodels mkl graphviz pyopencl
-RUN conda install -c conda-forge scikit-learn sentencepiece pykalman gplearn pillow firefox geckodriver ta-lib apscheduler manim jupyterlab-git pandas pandas-profiling pandas-datareader
-RUN pip install opencv-python gym gymnasium gymnasium[classic-control] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
-    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm deap
-RUN conda install -c rapidsai -c conda-forge jupyterlab-nvdashboard jupyterlab-lsp python-lsp-server filterpy
-RUN pip install danbi ta pandas-ta selenium jupyterlab-system-monitor backtrader yfinance
+RUN pip install opencv-python gym gymnasium gymnasium[classic-control] deap gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
+    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm deap "pydantic<2"
+RUN pip install danbi ta pandas-ta selenium jupyterlab-system-monitor backtrader yfinance stable-baselines3[extra]
+
+RUN conda config --set solver classic
+# RUN conda install -c rapidsai -c conda-forge jupyterlab-nvdashboard jupyterlab-lsp python-lsp-server filterpy
+RUN conda install -c conda-forge scikit-learn sentencepiece pykalman gplearn pillow firefox geckodriver ta-lib apscheduler manim  pandas pandas-profiling pandas-datareader filterpy
+RUN pip install --upgrade jupyterlab jupyterlab-git transitions 
 
 # matplotlib에 Nanum 폰트 추가
 RUN cp /usr/share/fonts/truetype/nanum/Nanum* $HOME/miniconda3/lib/python${VERSION_PYTHON}/site-packages/matplotlib/mpl-data/fonts/ttf/ \

@@ -1,0 +1,6 @@
+services:
+  extension:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nockchun/postgresql_ext:0.1

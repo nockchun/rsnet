@@ -1,0 +1,42 @@
+
+
+#########################################################################################
+###                                    Postgresql                                     ###
+#########################################################################################
+### registe repository ##################################################################
+user:~$ helm repo add bitnami https://charts.bitnami.com/bitnami
+user:~$ helm repo update
+
+helm show values bitnami/postgresql > postgresql-values.yaml
+
+user:~$ helm install postgresql bitnami/postgresql --namespace postgresql --create-namespace \
+  --set image.repository=nockchun/postgresql_ext \
+  --set image.tag=0.1 \
+  --set global.postgresql.auth.postgresPassword=postgres \
+  --set global.postgresql.auth.username=sss \
+  --set global.postgresql.auth.password=sss \
+  --set global.postgresql.auth.database=sss \
+  --set primary.persistence.storageClass=local-path \
+  --set primary.persistence.size=50Gi \
+  --set service.type=LoadBalancer \
+  --set service.ports.postgresql=5432
+
+
+
+cat << EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql-dev
+  namespace: postgresql
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app.kubernetes.io/instance: postgresql
+    app.kubernetes.io/name: postgresql
+EOF
+
