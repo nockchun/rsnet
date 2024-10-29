@@ -1,4 +1,5 @@
-FROM bitnami/postgresql:17.0.0
+ARG IMAGE_BASE=bitnami/postgresql:17.0.0
+FROM ${IMAGE_BASE}
 
 # 루트 사용자로 전환하여 패키지 설치 및 pgvector 설치
 USER root
@@ -10,7 +11,8 @@ RUN install_packages git build-essential postgresql-server-dev-all
 WORKDIR /tmp
 
 # pgvector 클론 및 설치
-RUN git clone --branch v0.7.4 https://github.com/pgvector/pgvector \
+ARG VERSION_PGVECTOR=v0.7.4
+RUN git clone --branch ${VERSION_PGVECTOR} https://github.com/pgvector/pgvector \
  && cd pgvector \
  && make \
  && make install \
