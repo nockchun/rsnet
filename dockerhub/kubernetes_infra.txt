@@ -21,7 +21,7 @@ user:~$ helm install postgresql bitnami/postgresql --namespace postgresql --crea
   --set primary.persistence.storageClass=local-path \
   --set primary.persistence.size=50Gi
 
-### export port for dev #################################################################
+### export port for dev
 user:~$ cat << EOF | kubectl apply -f -
 apiVersion: v1
 kind: Service
@@ -38,4 +38,59 @@ spec:
     app.kubernetes.io/instance: postgresql
     app.kubernetes.io/name: postgresql
 EOF
+
+### install with service ################################################################
+user:~$ helm install postgresql bitnami/postgresql --namespace postgresql --create-namespace \
+  --set auth.postgresPassword=rsnet \
+  --set auth.username=rsnet \
+  --set auth.password=rsnet \
+  --set auth.database=sss \
+  --set primary.nodeSelector."kubernetes\.io/hostname"=node1 \
+  --set primary.persistence.size=10Gi \
+  --set primary.persistence.storageClass=local-path \
+  --set primary.service.type=LoadBalancer \
+  --set primary.service.port=5432
+
+#########################################################################################
+###                                       NATS                                        ###
+#########################################################################################
+### registe repository ##################################################################
+user:~$ helm repo add nats https://nats-io.github.io/k8s/helm/charts/
+user:~$ helm repo update
+
+### check setting option  ###############################################################
+user:~$ helm show values nats/nats > nats-values.yaml
+
+### install #############################################################################
+user:~$ helm install nats nats/nats --namespace nats --create-namespace \
+  --set config.jetstream.enabled=true \
+  --set config.jetstream.fileStore.pvc.size=5Gi \
+  --set config.jetstream.fileStore.pvc.storageClassName=local-path
+
+### export port for dev
+user:~$ cat << EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats
+  namespace: nats
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 4222
+      targetPort: 4222
+      protocol: TCP
+  selector:
+    app.kubernetes.io/instance: nats
+    app.kubernetes.io/name: nats
+EOF
+
+
+
+
+
+
+
+
+
 
