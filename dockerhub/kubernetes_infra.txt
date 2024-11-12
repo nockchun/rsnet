@@ -17,7 +17,11 @@ user:~$ helm install postgresql bitnami/postgresql --namespace postgresql --crea
   --set global.postgresql.auth.password=rsnet \
   --set global.postgresql.auth.database=rsnet \
   --set primary.persistence.storageClass=local-path \
-  --set primary.persistence.size=50Gi
+  --set primary.persistence.size=50Gi \
+  --set primary.resources.requests.memory=512Mi \
+  --set primary.resources.limits.memory=30000Mi \
+  --set primary.service.type=LoadBalancer \
+  --set primary.service.port=5432
 
 ### export port for dev (choice)
 user:~$ cat << EOF | kubectl apply -f -
