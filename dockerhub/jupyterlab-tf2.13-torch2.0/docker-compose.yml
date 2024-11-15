@@ -1,16 +1,16 @@
 services:
-  tf2.17-torch2.5:
+  tf2.18-torch2.5:
     build:
       context: .
       dockerfile: Dockerfile
       args:
         - USERNAME=rsnet
-        - IMAGE_BASE=tensorflow/tensorflow:2.17.0-gpu
+        - IMAGE_BASE=tensorflow/tensorflow:2.18.0-gpu
         - VERSION_MINICONDA=latest
         - VERSION_PYTHON=3.10
-        - VERSION_TF=2.17.0
-    image: nockchun/jupyterlab:tf2.17-torch2.5
-    container_name: tf2.17
+        - VERSION_TF=2.18.0
+    image: nockchun/jupyterlab:tf2.18-torch2.5
+    container_name: tf2.18
     volumes:
       - /data/notebook:/notebook
       - /data/notebook_data:/data
@@ -63,7 +63,7 @@ services:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
 
   nfs:
-    image: nockchun/jupyterlab:tf2.17-torch2.5
+    image: nockchun/jupyterlab:tf2.18-torch2.5
     container_name: nfs
     volumes:
       - /data/nfshare/jupyter-nfs-vol-data-pvc-f862b73d-11fa-4acd-813b-98a620a18733:/data
