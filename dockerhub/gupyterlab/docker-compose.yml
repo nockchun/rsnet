@@ -1,0 +1,56 @@
+services:
+  gupyterlab-tf-torch:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USERNAME=rsnet
+        - IMAGE_BASE=tensorflow/tensorflow:2.17.0-gpu
+        - VERSION_MINICONDA=latest
+        - VERSION_PYTHON=3.10
+        - VERSION_TF=2.17.0
+        - PYTORCH=true
+    image: nockchun/gupyterlab-tf-torch:2.17-2.5
+    container_name: gupyterlab
+    volumes:
+      - /data/notebook:/notebook
+      - /data/notebook_data:/data
+    ports:
+      - "8888:8888"
+      - "6006:6006"
+    command:
+      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
+
+  gupyterlab-tf:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USERNAME=rsnet
+        - IMAGE_BASE=tensorflow/tensorflow:2.17.0-gpu
+        - VERSION_MINICONDA=latest
+        - VERSION_PYTHON=3.10
+        - VERSION_TF=2.17.0
+        - PYTORCH=false
+    image: nockchun/gupyterlab-tf:2.17
+    container_name: gupyterlab
+    volumes:
+      - /data/notebook:/notebook
+      - /data/notebook_data:/data
+    ports:
+      - "8888:8888"
+      - "6006:6006"
+    command:
+      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
+
+  nfs:
+    image: nockchun/gupyterlab-tf-torch:2.17-2.5
+    container_name: nfs
+    volumes:
+      - /data/nfshare/jupyter-nfs-vol-data-pvc-f862b73d-11fa-4acd-813b-98a620a18733:/data
+      - /data/nfshare/jupyter-nfs-vol-notebook-pvc-da22fb6b-37e0-404a-ac62-7a97956f5e88:/notebook
+    ports:
+      - "8889:8888"
+    command:
+      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
+      

@@ -1,0 +1,39 @@
+services:
+# define postgresql container
+  postgresql:
+    image: docker.io/bitnami/postgresql:17
+    ports:
+      - '5432:5432'
+    volumes:
+      - '/data/postgres:/bitnami/postgresql'
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD=postgres
+      - POSTGRESQL_USERNAME=rsnet
+      - POSTGRESQL_PASSWORD=rsnet
+      - POSTGRESQL_DATABASE=rsnet
+
+# define nats container
+  nats:
+    image: nats:alpine
+    container_name: nats
+    restart: always
+    ports:
+      - "4222:4222" # client port
+      - "8222:8222" # monitoring port
+    volumes:
+      - /data/nats/nats.conf:/etc/nats/nats.conf
+      - /data/nats:/data
+    command: -c /etc/nats/nats.conf
+
+# define jupyterlab for machine learning
+  gupyterlab-tf-torch:
+    image: nockchun/gupyterlab-tf-torch:2.17-2.5
+    container_name: gupyterlab
+    volumes:
+      - /data/notebook:/notebook
+      - /data/notebook_data:/data
+    ports:
+      - "8888:8888" # jupyterlab port
+      - "6006:6006" # tensorboard port
+    command:
+      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
