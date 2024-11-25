@@ -86,7 +86,7 @@ RUN conda install --yes \
     filterpy matplotlib pygraphviz redis openpyxl orjson
 
 RUN pip install --no-cache-dir opencv-python gym gymnasium gymnasium[classic-control] deap gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
-    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm deap \
+    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm deap asyncio nest-asyncio \
  && pip install --no-cache-dir danbi ta pandas-ta selenium jupyterlab-system-monitor backtrader yfinance transitions plotly
 
 RUN pip install --no-cache-dir --upgrade jupyterlab jupyterlab-git jupyterlab-latex \

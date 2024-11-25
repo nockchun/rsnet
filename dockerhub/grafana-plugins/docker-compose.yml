@@ -1,0 +1,12 @@
+services:
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    container_name: grafana
+    ports:
+      - "3000:3000"  # Grafana 웹 UI에 접근할 포트
+    volumes:
+      - /data/grafana:/var/lib/grafana  # 데이터 영구 저장
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin  # 기본 관리자 사용자 이름
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # 기본 관리자 비밀번호
