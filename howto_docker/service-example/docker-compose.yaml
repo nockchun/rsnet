@@ -1,0 +1,39 @@
+services:
+# The pgvecto—rs database.
+  pgvecto-rs:
+    image: tensorchord/pgvecto-rs:pg17-v0.4.0
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - /data/postgres:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+# nats container
+  nats:
+    image: nats:alpine
+    restart: unless-stopped
+    container_name: nats
+    ports:
+      - "4222:4222" # client port
+      - "8222:8222" # monitoring port
+    volumes:
+      - /data/nats/nats.conf:/etc/nats/nats.conf
+      - /data/nats:/data
+    command: -c /etc/nats/nats.conf
+
+# grafana container
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    container_name: grafana
+    ports:
+      - "3000:3000"  # web port
+    volumes:
+      - /data/grafana:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
