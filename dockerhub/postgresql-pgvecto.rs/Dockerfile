@@ -1,9 +1,12 @@
-FROM tensorchord/pgvecto-rs-binary:pg17-v0.4.0-amd64 as binary
-FROM bitnami/postgresql:17.1.0
+ARG IMAGE_BASE=bitnami/postgresql:17.0.0
+FROM ${IMAGE_BASE} AS builder
 
 USER root
-COPY --from=binary /pgvecto-rs-binary-release.deb /tmp/vectors.deb
-RUN apt-get install -y /tmp/vectors.deb && rm -f /tmp/vectors.deb
-USER 1001
+COPY vectors-pg17_0.4.0_amd64.deb /tmp
+RUN apt-get install /tmp/vectors-pg17_0.4.0_amd64.deb
 
-CMD ["postgres", "-c" ,"shared_preload_libraries=vectors.so", "-c", "search_path=\"$user\", public, vectors", "-c", "logging_collector=on"]
+FROM ${IMAGE_BASE}
+USER root
+COPY --from=builder /usr/lib/postgresql/17/lib/vectors.so /opt/bitnami/postgresql/lib
+COPY --from=builder /usr/share/postgresql/17/extension/* /opt/bitnami/postgresql/share/extension/
+USER 1001

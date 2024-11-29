@@ -4,6 +4,15 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - IMAGE_BASE=bitnami/postgresql:17.0.0
+        - IMAGE_BASE=bitnami/postgresql:17.2.0
         - VERSION_PGVECTOR=v0.7.4
-    image: nockchun/postgresql_pgvector.rs:17.1.0_0.4.0
+    image: nockchun/postgresql_pgvector.rs:17.2.0_0.4.0
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD=postgres
+      - POSTGRESQL_USERNAME=rsnet
+      - POSTGRESQL_PASSWORD=rsnet
+      - POSTGRESQL_DATABASE=rsnet
+    ports:
+      - '5432:5432'
+    volumes:
+      - '/data/postgres:/bitnami/postgresql'
