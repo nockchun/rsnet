@@ -83,7 +83,7 @@ RUN if [ "$PYTORCH" = "true" ]; then \
 
 # Install library ##############################################################################################
 RUN conda install --yes \
-    filterpy matplotlib pygraphviz redis openpyxl orjson
+    filterpy matplotlib pygraphviz redis openpyxl orjson nats-py
 
 RUN pip install --no-cache-dir opencv-python gym gymnasium gymnasium[classic-control] deap gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
     python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm deap asyncio nest-asyncio \
