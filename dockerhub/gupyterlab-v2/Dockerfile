@@ -41,7 +41,7 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
  && /opt/conda/bin/conda clean -afy
 
 RUN conda update -n base -c defaults conda \
- && conda install -y -n base -c conda-forge python=3.10 jupyterlab numpy=1.24.3 \
+ && conda install -y -n base -c conda-forge python=3.9 jupyterlab numpy=1.26.4 \
     jupyter_bokeh ipykernel ipytest ipympl ipywidgets statsmodels graphviz pyopencl scikit-learn sentencepiece pykalman gplearn \
     pillow firefox geckodriver apscheduler scipy pandas pandas-profiling pandas-datareader jupyterlab-git jupyterlab-latex \
  && conda clean -afy
@@ -53,13 +53,13 @@ RUN conda install -y -n base pytorch torchvision torchaudio pytorch-cuda=12.4 -c
 ARG VERSION_TF
 ENV TF_GPU_THREAD_MODE=gpu_shared \
     TF_FORCE_GPU_ALLOW_GROWTH=true
-RUN pip install --no-cache-dir numpy==1.24.3 tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow==${VERSION_TF} tensorflow-addons streamlit tensorflow-datasets tensorflow-probability
+RUN pip install --no-cache-dir numpy==1.26.4 tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow==${VERSION_TF} tensorflow-addons streamlit tensorflow-datasets tensorflow-probability
 # RUN conda install -y -n base -c conda-forge numpy==1.21.6 protobuf==3.20.* tensorflow-gpu \
 #     && conda clean -afy
 
-RUN pip install --no-cache-dir numpy==1.24.3 opencv-python gym gymnasium gymnasium[classic-control] deap gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
+RUN pip install --no-cache-dir numpy==1.26.4 opencv-python gym gymnasium gymnasium[classic-control] deap gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
     python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm deap asyncio nest-asyncio \
- && pip install --no-cache-dir numpy==1.24.3 danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy
+ && pip install --no-cache-dir numpy==1.26.4 danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy
 
 #  RUN conda install -y -n base numpy==1.26.4
 #  RUN conda install -y -n base numpy==1.24
