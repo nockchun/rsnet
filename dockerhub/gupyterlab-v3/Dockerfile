@@ -32,8 +32,8 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
  && apt clean \
  && rm -rf /var/lib/apt/lists/*
 
-RUN LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4 \
- && echo "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4" >> /etc/profile
+# RUN LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4 \
+#  && echo "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4" >> /etc/profile
 
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
  && locale-gen \
