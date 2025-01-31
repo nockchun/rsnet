@@ -5,12 +5,12 @@ services:
       dockerfile: Dockerfile
       args:
         - USERNAME=rsnet
-        - IMAGE_BASE=nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
+        - IMAGE_BASE=nvidia/cuda:12.6.0-cudnn-devel-ubuntu22.04
         - VERSION_MINICONDA=latest
-        - VERSION_PYTHON=3.9
+        - VERSION_PYTHON=3.10
         - VERSION_TF=2.18.0
         - PYTORCH=true
-    image: nockchun/gupyterlab-tf-torch:2.17-2.5.1
+    image: nockchun/gupyterlab-tf-torch:2.18-2.5.1
     container_name: gupyterlab2
     volumes:
       # - /data/notebook:/notebook
