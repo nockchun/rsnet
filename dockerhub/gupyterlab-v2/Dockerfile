@@ -12,7 +12,6 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TF_FORCE_GPU_ALLOW_GROWTH=true \
     LANG=C.UTF-8 LC_ALL=C.UTF-8 \
     TZ=Asia/Seoul
-# SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install dependencies
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -29,7 +28,7 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
     texlive-latex-extra texlive-fonts-extra texlive-latex-recommended texlive-science tipa \
     libgoogle-glog-dev libhdf5-serial-dev libleveldb-dev liblmdb-dev libprotobuf-dev libsnappy-dev protobuf-compiler ghostscript python3-tk python3-dev \
     software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor libcudnn8-dev tensorrt tini \
-    sox libcairo2-dev libpango1.0-dev libboost-all-dev swig libarchive-dev \
+    sox libcairo2-dev libpango1.0-dev libboost-all-dev swig libarchive-dev zsh \
  && apt autoremove \
  && apt clean \
  && rm -rf /var/lib/apt/lists/*
@@ -41,34 +40,38 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
  && /opt/conda/bin/conda clean -afy
 
 ARG VERSION_PYTHON
+ARG VERSION_NUMPY
 RUN conda update -n base -c defaults conda \
- && conda install -y -n base -c conda-forge python=${VERSION_PYTHON} numpy=2.0 jupyterlab \
+ && conda install -y -n base -c conda-forge python=${VERSION_PYTHON} numpy=${VERSION_NUMPY} jupyterlab \
     jupyter_bokeh ipykernel ipytest ipympl ipywidgets statsmodels graphviz pyopencl scikit-learn sentencepiece pykalman gplearn \
     pillow firefox geckodriver apscheduler scipy pandas pandas-profiling pandas-datareader jupyterlab-git jupyterlab-latex \
  && conda clean -afy
 
-# Create a Conda environment with JupyterLab, TensorFlow, and PyTorch
+# Install PyTorch
 RUN conda install -y -n base pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia \
     && conda clean -afy
 
+# Install Tensorflow
 ARG VERSION_TF
 ENV TF_GPU_THREAD_MODE=gpu_shared \
     TF_FORCE_GPU_ALLOW_GROWTH=true
 RUN pip install --no-cache-dir tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow==${VERSION_TF} tensorflow-addons streamlit tensorflow-datasets tensorflow-probability
-# RUN conda install -y -n base -c conda-forge numpy==1.21.6 protobuf==3.20.* tensorflow-gpu \
-#     && conda clean -afy
 
+# Install Extra Library
 RUN pip install --no-cache-dir opencv-python gym gymnasium gymnasium[classic-control] deap gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
     python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm deap asyncio nest-asyncio \
- && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy
+ && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py
 
-#  RUN conda install -y -n base numpy==1.26.4
-#  RUN conda install -y -n base numpy==1.24
-# 1.23.5
-# RUN pip uninstall numpy
+# LLM Library
+RUN pip install --no-cache-dir huggingface_hub datasets transformers bitsandbytes peft accelerate wandb sentence-transformers trl \
+    langchain openai
+
+# Setup oh-my-zsh
+RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
+ && cp /root/.oh-my-zsh/templates/zshrc.zsh-template /root/.zshrc \
+ && sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/g' /root/.zshrc
+ENV SHELL=/usr/bin/zsh
+ENTRYPOINT ["/usr/bin/zsh", "-c", "exec \"$@\"", "--"]
 
 # Expose JupyterLab default port
 EXPOSE 8888
-
-# Set the default command to start JupyterLab
-# CMD ["jupyter", "lab", "--ip=0.0.0.0", "--allow-root", "--no-browser"]

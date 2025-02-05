@@ -8,6 +8,32 @@ services:
         - IMAGE_BASE=nvidia/cuda:12.6.0-cudnn-devel-ubuntu22.04
         - VERSION_MINICONDA=latest
         - VERSION_PYTHON=3.10
+        - VERSION_NUMPY=1.26.4
+        - VERSION_TF=2.17.0
+        - PYTORCH=true
+    image: nockchun/gupyterlab-tf-torch:2.17-2.5.1
+    container_name: gupyterlab2
+    volumes:
+      # - /data/notebook:/notebook
+      # - /data/notebook_data:/data
+      - /data/nfshare/notebook:/notebook
+      - /data/nfshare/notebook_data:/data
+    ports:
+      - "9999:8888"
+      # - "6006:6006"
+    command:
+      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
+
+  gupyterlab-tf-torch-2.18:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USERNAME=rsnet
+        - IMAGE_BASE=nvidia/cuda:12.6.0-cudnn-devel-ubuntu22.04
+        - VERSION_MINICONDA=latest
+        - VERSION_PYTHON=3.10
+        - VERSION_NUMPY=1.26.4
         - VERSION_TF=2.18.0
         - PYTORCH=true
     image: nockchun/gupyterlab-tf-torch:2.18-2.5.1
