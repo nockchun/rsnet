@@ -51,7 +51,7 @@ RUN conda update -n base -c defaults conda \
 
 # Install PyTorch
 ARG VERSION_PYTORCH
-RUN conda install -y -n base pytorch=${VERSION_PYTORCH} torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia \
+RUN conda install -y -n base pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.4 -c pytorch -c nvidia \
     && conda clean -afy
 
 # Install Tensorflow
@@ -65,9 +65,8 @@ RUN pip install --no-cache-dir opencv-python gym gymnasium gymnasium[classic-con
     python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm deap asyncio nest-asyncio \
  && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py
 
-# LLM Library
 RUN pip install --no-cache-dir huggingface_hub datasets transformers bitsandbytes peft accelerate wandb sentence-transformers trl \
-    langchain openai langchain_community faiss-gpu langchain-chroma xformers chromadb streamlit gradio
+    langchain openai langchain_community faiss-gpu langchain-chroma chromadb xformers==0.0.29 streamlit gradio
 
 # Setup oh-my-zsh
 RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
