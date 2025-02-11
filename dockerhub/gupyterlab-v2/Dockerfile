@@ -67,7 +67,7 @@ RUN pip install --no-cache-dir opencv-python gym gymnasium gymnasium[classic-con
 
 # LLM Library
 RUN pip install --no-cache-dir huggingface_hub datasets transformers bitsandbytes peft accelerate wandb sentence-transformers trl \
-    langchain openai langchain_community faiss-gpu langchain-chroma xformers chromadb
+    langchain openai langchain_community faiss-gpu langchain-chroma xformers chromadb streamlit gradio
 
 # Setup oh-my-zsh
 RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
