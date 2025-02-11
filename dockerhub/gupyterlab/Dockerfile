@@ -2,17 +2,18 @@ ARG IMAGE_BASE
 FROM ${IMAGE_BASE}
 LABEL authors="RealStudy.NET <nockchun@gmail.com>"
 
-# install apt-utils in header to fix warnings in docker-stacks
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && \
-    apt-get -y install apt-utils sudo locales
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PATH="/opt/conda/bin:$PATH" \
+    TF_CPP_MIN_LOG_LEVEL=3 \
+    NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH \
+    TF_FORCE_GPU_ALLOW_GROWTH=true \
+    LANG=C.UTF-8 LC_ALL=C.UTF-8 \
+    TZ=Asia/Seoul
 
-# Install system packages
-ENV LC_ALL=ko_KR.UTF-8 \
-    LANG=ko_KR.UTF-8 \
-    LANGUAGE=ko_KR.UTF-8
-ENV TZ=Asia/Seoul
+# Install dependencies
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
  && apt-get update --fix-missing \
@@ -27,82 +28,53 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
     texlive-latex-extra texlive-fonts-extra texlive-latex-recommended texlive-science tipa \
     libgoogle-glog-dev libhdf5-serial-dev libleveldb-dev liblmdb-dev libprotobuf-dev libsnappy-dev protobuf-compiler ghostscript python3-tk python3-dev \
     software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor libcudnn8-dev tensorrt tini \
-    sox libcairo2-dev libpango1.0-dev libboost-all-dev swig libarchive-dev \
+    sox libcairo2-dev libpango1.0-dev libboost-all-dev swig libarchive-dev zsh \
  && apt autoremove \
  && apt clean \
  && rm -rf /var/lib/apt/lists/*
 
-RUN LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4 \
- && echo "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4" >> /etc/profile
-
-RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
- && locale-gen \
- && rm -rf /bin/sh \
- && ln -s /bin/bash /bin/sh
-
-# 사용자 'myuser'를 생성합니다.
-ARG USERNAME=user
-ENV USER=${USERNAME}
-ENV HOME /home/$USER
-RUN useradd -m ${USER} \
- && echo "${USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-USER $USERNAME
-WORKDIR $HOME
-
 # Install Miniconda
-ARG VERSION_MINICONDA=latest
-ARG VERSION_PYTHON=3.10
-ENV CONDA_DIR $HOME/miniconda3
-ENV PATH=${CONDA_DIR}/bin:$PATH
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-${VERSION_MINICONDA}-Linux-x86_64.sh -O ~/miniconda.sh \
- && chmod +x ~/miniconda.sh \
- && /bin/bash ~/miniconda.sh -b -u -p $CONDA_DIR \
- && rm ~/miniconda.sh \
- && conda install -y libgcc python=${VERSION_PYTHON} \
- && conda config --system --prepend channels conda-forge \
- && conda update --all -y \
- && conda init bash \
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh \
+ && bash /tmp/miniconda.sh -b -p /opt/conda \
+ && rm /tmp/miniconda.sh \
+ && /opt/conda/bin/conda clean -afy
+
+ARG VERSION_PYTHON
+ARG VERSION_NUMPY
+RUN conda update -n base -c defaults conda \
+ && conda config --add channels conda-forge \
+ && conda config --set channel_priority strict \
+ && conda install -y -n base -c conda-forge python=${VERSION_PYTHON} numpy=${VERSION_NUMPY} jupyterlab \
+    jupyter_bokeh ipykernel ipytest ipympl ipywidgets statsmodels graphviz pyopencl scikit-learn sentencepiece pykalman gplearn \
+    pillow firefox geckodriver apscheduler scipy pandas pandas-profiling pandas-datareader jupyterlab-git jupyterlab-latex \
  && conda clean -afy
 
-# Install jupyterlab ###########################################################################################
-RUN conda install -c conda-forge --yes \
-    notebook jupyterhub jupyterlab jupyter_bokeh ipykernel ipytest ipympl ipywidgets \
-    statsmodels graphviz pyopencl scikit-learn sentencepiece pykalman gplearn \
-    pillow firefox geckodriver apscheduler scipy numpy>=2 pandas pandas-profiling pandas-datareader jupyterlab-git jupyterlab-latex \
- && jupyter lab --generate-config \
- && jupyter lab build
+# Install PyTorch
+ARG VERSION_PYTORCH
+RUN conda install -y -n base pytorch=${VERSION_PYTORCH} torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia \
+    && conda clean -afy
 
-# Install tensorflow ###########################################################################################
+# Install Tensorflow
 ARG VERSION_TF
+ENV TF_GPU_THREAD_MODE=gpu_shared \
+    TF_FORCE_GPU_ALLOW_GROWTH=true
 RUN pip install --no-cache-dir tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow==${VERSION_TF} tensorflow-addons streamlit tensorflow-datasets tensorflow-probability
 
-# Install pytorch ##############################################################################################
-ARG PYTORCH
-RUN if [ "$PYTORCH" = "true" ]; then \
-        conda install pytorch torchvision torchaudio -c pytorch -c nvidia -y; \
-    fi
-
-# Install library ##############################################################################################
+# Install Extra Library
 RUN pip install --no-cache-dir opencv-python gym gymnasium gymnasium[classic-control] deap gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
     python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm deap asyncio nest-asyncio \
- && pip install --no-cache-dir danbi ta pandas-ta selenium jupyterlab-system-monitor backtrader yfinance transitions plotly
+ && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py
 
-# RUN pip install --no-cache-dir --upgrade jupyterlab jupyterlab-git jupyterlab-latex transformers peft trl bitsandbytes accelerate \
-#  && jupyter lab --generate-config \
-#  && jupyter lab build
+# LLM Library
+RUN pip install --no-cache-dir huggingface_hub datasets transformers bitsandbytes peft accelerate wandb sentence-transformers trl \
+    langchain openai langchain_community faiss-gpu langchain-chroma xformers chromadb streamlit gradio
 
- RUN conda install --yes \
- filterpy matplotlib pygraphviz redis openpyxl orjson nats-py numpy>=2
+# Setup oh-my-zsh
+RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
+ && cp /root/.oh-my-zsh/templates/zshrc.zsh-template /root/.zshrc \
+ && sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/g' /root/.zshrc
+ENV SHELL=/usr/bin/zsh
+ENTRYPOINT ["/usr/bin/zsh", "-c", "exec \"$@\"", "--"]
 
-# matplotlib에 Nanum 폰트 추가
-RUN cp /usr/share/fonts/truetype/nanum/Nanum* $HOME/miniconda3/lib/python${VERSION_PYTHON}/site-packages/matplotlib/mpl-data/fonts/ttf/ \
- && fc-cache -fv \
- && rm -rf ~/.cache/matplotlib/*
-
-RUN conda clean -afy \
- && sudo rm -rf /root/.cache/pip
-
+# Expose JupyterLab default port
 EXPOSE 8888
-VOLUME /notebook
-WORKDIR /notebook
