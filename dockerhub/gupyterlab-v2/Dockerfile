@@ -42,13 +42,16 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 ARG VERSION_PYTHON
 ARG VERSION_NUMPY
 RUN conda update -n base -c defaults conda \
+ && conda config --add channels conda-forge \
+ && conda config --set channel_priority strict \
  && conda install -y -n base -c conda-forge python=${VERSION_PYTHON} numpy=${VERSION_NUMPY} jupyterlab \
     jupyter_bokeh ipykernel ipytest ipympl ipywidgets statsmodels graphviz pyopencl scikit-learn sentencepiece pykalman gplearn \
     pillow firefox geckodriver apscheduler scipy pandas pandas-profiling pandas-datareader jupyterlab-git jupyterlab-latex \
  && conda clean -afy
 
 # Install PyTorch
-RUN conda install -y -n base pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia \
+ARG VERSION_PYTORCH
+RUN conda install -y -n base pytorch=${VERSION_PYTORCH} torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia \
     && conda clean -afy
 
 # Install Tensorflow
@@ -64,7 +67,7 @@ RUN pip install --no-cache-dir opencv-python gym gymnasium gymnasium[classic-con
 
 # LLM Library
 RUN pip install --no-cache-dir huggingface_hub datasets transformers bitsandbytes peft accelerate wandb sentence-transformers trl \
-    langchain openai
+    langchain openai langchain_community faiss-gpu langchain-chroma xformers chromadb
 
 # Setup oh-my-zsh
 RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
