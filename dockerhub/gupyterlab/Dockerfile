@@ -5,11 +5,6 @@ LABEL authors="RealStudy.NET <nockchun@gmail.com>"
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/conda/bin:$PATH" \
-    TF_CPP_MIN_LOG_LEVEL=3 \
-    NVIDIA_VISIBLE_DEVICES=all \
-    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
-    LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH \
-    TF_FORCE_GPU_ALLOW_GROWTH=true \
     LANG=C.UTF-8 LC_ALL=C.UTF-8 \
     TZ=Asia/Seoul
 
@@ -27,8 +22,8 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
     iputils-ping dnsutils language-pack-ko ffmpeg openjdk-17-jre-headless libatlas-base-dev libgflags-dev inkscape texlive texlive-xetex texlive-fonts-recommended texlive-plain-generic \
     texlive-latex-extra texlive-fonts-extra texlive-latex-recommended texlive-science tipa \
     libgoogle-glog-dev libhdf5-serial-dev libleveldb-dev liblmdb-dev libprotobuf-dev libsnappy-dev protobuf-compiler ghostscript python3-tk python3-dev \
-    software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor libcudnn8-dev tensorrt tini \
-    sox libcairo2-dev libpango1.0-dev libboost-all-dev swig libarchive-dev zsh \
+    software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor libcudnn8-dev tini \
+    sox libcairo2-dev libpango1.0-dev libboost-all-dev swig libarchive-dev zsh libnuma-dev \
  && apt autoremove \
  && apt clean \
  && rm -rf /var/lib/apt/lists/*
@@ -57,16 +52,20 @@ RUN conda install -y -n base pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.
 # Install Tensorflow
 ARG VERSION_TF
 ENV TF_GPU_THREAD_MODE=gpu_shared \
-    TF_FORCE_GPU_ALLOW_GROWTH=true
-RUN pip install --no-cache-dir tensorrt nvidia-pyindex nvidia-tensorrt tensorrt-dispatch tensorrt-lean tensorflow==${VERSION_TF} tensorflow-addons streamlit tensorflow-datasets tensorflow-probability
+    TF_FORCE_GPU_ALLOW_GROWTH=true \
+    TF_ENABLE_ONEDNN_OPTS=0 \
+    TF_CPP_MIN_LOG_LEVEL=3
+RUN pip install --no-cache-dir tensorflow==${VERSION_TF} tensorflow-datasets tensorflow-probability tensorflow-addons nvidia-pyindex
 
 # Install Extra Library
 RUN pip install --no-cache-dir opencv-python gym gymnasium gymnasium[classic-control] deap gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
-    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm deap asyncio nest-asyncio \
+    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm deap asyncio nest-asyncio werkzeug==3.1\
  && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py
 
-RUN pip install --no-cache-dir huggingface_hub datasets transformers bitsandbytes peft accelerate wandb sentence-transformers trl \
-    langchain openai langchain_community faiss-gpu langchain-chroma chromadb xformers==0.0.29 streamlit gradio
+RUN pip install --no-cache-dir huggingface_hub datasets transformers xformers==0.0.29 bitsandbytes peft accelerate wandb sentence-transformers trl \
+    openai langchain_community faiss-gpu chromadb streamlit gradio tf-keras auto_gptq autoawq optimum autotrain-advanced pymilvus opensearch-py \
+    langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling  langchain-docling langchain-milvus langchain-qdrant langchain-chroma langchain-ollama bs4 langgraph \
+    pymupdf pdfminer pdfplumber
 
 # Setup oh-my-zsh
 RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \

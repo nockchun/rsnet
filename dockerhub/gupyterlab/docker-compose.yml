@@ -9,10 +9,10 @@ services:
         - VERSION_MINICONDA=latest
         - VERSION_PYTHON=3.10
         - VERSION_NUMPY=1.26.4
-        - VERSION_TF=2.17.0
+        - VERSION_TF=2.18.0
         - VERSION_PYTORCH=2.5.0
         - PYTORCH=true
-    image: nockchun/gupyterlab-tf-torch:2.17-2.5.1
+    image: nockchun/gupyterlab-tf-torch:2.18-2.5.1
     container_name: gupyterlab
     restart: unless-stopped
     volumes:
@@ -26,7 +26,7 @@ services:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
 
   gupyterlab-tf-torch-k3s:
-    image: nockchun/gupyterlab-tf-torch:2.17-2.5.1
+    image: nockchun/gupyterlab-tf-torch:2.18-2.5.1
     container_name: gupyterlab-k3s
     restart: unless-stopped
     volumes:
@@ -34,6 +34,7 @@ services:
       - /data/nfshare/jupyter-nfs-vol-data-pvc-f862b73d-11fa-4acd-813b-98a620a18733:/data
     ports:
       - "9999:8888"
+      - "6009:6006"
     command:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
 
