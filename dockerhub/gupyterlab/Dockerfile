@@ -48,6 +48,7 @@ RUN conda update -n base -c defaults conda \
 ARG VERSION_PYTORCH
 RUN conda install -y -n base pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=12.4 -c pytorch -c nvidia \
     && conda clean -afy
+# RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 
 # Install Tensorflow
 ARG VERSION_TF
@@ -62,10 +63,10 @@ RUN pip install --no-cache-dir opencv-python gym gymnasium gymnasium[classic-con
     python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm asyncio nest-asyncio werkzeug==3.1\
  && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py 
 
-RUN pip install --no-cache-dir huggingface_hub datasets transformers xformers==0.0.29 bitsandbytes peft accelerate wandb sentence-transformers trl \
+RUN pip install --no-cache-dir huggingface_hub datasets transformers xformers==0.0.29 bitsandbytes peft accelerate wandb sentence-transformers trl==0.9.6 \
     openai langchain_community faiss-gpu chromadb streamlit gradio tf-keras auto_gptq autoawq optimum autotrain-advanced pymilvus opensearch-py \
     langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling  langchain-docling langchain-milvus langchain-qdrant langchain-chroma langchain-ollama bs4 langgraph \
-    pymupdf pdfminer pdfplumber
+    pymupdf pdfminer pdfplumber flash-attn pymupdf4llm pdfkit markdownify
 
 # Setup oh-my-zsh
 RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
