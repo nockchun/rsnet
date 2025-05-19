@@ -26,7 +26,7 @@ services:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
 
   gupyterlab-tf-torch-k3s:
-    image: nockchun/gupyterlab-tf-torch:2.18-2.5.1
+    image: nockchun/gupyterlab-tf-torch:2.19-2.5.1
     container_name: gupyterlab-k3s
     restart: unless-stopped
     volumes:

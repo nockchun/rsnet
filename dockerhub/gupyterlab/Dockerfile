@@ -14,7 +14,7 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
  && apt-get update --fix-missing \
  && apt-get upgrade -y \
  && apt-get install -yq --no-install-recommends debconf apt wget git curl bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 \
-    tzdata fonts-liberation fonts-nanum* vim net-tools openssh-client graphviz libgraphviz-dev libgl1-mesa-glx libhdf5-dev openmpi-bin pandoc run-one \
+    tzdata fonts-liberation fonts-nanum* net-tools vim openssh-client graphviz libgraphviz-dev libgl1-mesa-glx libhdf5-dev openmpi-bin pandoc run-one \
     autoconf automake dpkg-dev file build-essential g++ gcc imagemagick libbz2-dev libc6-dev libcurl4-openssl-dev libdb-dev cmake \
     libevent-dev libffi-dev libgdbm-dev libgeoip-dev libglib2.0-dev libgmp-dev libjpeg-dev libkrb5-dev liblzma-dev htop cm-super dvipng \
     libmagickcore-dev libmagickwand-dev libncurses5-dev libncursesw5-dev libpng-dev libpq-dev libreadline-dev xvfb less libtcmalloc-minimal4 \
@@ -61,12 +61,12 @@ RUN pip install --no-cache-dir tensorflow==${VERSION_TF} tensorflow-datasets ten
 # Install Extra Library
 RUN pip install --no-cache-dir opencv-python gym gymnasium gymnasium[classic-control] deap evaluate pygad gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
     python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm asyncio nest-asyncio werkzeug==3.1\
- && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py 
+ && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py dbutils
 
 RUN pip install --no-cache-dir huggingface_hub datasets transformers xformers==0.0.29 bitsandbytes peft accelerate wandb sentence-transformers trl==0.9.6 \
     openai langchain_community faiss-gpu chromadb streamlit gradio tf-keras auto_gptq autoawq optimum autotrain-advanced pymilvus opensearch-py \
     langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling  langchain-docling langchain-milvus langchain-qdrant langchain-chroma langchain-ollama bs4 langgraph \
-    pymupdf pdfminer pdfplumber flash-attn pymupdf4llm pdfkit markdownify
+    pymupdf pdfminer pdfplumber flash-attn pymupdf4llm pdfkit markdownify unsloth
 
 # Setup oh-my-zsh
 RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
