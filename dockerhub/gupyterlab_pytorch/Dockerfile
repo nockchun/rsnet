@@ -39,10 +39,28 @@ ARG VERSION_NUMPY
 RUN conda update -n base -c defaults conda \
  && conda config --add channels conda-forge \
  && conda config --set channel_priority strict \
- && conda install -y -n base -c conda-forge python=${VERSION_PYTHON} numpy=${VERSION_NUMPY} jupyterlab \
+ && conda install -y -n base -c conda-forge python=${VERSION_PYTHON} numpy=${VERSION_NUMPY} \
     jupyter_bokeh ipykernel ipytest ipympl ipywidgets statsmodels graphviz pyopencl scikit-learn sentencepiece pykalman gplearn \
-    pillow firefox geckodriver apscheduler scipy pandas pandas-profiling pandas-datareader jupyterlab-git jupyterlab-latex \
+    pillow firefox geckodriver apscheduler scipy pandas pandas-profiling pandas-datareader \
  && conda clean -afy
+
+# Setup JupyterLab plugins
+RUN conda install -c conda-forge starship nodejs pandoc texlive-core texlab chktex && \
+    pip install 'jupyterlab>=4.1.0,<5.0.0a0' jupyterlab-lsp 'python-lsp-server[all]' \
+        jupyterlab-code-formatter black isort jupyterlab-spellchecker jupyterlab-latex \
+        jupyter-resource-usage jupyterlab_execute_time lckr_jupyterlab_variableinspector \
+        jupyterlab-git jupyterlab_wakatime 'ipywidgets>=8.0' && \
+    npm set prefix /root && npm install -g --save-dev remark-language-server \
+        remark-preset-lint-consistent remark-preset-lint-recommended && \
+    jupyter labextension disable "@jupyterlab/apputils-extension:announcements" && \
+    conda clean -a && pip cache purge && npm cache clean --force
+
+COPY JupyterLabConfig/jupyter_lab_config.py /root/.jupyter/jupyter_lab_config.py
+COPY JupyterLabConfig/extensions/ /root/.jupyter/lab/user-settings/\@jupyterlab/
+COPY JupyterLabConfig/jupyterlab-lsp/ /root/.jupyter/lab/user-settings/\@jupyter-lsp/jupyterlab-lsp/
+COPY JupyterLabConfig/jupyterlab-lsp/unified_language_server.py /root/conda/envs/lab/lib/python3.12/site-packages/jupyter_lsp/specs/unified_language_server.py
+COPY JupyterLabConfig/jupyterlab-lsp/remarkrc.yml /root/.remarkrc.yml
+COPY JupyterLabConfig/starship.toml /root/.config/starship.toml
 
 # Install PyTorch
 ARG VERSION_PYTORCH
@@ -51,20 +69,20 @@ ARG VERSION_PYTORCH
 RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 
 # Install Tensorflow
-ARG VERSION_TF
-ENV TF_GPU_THREAD_MODE=gpu_shared \
-    TF_FORCE_GPU_ALLOW_GROWTH=true \
-    TF_ENABLE_ONEDNN_OPTS=0 \
-    TF_CPP_MIN_LOG_LEVEL=3
-RUN pip install --no-cache-dir tensorflow==${VERSION_TF} tensorflow-datasets tensorflow-probability tensorflow-addons nvidia-pyindex
+# ARG VERSION_TF
+# ENV TF_GPU_THREAD_MODE=gpu_shared \
+#     TF_FORCE_GPU_ALLOW_GROWTH=true \
+#     TF_ENABLE_ONEDNN_OPTS=0 \
+#     TF_CPP_MIN_LOG_LEVEL=3
+# RUN pip install --no-cache-dir tensorflow==${VERSION_TF} tensorflow-datasets tensorflow-probability tensorflow-addons nvidia-pyindex tf-keras
 
 # Install Extra Library
 RUN pip install --no-cache-dir opencv-python gym gymnasium gymnasium[classic-control] deap evaluate pygad gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
     python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm asyncio nest-asyncio werkzeug==3.1\
  && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py dbutils
 
-RUN pip install --no-cache-dir huggingface_hub datasets transformers xformers==0.0.30 bitsandbytes peft accelerate wandb sentence-transformers trl \
-    openai langchain_community faiss-gpu chromadb streamlit gradio tf-keras auto_gptq autoawq optimum autotrain-advanced pymilvus opensearch-py \
+RUN pip install --no-cache-dir huggingface_hub datasets transformers==4.52.3 xformers==0.0.30 bitsandbytes peft accelerate wandb sentence-transformers trl==0.17.0 \
+    openai langchain_community faiss-gpu chromadb streamlit gradio auto_gptq autoawq optimum autotrain-advanced pymilvus opensearch-py \
     langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling  langchain-docling langchain-milvus langchain-qdrant langchain-chroma langchain-ollama bs4 langgraph \
     pymupdf pdfminer pdfplumber flash-attn pymupdf4llm pdfkit markdownify unsloth
 
