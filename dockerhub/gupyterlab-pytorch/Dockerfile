@@ -39,8 +39,8 @@ ARG VERSION_NUMPY
 RUN conda update -n base -c defaults conda \
  && conda config --add channels conda-forge \
  && conda config --set channel_priority strict \
- && conda install -y -n base -c conda-forge python=${VERSION_PYTHON} numpy=${VERSION_NUMPY} \
-    jupyter_bokeh ipykernel ipytest ipympl ipywidgets statsmodels graphviz pyopencl scikit-learn sentencepiece pykalman gplearn \
+ && conda install -y -n base -c conda-forge python=${VERSION_PYTHON} numpy ipykernel ipywidgets ipytest ipympl \
+    jupyter_bokeh statsmodels graphviz pyopencl scikit-learn sentencepiece pykalman gplearn \
     pillow firefox geckodriver apscheduler scipy pandas pandas-profiling pandas-datareader \
  && conda clean -afy
 

@@ -1,23 +1,23 @@
 services:
   gupyterlab-torch-2.7:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - USERNAME=rsnet
-        - IMAGE_BASE=nvidia/cuda:12.6.3-cudnn-devel-ubuntu22.04
-        - VERSION_MINICONDA=latest
-        - VERSION_PYTHON=3.10
-        - VERSION_NUMPY=1.26.4
-        - VERSION_TF=2.19.0
-        - VERSION_PYTORCH=2.7.0
-        - PYTORCH=true
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    #   args:
+    #     - USERNAME=rsnet
+    #     - IMAGE_BASE=nvidia/cuda:12.6.3-cudnn-devel-ubuntu22.04
+    #     - VERSION_MINICONDA=latest
+    #     - VERSION_PYTHON=3.11
+    #     # - VERSION_NUMPY=1.26.4
+    #     - VERSION_TF=2.19.0
+    #     - VERSION_PYTORCH=2.7.0
+    #     - PYTORCH=true
     image: nockchun/gupyterlab-torch:2.7
     container_name: gupyterlab
     restart: unless-stopped
     volumes:
-      - /home/daeun/nfshare/notebook:/notebook
-      - /home/daeun/nfshare/notebook_data:/data
+      - /data/nfshare/notebook:/notebook
+      - /data/nfshare/notebook_data:/data
     ports:
       - "8888:8888"
       - "6006:6006"
@@ -30,8 +30,8 @@ services:
     container_name: gupyterlab-k3s
     restart: unless-stopped
     volumes:
-      - /home/daeun/nfshare/jupyter-nfs-vol-notebook-pvc-da22fb6b-37e0-404a-ac62-7a97956f5e88:/notebook
-      - /home/daeun/nfshare/jupyter-nfs-vol-data-pvc-f862b73d-11fa-4acd-813b-98a620a18733:/data
+      - /data/nfshare/jupyter-nfs-vol-notebook-pvc-da22fb6b-37e0-404a-ac62-7a97956f5e88:/notebook
+      - /data/nfshare/jupyter-nfs-vol-data-pvc-f862b73d-11fa-4acd-813b-98a620a18733:/data
     ports:
       - "9999:8888"
       - "6009:6006"
