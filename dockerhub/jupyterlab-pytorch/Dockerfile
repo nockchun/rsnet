@@ -1,7 +1,4 @@
 ARG IMAGE_BASE
-ARG VERSION_PYTHON
-ARG VERSION_NUMPY
-ARG VERSION_PYTORCH
 FROM ${IMAGE_BASE}
 LABEL authors="RealStudy.NET <nockchun@gmail.com>"
 
@@ -17,7 +14,7 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
  && apt-get update --fix-missing \
  && apt-get upgrade -y \
  && apt-get install -yq --no-install-recommends debconf apt wget git curl bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 \
-    tzdata fonts-liberation fonts-nanum* net-tools vim openssh-client graphviz libgraphviz-dev libgl1-mesa-glx libhdf5-dev openmpi-bin pandoc run-one \
+    tzdata fonts-liberation fonts-nanum* net-tools vim openssh-client graphviz libgraphviz-dev libhdf5-dev openmpi-bin pandoc run-one \
     autoconf automake dpkg-dev file build-essential g++ gcc imagemagick libbz2-dev libc6-dev libcurl4-openssl-dev libdb-dev cmake \
     libevent-dev libffi-dev libgdbm-dev libgeoip-dev libglib2.0-dev libgmp-dev libjpeg-dev libkrb5-dev liblzma-dev htop cm-super dvipng \
     libmagickcore-dev libmagickwand-dev libncurses5-dev libncursesw5-dev libpng-dev libpq-dev libreadline-dev xvfb less libtcmalloc-minimal4 \
@@ -25,7 +22,7 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
     iputils-ping dnsutils language-pack-ko ffmpeg openjdk-17-jre-headless libatlas-base-dev libgflags-dev inkscape texlive texlive-xetex texlive-fonts-recommended texlive-plain-generic \
     texlive-latex-extra texlive-fonts-extra texlive-latex-recommended texlive-science tipa \
     libgoogle-glog-dev libhdf5-serial-dev libleveldb-dev liblmdb-dev libprotobuf-dev libsnappy-dev protobuf-compiler ghostscript python3-tk python3-dev \
-    software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor libcudnn8-dev tini \
+    software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor tini \
     sox libcairo2-dev libpango1.0-dev libboost-all-dev swig libarchive-dev zsh libnuma-dev wkhtmltopdf firefox \
  && apt autoremove \
  && apt clean \
@@ -38,10 +35,12 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
  && /opt/conda/bin/conda clean -afy
 
 # Install basic library
+ARG VERSION_PYTHON
+ARG VERSION_NUMPY
 RUN conda update -n base -c defaults conda \
  && conda config --add channels conda-forge \
  && conda config --set channel_priority strict \
- && conda install -y -n base -c conda-forge python=${VERSION_PYTHON} numpy scipy pandas pandas-profiling pandas-datareader faiss-gpu \
+ && conda install -y -n base -c conda-forge --no-update-deps python==${VERSION_PYTHON} numpy==${VERSION_NUMPY} scipy pandas pandas-profiling pandas-datareader faiss-gpu \
  && conda clean -afy
 
 # Setup JupyterLab plugins
@@ -66,7 +65,7 @@ RUN pip install --no-cache-dir \
 && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py dbutils
 
 RUN pip install --no-cache-dir \
- huggingface_hub datasets transformers==4.52.3 xformers==0.0.30 bitsandbytes peft accelerate wandb sentence-transformers trl==0.17.0 \
+ huggingface_hub datasets transformers==4.52.3 xformers==0.0.30 bitsandbytes peft accelerate wandb sentence-transformers trl unsloth_zoo numpy==${VERION_NUMPY} \
  openai langchain_community chromadb streamlit gradio auto_gptq autoawq optimum autotrain-advanced pymilvus opensearch-py \
  langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling  langchain-docling langchain-milvus langchain-qdrant langchain-chroma langchain-ollama bs4 langgraph \
  pymupdf pdfminer pdfplumber flash-attn pymupdf4llm pdfkit markdownify unsloth
