@@ -40,8 +40,8 @@ ARG VERSION_NUMPY
 RUN conda update -n base -c defaults conda \
  && conda config --add channels conda-forge \
  && conda config --set channel_priority strict \
- && conda install -y -n base -c conda-forge --no-update-deps python==${VERSION_PYTHON} numpy==${VERSION_NUMPY} scipy pandas pandas-profiling pandas-datareader faiss-gpu \
- && conda clean -afy
+ && conda install -y -n base -c conda-forge python==${VERSION_PYTHON} numpy==${VERSION_NUMPY} scipy pandas \
+&& conda clean -afy
 
 # Setup JupyterLab plugins
 RUN conda install -c conda-forge starship nodejs pandoc texlive-core texlab chktex \
@@ -56,19 +56,25 @@ RUN conda install -c conda-forge starship nodejs pandoc texlive-core texlab chkt
 
 # Install PyTorch
 RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+# RUN pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
 
-# RUN pip install library
+# Install Additional library
 RUN pip install --no-cache-dir \
  graphviz pyopencl sentencepiece pillow geckodriver apscheduler statsmodels scikit-learn ipykernel ipytest ipympl pykalman gplearn \
  opencv-python gym gymnasium gymnasium[classic-control] deap evaluate pygad gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
- python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm asyncio nest-asyncio werkzeug==3.1\
-&& pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py dbutils
+ python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm asyncio nest-asyncio werkzeug \
+&& pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py dbutils pandas-profiling pandas-datareader \
+&& pip install --no-cache-dir wandb openai langchain_community chromadb pymilvus opensearch-py pymupdf pdfminer pdfplumber pymupdf4llm pdfkit markdownify safetensors
 
-RUN pip install --no-cache-dir \
- huggingface_hub datasets transformers==4.52.3 xformers==0.0.30 bitsandbytes peft accelerate wandb sentence-transformers trl unsloth_zoo numpy==${VERION_NUMPY} \
- openai langchain_community chromadb streamlit gradio auto_gptq autoawq optimum autotrain-advanced pymilvus opensearch-py \
- langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling  langchain-docling langchain-milvus langchain-qdrant langchain-chroma langchain-ollama bs4 langgraph \
- pymupdf pdfminer pdfplumber flash-attn pymupdf4llm pdfkit markdownify unsloth
+# Install unsloth & llm library
+RUN pip install --no-cache-dir --no-deps unsloth transformers==4.52.3 xformers==0.0.30 bitsandbytes
+RUN pip install --no-cache-dir unsloth_zoo sentence-transformers auto_gptq autoawq autotrain-advanced gradio streamlit datasets \
+    langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling langchain-docling langchain-milvus langchain-qdrant langchain-chroma langchain-ollama bs4 langgraph
+
+#  # torch 재설치 방지
+# RUN pip install flash-attn==2.7.4.post1 \
+#  peft accelerate sentence-transformers trl unsloth_zoo auto_gptq autoawq optimum autotrain-advanced gradio streamlit datasets \
+#  langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling  langchain-docling langchain-milvus langchain-qdrant langchain-chroma langchain-ollama bs4 langgraph
 
 # Setup oh-my-zsh
 RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
