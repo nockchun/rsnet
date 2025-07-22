@@ -1,0 +1,32 @@
+# kubectl apply -f 14_nfs-storage.yaml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nfs-volume-test
+spec:
+  containers:
+  - name: nfs-volume-test
+    image: nockchun/docterm:latest
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+    - name: volv
+      mountPath: /data
+    ports:
+    - containerPort: 80
+  volumes:
+  - name: volv
+    persistentVolumeClaim:
+      claimName: nfs-pvc-test
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc-test
+spec:
+  storageClassName: nfs-storageclass # SAME NAME AS THE STORAGECLASS
+  accessModes:
+    - ReadWriteMany #  must be the same as PersistentVolume
+  resources:
+    requests:
+      storage: 1Gi

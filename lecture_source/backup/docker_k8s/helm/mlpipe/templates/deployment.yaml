@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyterlab1
+  labels:
+    name: jupyterlab1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: jupyterlab1
+  template:
+    metadata:
+      labels:
+        name: jupyterlab1
+    spec:
+      securityContext:
+        runAsUser: 0
+        fsGroup: 0
+      containers:
+        - name: jupyterlab1
+          image: jupyter/datascience-notebook:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 8888
+          command:
+            - /bin/bash
+            - -c
+            - |
+              start.sh jupyter lab --LabApp.token='password' --LabApp.ip='0.0.0.0' --LabApp.allow_root=True
+          volumeMounts:
+            - name: jupyterlab-data
+              mountPath: /home/jovyan
+          resources:
+            requests:
+              memory: 500Mi
+              cpu: 250m
+      restartPolicy: Always
+      volumes:
+      - name: jupyterlab-data
+        persistentVolumeClaim:
+          claimName: jupyterlab-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyterlab2
+  labels:
+    name: jupyterlab2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: jupyterlab2
+  template:
+    metadata:
+      labels:
+        name: jupyterlab2
+    spec:
+      securityContext:
+        runAsUser: 0
+        fsGroup: 0
+      containers:
+        - name: jupyterlab2
+          image: jupyter/datascience-notebook:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 8888
+          command:
+            - /bin/bash
+            - -c
+            - |
+              start.sh jupyter lab --LabApp.token='password' --LabApp.ip='0.0.0.0' --LabApp.allow_root=True
+          volumeMounts:
+            - name: jupyterlab-data
+              mountPath: /home/jovyan
+          resources:
+            requests:
+              memory: 500Mi
+              cpu: 250m
+      restartPolicy: Always
+      volumes:
+      - name: jupyterlab-data
+        persistentVolumeClaim:
+          claimName: jupyterlab-pvc

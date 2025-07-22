@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="test">
+    <select id="testBasic">
+    SELECT *
+      FROM corp
+    </select>
+    
+    <select id="seJemu">
+    SELECT *
+      FROM 재무추이
+     WHERE code = %s
+     ORDER BY year, quarter
+    </select>
+    
+    <select id="sePriceCloseDiff">
+    WITH filt AS (
+    SELECT code, min(date_market) date_min, max(date_market) date_max
+      FROM marcap m
+     WHERE code = %s
+       AND date_market <![CDATA[>=]]> %s
+       AND date_market <![CDATA[<=]]> %s
+     GROUP BY code
+    ), base AS (
+    SELECT m.code, m."close" price_start, NULL price_end
+      FROM filt f, marcap m
+     WHERE f.code = m.code
+       AND f.date_min = m.date_market 
+    UNION 
+    SELECT m.code, NULL price_start, m."close" price_end
+      FROM filt f, marcap m
+     WHERE f.code = m.code
+       AND f.date_max = m.date_market 
+    )
+    SELECT max(price_start) price_buy, max(price_end) price_sell
+      FROM base
+     GROUP BY code
+    </select>
+    
+
+    <insert id="inCorporation">
+    INSERT
+      INTO public.corporation(code, name, sectors, products, data_listing, month_settlement, name_ceo, homepage, area, is_cosdaq)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+    </insert>
+
+    <insert id="inStateBalance">
+    INSERT
+      INTO public.state_balance(id, code, is_connect, "year", quarter, item, price)
+    VALUES (nextval('seq_state_balance_id'), %s, %s, %s, %s, %s, %s);
+    </insert>
+
+    <insert id="inStateProfitLoss">
+    INSERT
+      INTO public.state_profit_loss(id, code, is_connect, is_comprehensive, "year", quarter, item, price)
+    VALUES (nextval('seq_state_profit_loss_id'), %s, %s, %s, %s, %s, %s, %s);
+    </insert>
+    
+    <insert id="inMarcap">
+    INSERT
+      INTO public.marcap(code, date_market, "open", high, low, "close", volume, amount, changes, changes_ratio, stocks, marcap, marcap_ratio, foreign_shares, foreign_ratio, "rank")
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (code, date_market) DO NOTHING;
+    </insert>
+    
+    <insert id="initDB">
+    DROP TABLE IF EXISTS corporation;
+    CREATE TABLE corporation (
+        code char(6) NOT NULL UNIQUE,
+        name varchar NOT NULL,
+        sectors varchar,
+        products varchar,
+        data_listing date,
+        month_settlement char(2),
+        name_ceo varchar,
+        homepage varchar,
+        area varchar,
+        is_cosdaq boolean NOT NULL,
+        PRIMARY KEY (code)
+    );
+    </insert>
+
+</mapper>

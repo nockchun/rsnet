@@ -1,0 +1,6 @@
+apiVersion: v2
+name: ingress-demo
+description: Nginx web server for ingress demo.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

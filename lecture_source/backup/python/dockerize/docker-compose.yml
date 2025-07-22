@@ -1,0 +1,49 @@
+version: "3.7"
+
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - /home/rsnet/mongodb:/data/db
+    networks:
+      - mongo_net
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    networks:
+      - mongo_net
+    depends_on:
+      - mongodb
+
+  mongo_flask:
+    build:
+      context: ./mongo_flask
+      dockerfile: Dockerfile
+    image: mongo_flask:1.0
+    container_name: mongo_flask
+    hostname: myservice
+    environment:
+      - MONGO_USERNAME=admin
+      - MONGO_PASSWORD=password
+      - MONGO_SERVER=mongodb
+    ports:
+      - 8050:5000
+    networks:
+      - mongo_net
+    depends_on:
+      - mongodb
+
+networks:
+  mongo_net:
+    driver: bridge
