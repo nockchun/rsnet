@@ -23,7 +23,7 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
     texlive-latex-extra texlive-fonts-extra texlive-latex-recommended texlive-science tipa \
     libgoogle-glog-dev libhdf5-serial-dev libleveldb-dev liblmdb-dev libprotobuf-dev libsnappy-dev protobuf-compiler ghostscript python3-tk python3-dev \
     software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor tini \
-    sox libcairo2-dev libpango1.0-dev libboost-all-dev swig libarchive-dev zsh libnuma-dev wkhtmltopdf firefox \
+    sox libcairo2-dev libpango1.0-dev libboost-all-dev swig libarchive-dev zsh libnuma-dev wkhtmltopdf \
  && apt autoremove \
  && apt clean \
  && rm -rf /var/lib/apt/lists/*
@@ -37,14 +37,19 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 # Install basic library
 ARG VERSION_PYTHON
 ARG VERSION_NUMPY
-RUN conda update -n base -c defaults conda \
+RUN conda init bash \
+ && conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main \
+ && conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r \
+ && conda update -n base -c defaults conda \
  && conda config --add channels conda-forge \
  && conda config --set channel_priority strict \
  && conda install -y -n base -c conda-forge python==${VERSION_PYTHON} numpy==${VERSION_NUMPY} scipy pandas \
-&& conda clean -afy
+ && conda clean -afy
 
 # Setup JupyterLab plugins
-RUN conda install -c conda-forge starship nodejs pandoc texlive-core texlab chktex \
+RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main \
+ && conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r \
+ && conda install -c conda-forge starship nodejs pandoc texlive-core texlab chktex \
  && pip install 'jupyterlab==4.1.7' jupyterlab-lsp 'python-lsp-server[all]' \
         jupyterlab-code-formatter black isort jupyterlab-spellchecker jupyterlab-latex \
         jupyter-resource-usage jupyterlab_execute_time lckr_jupyterlab_variableinspector \
@@ -64,11 +69,11 @@ RUN pip install --no-cache-dir \
  opencv-python gym gymnasium gymnasium[classic-control] deap evaluate pygad gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
  python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm asyncio nest-asyncio werkzeug \
 && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py dbutils pandas-profiling pandas-datareader \
-&& pip install --no-cache-dir wandb openai langchain_community chromadb pymilvus opensearch-py pymupdf pdfminer pdfplumber pymupdf4llm pdfkit markdownify safetensors
+&& pip install --no-cache-dir wandb openai langchain_community langchain-huggingface chromadb pymilvus opensearch-py pymupdf pdfminer pdfplumber pymupdf4llm pdfkit markdownify safetensors
 
 # Install unsloth & llm library
 RUN pip install --no-cache-dir --no-deps unsloth transformers==4.52.3 xformers==0.0.30 bitsandbytes
-RUN pip install --no-cache-dir unsloth_zoo sentence-transformers auto_gptq autoawq autotrain-advanced gradio streamlit datasets \
+RUN pip install --no-cache-dir unsloth_zoo sentence-transformers auto_gptq autoawq autotrain-advanced gradio streamlit datasets vllm \
     langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling langchain-docling langchain-milvus langchain-qdrant langchain-chroma langchain-ollama bs4 langgraph
 
 #  # torch 재설치 방지

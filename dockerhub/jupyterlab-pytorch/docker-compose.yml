@@ -22,3 +22,14 @@ services:
       - "8081:8080"
     command:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
+
+  jupyterlab-local:
+    image: nockchun/jupyterlab-torch:2.7
+    container_name: jlab
+    restart: unless-stopped
+    volumes:
+      - /data/notebook:/notebook
+    ports:
+      - "7777:8888"
+    command:
+      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
