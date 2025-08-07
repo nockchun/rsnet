@@ -1,0 +1,240 @@
+
+<div class="l-content">
+<div class="is-promoted l-full">
+<div class="l-full__header">
+<div class="c-page-title">
+<div class="c-page-title__inner l-constrain">
+<div class="c-page-title__row">
+<div class="c-page-title__content">
+<div class="c-page-title__meta">ICS Advisory</div>
+<h1 class="c-page-title__title">
+<span>Hitachi Energy Relion 670, 650 Series and SAM600-IO Product</span>
+</h1>
+<div class="c-page-title__fields">
+<div class="c-field c-field--name-field-release-date c-field--type-datetime c-field--label-above">
+<div class="c-field__label">Release Date</div><div class="c-field__content"><time datetime="2025-06-05T12:00:00Z">June 05, 2025</time></div></div>
+<div class="c-field c-field--name-field-alert-code c-field--type-string c-field--label-above">
+<div class="c-field__label">Alert Code</div><div class="c-field__content">ICSA-25-155-02</div></div>
+</div>
+<div class="c-page-title__topic">
+<div class="c-topic__label"> Related topics: </div>
+<div class="c-top__topics">
+<a href="/topics/industrial-control-systems/industrial-control-system-vulnerabilities">Industrial Control System Vulnerabilities</a>,                                                                                 <a href="/topics/industrial-control-systems">Industrial Control Systems</a> </div>
+</div>
+</div>
+</div>
+<div class="c-page-title__decoration"></div>
+</div>
+</div>
+</div>
+<div class="l-full__main">
+<div class="l-page-section l-page-section--rich-text">
+<div class="l-constrain">
+<div class="l-page-section__content">
+<p><a href="https://github.com/cisagov/CSAF" target="_blank"><strong>View CSAF</strong></a></p>
+<h2 id="1-executive-summary">1. EXECUTIVE SUMMARY</h2>
+<ul>
+<li><strong>CVSS v3 9.8</strong></li>
+<li><strong>ATTENTION</strong>: Exploitable remotely/low attack complexity</li>
+<li><strong>Vendor</strong>: Hitachi Energy</li>
+<li><strong>Equipment</strong>: Relion 670, Relion 650, SAM600-IO</li>
+<li><strong>Vulnerabilities</strong>: Integer Overflow or Wraparound</li>
+</ul>
+<h2 id="2-risk-evaluation">2. RISK EVALUATION</h2>
+<p>Successful exploitation of these vulnerabilities could allow an attacker to cause memory corruption on the products.</p>
+<h2 id="3-technical-details">3. TECHNICAL DETAILS</h2>
+<h3 id="31-affected-products">3.1 AFFECTED PRODUCTS</h3>
+<p>Hitachi Energy reports that the following products are affected:</p>
+<ul>
+<li>Relion 670/650/SAM600-IO series: Version 2.2.5 revisions up to 2.2.5.1</li>
+<li>Relion 670/650 series: Version 2.2.4 revisions up to 2.2.4.2</li>
+<li>Relion 670 series: Version 2.2.3 revisions up to 2.2.3.4</li>
+<li>Relion 670 series: Version 2.2.2 revisions up to 2.2.2.4</li>
+<li>Relion 670/650/SAM600-IO series: Version 2.2.1 revisions up to 2.2.1.7</li>
+<li>Relion 670/650 series version 2.2.0: All revisions</li>
+<li>Relion 670/650 series version 2.1: All revisions</li>
+<li>Relion 670 series version 2.0: All revisions</li>
+<li>Relion 670 series version 1.2: All revisions</li>
+<li>Relion 670 series version 1.1: All revisions</li>
+<li>Relion 650 series version 1.3: All revisions</li>
+<li>Relion 650 series version 1.2: All revisions</li>
+<li>Relion 650 series version 1.1: All revisions</li>
+<li>Relion 650 series version 1.0: All revisions</li>
+</ul>
+<h3 id="32-vulnerability-overview">3.2 VULNERABILITY OVERVIEW</h3>
+<h4 id="321-integer-overflow-or-wraparound-cwe-190"><strong>3.2.1 </strong><a href="https://cwe.mitre.org/data/definitions/190.html" target="_blank"><strong>INTEGER OVERFLOW OR WRAPAROUND CWE-190</strong></a></h4>
+<p>In Wind River VxWorks, memory allocator has a possible overflow in calculating the memory block's size to be allocated by calloc(). As a result, the actual memory allocated is smaller than the buffer size specified by the arguments, leading to memory corruption.</p>
+<p><a href="https://www.cve.org/CVERecord?id=CVE-2020-28895" target="_blank">CVE-2020-28895</a> has been assigned to this vulnerability. A CVSS v3.1 base score of 7.3 has been calculated; the CVSS vector string is (<a href="https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L" target="_blank">CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L</a>).</p>
+<h4 id="322-integer-overflow-or-wraparound-cwe-190"><strong>3.2.2 </strong><a href="https://cwe.mitre.org/data/definitions/190.html" target="_blank"><strong>INTEGER OVERFLOW OR WRAPAROUND CWE-190</strong></a></h4>
+<p>An issue was discovered in Wind River VxWorks 7. The memory al-locator has a possible integer overflow in calculating a memory block's size to be allocated by calloc(). As a result, the actual memory allocated is smaller than the buffer size specified by the arguments, leading to memory corruption.</p>
+<p><a href="https://www.cve.org/CVERecord?id=CVE-2020-35198" target="_blank">CVE-2020-35198</a> has been assigned to this vulnerability. A CVSS v3.1 base score of 9.8 has been calculated; the CVSS vector string is (<a href="https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H" target="_blank">CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</a>).</p>
+<h3 id="33-background">3.3 BACKGROUND</h3>
+<ul>
+<li><strong>CRITICAL INFRASTRUCTURE SECTORS:</strong> Energy</li>
+<li><strong>COUNTRIES/AREAS DEPLOYED:</strong> Worldwide</li>
+<li><strong>COMPANY HEADQUARTERS LOCATION:</strong> Switzerland</li>
+</ul>
+<h3 id="34-researcher">3.4 RESEARCHER</h3>
+<p>Hitachi Energy reported these vulnerabilities to CISA.</p>
+<h2 id="4-mitigations">4. MITIGATIONS</h2>
+<p>Hitachi Energy has identified the following specific workarounds and mitigations users may apply to reduce risk:</p>
+<ul>
+<li>Relion 670 series version 2.2.5 revisions up to 2.2.5.1, Relion 650 series version 2.2.5 revisions up to 2.2.5.1, SAM-IO series version 2.2.5 revisions up to 2.2.5.1: Update to 2.2.5.2 version or latest</li>
+<li>Relion 670 series version 2.2.4 revisions up to 2.2.4.2, Relion 650 series version 2.2.4 revisions up to 2.2.4.2: Update to 2.2.4.3 version or latest</li>
+<li>Relion 670 series version 2.2.3 revisions up to 2.2.3.4: Update to 2.2.3.5 version or latest</li>
+<li>Relion 670 series version 2.2.2 revisions up to 2.2.2.4: Update to 2.2.2.5 version or latest</li>
+<li>Relion 670 series version 2.2.1 revisions up to 2.2.1.7, Relion 650 series version 2.2.1 revisions up to 2.2.1.7, SAM-IO series version 2.2.1 revisions up to 2.2.1.7: Update to 2.2.1.8 version or latest</li>
+<li>Relion 670 series version 1.1 to 2.2.0 all revisions, Relion 650 series version 1.0 to 2.2.0 all revisions: Refer to the Mitigation Factors/Workaround Section for the current mitigation strategy.</li>
+</ul>
+<p>For more information see the associated Hitachi Energy PSIRT security advisory 8DBD000070 <a href="https://publisher.hitachienergy.com/preview?DocumentId=8DBD000070&amp;languageCode=en&amp;Preview=true" target="_blank">Cybersecurity Advisory - BadAlloc - Memory Allocation Vulnerabilities in Hitachi Energy Relion 670, 650 series and SAM600-IO Product</a>.</p>
+<p>CISA recommends users take defensive measures to minimize the risk of exploitation of these vulnerabilities, such as:</p>
+<ul>
+<li>Minimize network exposure for all control system devices and/or systems, ensuring they are <a href="https://www.cisa.gov/uscert/ics/alerts/ICS-ALERT-10-301-01" target="_blank">not accessible from the internet</a>.</li>
+<li>Locate control system networks and remote devices behind firewalls and isolating them from business networks.</li>
+<li>When remote access is required, use more secure methods, such as Virtual Private Networks (VPNs). Recognize VPNs may have vulnerabilities, should be updated to the most recent version available, and are only as secure as the connected devices.</li>
+</ul>
+<p>CISA reminds organizations to perform proper impact analysis and risk assessment prior to deploying defensive measures.</p>
+<p>CISA also provides a section for <a href="https://www.cisa.gov/resources-tools/resources/ics-recommended-practices" target="_blank">control systems security recommended practices</a> on the ICS webpage on <a href="https://www.cisa.gov/topics/industrial-control-systems" target="_blank">cisa.gov</a>. Several CISA products detailing cyber defense best practices are available for reading and download, including <a href="https://us-cert.cisa.gov/sites/default/files/recommended_practices/NCCIC_ICS-CERT_Defense_in_Depth_2016_S508C.pdf" target="_blank">Improving Industrial Control Systems Cybersecurity with Defense-in-Depth Strategies</a>.</p>
+<p>CISA encourages organizations to implement recommended cybersecurity strategies for <a href="https://www.cisa.gov/sites/default/files/publications/Cybersecurity_Best_Practices_for_Industrial_Control_Systems.pdf" target="_blank">proactive defense of ICS assets</a>.</p>
+<p>Additional mitigation guidance and recommended practices are publicly available on the ICS webpage at <a href="https://www.cisa.gov/topics/industrial-control-systems" target="_blank">cisa.gov</a> in the technical information paper, <a href="https://www.cisa.gov/uscert/ics/tips/ICS-TIP-12-146-01B" target="_blank">ICS-TIP-12-146-01B--Targeted Cyber Intrusion Detection and Mitigation Strategies</a>.</p>
+<p>Organizations observing suspected malicious activity should follow established internal procedures and report findings to CISA for tracking and correlation against other incidents.</p>
+<p>CISA also recommends users take the following measures to protect themselves from social engineering attacks:</p>
+<ul>
+<li>Do not click web links or open attachments in unsolicited email messages.</li>
+<li>Refer to <a href="https://www.cisa.gov/uscert/sites/default/files/publications/emailscams0905.pdf" target="_blank">Recognizing and Avoiding Email Scams</a> for more information on avoiding email scams.</li>
+<li>Refer to <a href="https://www.cisa.gov/uscert/ncas/tips/ST04-014" target="_blank">Avoiding Social Engineering and Phishing Attacks</a> for more information on social engineering attacks.</li>
+</ul>
+<p>No known public exploitation specifically targeting these vulnerabilities has been reported to CISA at this time.</p>
+<h2 id="5-update-history">5. UPDATE HISTORY</h2>
+<ul>
+<li>June 5, 2025: Initial Republication of Hitachi Energy 8DBD000070</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="l-constrain l-page-section--rich-text">
+<div class="l-page-section__content">
+<div class="c-field c-field--name-body c-field--type-text-with-summary c-field--label-hidden">
+<div class="c-field__content"><p>This product is provided subject to this <a href="/notification" rel="nofollow noopener" target="_blank" title="Follow link">Notification</a> and this <a href="/privacy-policy" rel="nofollow noopener" target="_blank" title="Follow link">Privacy &amp; Use</a> policy.</p></div></div>
+</div>
+</div>
+<div class="l-page-section l-page-section--rich-text">
+<div class="l-constrain">
+<h2 class="l-page-section__title">
+      Vendor
+    </h2>
+<div class="l-page-section__content">
+<ul>
+<li>Hitachi Energy</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="l-full__footer">
+<div class="l-page-section l-page-section--tags l-page-section--rich-text">
+<div class="l-constrain">
+<div class="l-page-section__content">
+<h3>Tags</h3>
+<div class="c-field">
+<strong>Sector</strong>:
+                                                                                                                                                                                                                                                                                                                                                <a href="/topics/critical-infrastructure-security-and-resilience/critical-infrastructure-sectors/energy-sector" hreflang="en">Energy Sector</a>
+</div>
+<div class="c-field">
+<strong>Topics</strong>:
+                                                                                                                                                                                                                                                                                                                                                <a href="/topics/industrial-control-systems/industrial-control-system-vulnerabilities">Industrial Control System Vulnerabilities</a>,
+                                        <a href="/topics/industrial-control-systems">Industrial Control Systems</a>
+</div>
+</div>
+</div>
+</div>
+<div class="l-constrain">
+<div class="l-page-section--rich-text">
+<div class="l-page-section__content">
+<div class="c-product-survey l-page-section--tags l-page-section--rich-text">
+<div class="c-product-survey__top-bar"></div>
+<div class="c-product-survey__content-area">
+<div class="c-product-survey__icon"></div>
+<div class="c-product-survey__text-area">
+<h2>Please share your thoughts</h2>
+<p>We recently updated our anonymous <a href="https://cisasurvey.gov1.qualtrics.com/jfe/form/SV_9n4TtB8uttUPaM6?product=https://www.cisa.gov/news-events/ics-advisories/icsa-25-155-02" target="_blank">product survey</a>; we'd welcome your feedback.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="c-view c-view--detail-page-related-content c-view--display-block_2 view js-view-dom-id-62721f8b5d71b47e8ca2d1769a7c165187ad55f462c7b01acf1541365856da89 c-collection c-collection--blue c-collection--two-column">
+<div class="l-constrain">
+<div class="c-collection__row">
+<div class="c-collection__content">
+<h2 class="c-collection__title"><span class="c-collection__title-wrap">Related Advisories</span></h2>
+</div>
+<div class="c-collection__cards">
+<article class="is-promoted c-teaser c-teaser--horizontal" role="article">
+<div class="c-teaser__row">
+<div class="c-teaser__content">
+<div class="c-teaser__eyebrow">
+<div class="c-teaser__date"><time datetime="2025-06-05T12:00:00Z">Jun 05, 2025</time>
+</div>
+<div class="c-teaser__meta">ICS Advisory | ICSA-25-155-01</div>
+</div>
+<h3 class="c-teaser__title">
+<a href="/news-events/ics-advisories/icsa-25-155-01" target="_self">
+<span>CyberData 011209 SIP Emergency Intercom</span>
+</a> </h3>
+</div>
+</div>
+</article>
+<article class="is-promoted c-teaser c-teaser--horizontal" role="article">
+<div class="c-teaser__row">
+<div class="c-teaser__content">
+<div class="c-teaser__eyebrow">
+<div class="c-teaser__date"><time datetime="2025-06-03T12:00:00Z">Jun 03, 2025</time>
+</div>
+<div class="c-teaser__meta">ICS Advisory | ICSA-25-153-02</div>
+</div>
+<h3 class="c-teaser__title">
+<a href="/news-events/ics-advisories/icsa-25-153-02" target="_self">
+<span>Schneider Electric EcoStruxure Power Build Rapsody</span>
+</a> </h3>
+</div>
+</div>
+</article>
+<article class="is-promoted c-teaser c-teaser--horizontal" role="article">
+<div class="c-teaser__row">
+<div class="c-teaser__content">
+<div class="c-teaser__eyebrow">
+<div class="c-teaser__date"><time datetime="2025-06-03T12:00:00Z">Jun 03, 2025</time>
+</div>
+<div class="c-teaser__meta">ICS Advisory | ICSA-25-153-03</div>
+</div>
+<h3 class="c-teaser__title">
+<a href="/news-events/ics-advisories/icsa-25-153-03" target="_self">
+<span>Mitsubishi Electric MELSEC iQ-F Series</span>
+</a> </h3>
+</div>
+</div>
+</article>
+<article class="is-promoted c-teaser c-teaser--horizontal" role="article">
+<div class="c-teaser__row">
+<div class="c-teaser__content">
+<div class="c-teaser__eyebrow">
+<div class="c-teaser__date"><time datetime="2025-06-03T12:00:00Z">Jun 03, 2025</time>
+</div>
+<div class="c-teaser__meta">ICS Advisory | ICSA-25-153-01</div>
+</div>
+<h3 class="c-teaser__title">
+<a href="/news-events/ics-advisories/icsa-25-153-01" target="_self">
+<span>Schneider Electric Wiser Home Automation</span>
+</a> </h3>
+</div>
+</div>
+</article>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
