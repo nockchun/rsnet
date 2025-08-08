@@ -69,11 +69,11 @@ RUN pip install --no-cache-dir \
  opencv-python gym gymnasium gymnasium[classic-control] deap evaluate pygad gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
  python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm asyncio nest-asyncio werkzeug \
 && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py dbutils pandas-profiling pandas-datareader \
-&& pip install --no-cache-dir wandb openai langchain_community langchain-huggingface chromadb pymilvus opensearch-py pymupdf pdfminer pdfplumber pymupdf4llm pdfkit markdownify safetensors
+&& pip install --no-cache-dir wandb openai langchain_community langchain-huggingface chromadb pymilvus opensearch-py pymupdf pdfminer pdfplumber pymupdf4llm pdfkit pypdf markdownify safetensors
 
 # Install unsloth & llm library
 RUN pip install --no-cache-dir --no-deps unsloth transformers==4.52.3 xformers==0.0.30 bitsandbytes
-RUN pip install --no-cache-dir unsloth_zoo sentence-transformers auto_gptq autoawq autotrain-advanced gradio streamlit datasets vllm \
+RUN pip install --no-cache-dir unsloth_zoo sentence-transformers auto_gptq autoawq autotrain-advanced gradio streamlit datasets vllm timm \
     langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling langchain-docling langchain-milvus langchain-qdrant langchain-chroma langchain-ollama bs4 langgraph
 
 #  # torch 재설치 방지

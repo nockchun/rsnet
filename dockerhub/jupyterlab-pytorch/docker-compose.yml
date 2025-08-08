@@ -23,6 +23,18 @@ services:
     command:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
 
+  jupyterlab-pasa:
+    image: nockchun/jupyterlab-torch:2.7
+    container_name: pasa
+    restart: unless-stopped
+    volumes:
+      - /data/nfshare/notebook:/notebook
+      - /data/nfshare/notebook_data:/data
+    ports:
+      - "9999:8888"
+    command:
+      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
+
   jupyterlab-local:
     image: nockchun/jupyterlab-torch:2.7
     container_name: jlab
@@ -33,3 +45,5 @@ services:
       - "7777:8888"
     command:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
+
+
