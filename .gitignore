@@ -6,3 +6,4 @@
 **/data
 **/datas
 **/*cache
+**/faiss_index
