@@ -10,7 +10,7 @@ services:
         - VERSION_PYTHON=3.10
         - VERSION_NUMPY=1.26.4
         - VERSION_PYTORCH=2.7.0
-    image: nockchun/jupyterlab-torch:2.7
+    image: nockchun/jupyterlab-torch:2.7_build2
     container_name: jupyterlab
     restart: unless-stopped
     volumes:
@@ -24,7 +24,7 @@ services:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
 
   jupyterlab-pasa:
-    image: nockchun/jupyterlab-torch:2.7
+    image: nockchun/jupyterlab-torch:2.7_build2
     container_name: pasa
     restart: unless-stopped
     volumes:
@@ -36,7 +36,7 @@ services:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
 
   jupyterlab-local:
-    image: nockchun/jupyterlab-torch:2.7
+    image: nockchun/jupyterlab-torch:2.7_build2
     container_name: jlab
     restart: unless-stopped
     volumes:

@@ -78,10 +78,10 @@ RUN pip install torch torchvision torchaudio --index-url https://download.pytorc
 
 # Install Extra Library
 RUN pip install --no-cache-dir opencv-python gym gymnasium gymnasium[classic-control] deap evaluate pygad gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
-    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm asyncio nest-asyncio werkzeug==3.1\
+    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm asyncio nest-asyncio werkzeug \
  && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py dbutils
 
-RUN pip install --no-cache-dir huggingface_hub datasets transformers==4.52.3 xformers==0.0.30 bitsandbytes peft accelerate wandb sentence-transformers trl==0.17.0 \
+RUN pip install --no-cache-dir huggingface_hub datasets transformers==4.52.3 xformers==0.0.30 bitsandbytes peft accelerate wandb sentence-transformers trl>0.18.0 \
     openai langchain_community faiss-gpu chromadb streamlit gradio auto_gptq autoawq optimum autotrain-advanced pymilvus opensearch-py \
     langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling  langchain-docling langchain-milvus langchain-qdrant langchain-chroma langchain-ollama bs4 langgraph \
     pymupdf pdfminer pdfplumber flash-attn pymupdf4llm pdfkit markdownify unsloth

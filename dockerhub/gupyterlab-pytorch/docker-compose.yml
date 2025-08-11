@@ -12,7 +12,7 @@ services:
         - VERSION_TF=2.19.0
         - VERSION_PYTORCH=2.7.0
         - PYTORCH=true
-    image: nockchun/gupyterlab-torch:2.7
+    image: nockchun/gupyterlab-torch:2.7_build1
     container_name: gupyterlab
     restart: unless-stopped
     volumes:
