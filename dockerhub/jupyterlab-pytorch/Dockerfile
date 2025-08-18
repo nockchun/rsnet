@@ -74,7 +74,8 @@ RUN pip install --no-cache-dir \
 # Install unsloth & llm library
 RUN pip install --no-cache-dir --no-deps unsloth transformers==4.52.3 xformers==0.0.30 bitsandbytes
 RUN pip install --no-cache-dir unsloth_zoo sentence-transformers auto_gptq autoawq autotrain-advanced gradio streamlit datasets vllm timm \
-    langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling langchain-docling langchain-milvus langchain-qdrant langchain-chroma langchain-ollama bs4 langgraph
+    langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling langchain-docling langchain-milvus \
+    langchain-qdrant langchain-chroma langchain-ollama langchain-experimental bs4 langgraph wikipedia
 
 #  # torch 재설치 방지
 # RUN pip install flash-attn==2.7.4.post1 \
