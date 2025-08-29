@@ -1,33 +1,30 @@
 services:
-  app:
-    build: .
-    ports:
-      - 8000:8000
-      - 5678:5678
-    volumes:
-      - .:/code
-    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
-    restart: always
-    depends_on:
-      - ollama
-      - ollama-webui
-    networks:
-      - ollama-docker
-
   ollama:
     image: docker.io/ollama/ollama:latest
     ports:
-      - 7869:11434
+      - "${PORT}:11434"
     volumes:
-      - .:/code
-      - ./ollama/ollama:/root/.ollama
+      # - .:/code
+      # - ./ollama/ollama:/root/.ollama
+      - ${OLLAMA_MODELS}:/root/.ollama
+      - ${OLLAMA_CODE}:/code
     container_name: ollama
     pull_policy: always
     tty: true
-    restart: always
+    restart: unless-stopped
     environment:
-      - OLLAMA_KEEP_ALIVE=24h
-      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_HOST=${OLLAMA_HOST}
+      - OLLAMA_KEEP_ALIVE=${OLLAMA_KEEP_ALIVE}
+      - CUDA_VISIBLE_DEVICES=${GPU_ID}
+      - NVIDIA_VISIBLE_DEVICES=${GPU_ID}
+    # 최신 Docker Compose 플러그인에서는 아래 GPU 예약이 동작합니다.
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["${GPU_ID}"]
+              capabilities: [gpu]
     networks:
       - ollama-docker
 
