@@ -7,3 +7,4 @@
 **/datas
 **/*cache
 **/faiss_index
+**/*temp
