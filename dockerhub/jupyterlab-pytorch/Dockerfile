@@ -15,7 +15,7 @@ RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
  && apt-get upgrade -y \
  && apt-get install -yq --no-install-recommends debconf apt wget git curl bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 \
     tzdata fonts-liberation fonts-nanum* net-tools vim openssh-client graphviz libgraphviz-dev libhdf5-dev openmpi-bin pandoc run-one \
-    autoconf automake dpkg-dev file build-essential g++ gcc imagemagick libbz2-dev libc6-dev libcurl4-openssl-dev libdb-dev cmake \
+    autoconf automake dpkg-dev file build-essential g++ gcc imagemagick libbz2-dev libc6-dev libcurl4-openssl-dev libdb-dev cmake ninja-build \
     libevent-dev libffi-dev libgdbm-dev libgeoip-dev libglib2.0-dev libgmp-dev libjpeg-dev libkrb5-dev liblzma-dev htop cm-super dvipng \
     libmagickcore-dev libmagickwand-dev libncurses5-dev libncursesw5-dev libpng-dev libpq-dev libreadline-dev xvfb less libtcmalloc-minimal4 \
     libsqlite3-dev libssl-dev libtool libwebp-dev libxml2-dev libxslt-dev libyaml-dev make patch unzip xz-utils zlib1g-dev \
@@ -59,28 +59,33 @@ RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkg
  && jupyter labextension disable "@jupyterlab/apputils-extension:announcements" \
  && conda clean -a && pip cache purge && npm cache clean --force
 
+# 파이썬 빌드 의존성(빌드 격리 끄므로 직접 준비)
+RUN pip install --no-cache-dir -U pip wheel setuptools setuptools-scm packaging \
+    cmake ninja pybind11 scikit-build-core
+
 # Install PyTorch
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
-# RUN pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+RUN pip install torch torchvision torchaudio
+# RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 
 # Install Additional library
 RUN pip install --no-cache-dir \
- graphviz pyopencl sentencepiece pillow geckodriver apscheduler statsmodels scikit-learn ipykernel ipytest ipympl pykalman gplearn \
- opencv-python gym gymnasium gymnasium[classic-control] deap evaluate pygad gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
- python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm asyncio nest-asyncio werkzeug \
-&& pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py dbutils pandas-profiling pandas-datareader \
-&& pip install --no-cache-dir wandb openai langchain_community langchain-huggingface chromadb pymilvus opensearch-py pymupdf pdfminer pdfplumber pymupdf4llm pdfkit pypdf markdownify safetensors
+    graphviz pyopencl sentencepiece pillow geckodriver apscheduler statsmodels scikit-learn ipykernel ipytest ipympl pykalman gplearn \
+    opencv-python gym gymnasium gymnasium[classic-control] deap evaluate pygad gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
+    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm asyncio nest-asyncio werkzeug \
+ && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py dbutils pandas-profiling pandas-datareader protobuf \
+ && pip install --no-cache-dir wandb openai langchain_community langchain-huggingface huggingface_hub chromadb pymilvus opensearch-py pymupdf pdfminer pdfplumber pymupdf4llm pdfkit pypdf markdownify safetensors
 
 # Install unsloth & llm library
-RUN pip install --no-cache-dir --no-deps unsloth transformers==4.55.2 xformers==0.0.30 bitsandbytes
-RUN pip install --no-cache-dir unsloth_zoo sentence-transformers auto_gptq autoawq autotrain-advanced gradio streamlit datasets vllm timm \
+RUN pip install --no-cache-dir --no-deps unsloth transformers==4.55.4 xformers==0.0.32.post2 bitsandbytes
+RUN pip install --no-cache-dir unsloth_zoo sentence-transformers auto_gptq autoawq autotrain-advanced gradio streamlit datasets timm \
     langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling langchain-docling langchain-milvus \
     langchain-qdrant langchain-chroma langchain-ollama langchain-experimental bs4 langgraph wikipedia
 
-#  # torch 재설치 방지
-# RUN pip install flash-attn==2.7.4.post1 \
-#  peft accelerate sentence-transformers trl unsloth_zoo auto_gptq autoawq optimum autotrain-advanced gradio streamlit datasets \
-#  langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling  langchain-docling langchain-milvus langchain-qdrant langchain-chroma langchain-ollama bs4 langgraph
+# # vLLM 소스 설치 (서브모듈/태그 포함, torch 유지 위해 --no-deps)
+# RUN git clone --recursive https://github.com/vllm-project/vllm /tmp/vllm && \
+#     git -C /tmp/vllm fetch --tags && \
+#     CUDA_HOME=/usr/local/cuda pip install --no-build-isolation --no-deps -e /tmp/vllm && \
+#     rm -rf /tmp/vllm
 
 # Setup oh-my-zsh
 RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
