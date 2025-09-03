@@ -1,23 +1,20 @@
+version: "3.9"
+
 services:
   ollama:
     image: docker.io/ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
     ports:
-      - "${PORT}:11434"
+      - "${PORT:-11434}:11434"
     volumes:
-      # - .:/code
-      # - ./ollama/ollama:/root/.ollama
       - ${OLLAMA_MODELS}:/root/.ollama
       - ${OLLAMA_CODE}:/code
-    container_name: ollama
-    pull_policy: always
-    tty: true
-    restart: unless-stopped
     environment:
-      - OLLAMA_HOST=${OLLAMA_HOST}
+      - OLLAMA_HOST=0.0.0.0:${PORT}
       - OLLAMA_KEEP_ALIVE=${OLLAMA_KEEP_ALIVE}
       - CUDA_VISIBLE_DEVICES=${GPU_ID}
       - NVIDIA_VISIBLE_DEVICES=${GPU_ID}
-    # 최신 Docker Compose 플러그인에서는 아래 GPU 예약이 동작합니다.
     deploy:
       resources:
         reservations:
@@ -25,32 +22,26 @@ services:
             - driver: nvidia
               device_ids: ["${GPU_ID}"]
               capabilities: [gpu]
-    networks:
-      - ollama-docker
+    networks: [ollama-docker]
 
   ollama-webui:
     image: ghcr.io/open-webui/open-webui:main
     container_name: ollama-webui
-    volumes:
-      - ./ollama/ollama-webui:/app/backend/data
-    depends_on:
-      - ollama
-    ports:
-      - 8080:8080
-    environment: # https://docs.openwebui.com/getting-started/env-configuration#default_models
-      - OLLAMA_BASE_URLS=http://host.docker.internal:7869 #comma separated ollama hosts
-      - ENV=dev
-      - WEBUI_AUTH=False
-      - WEBUI_NAME=valiantlynx AI
-      - WEBUI_URL=http://localhost:8080
-      - WEBUI_SECRET_KEY=t0p-s3cr3t
-    extra_hosts:
-      - host.docker.internal:host-gateway
+    depends_on: [ollama]
     restart: unless-stopped
-    networks:
-      - ollama-docker
+    ports:
+      - "${WEBUI_PORT:-8080}:8080"
+    volumes:
+      - ${WEBUI_DATA_DIR:-./ollama/ollama-webui}:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:${PORT}
+      - OLLAMA_API_BASE_URL=http://ollama:${PORT}
+      - WEBUI_AUTH=${WEBUI_AUTH:-False}
+      - WEBUI_NAME=${WEBUI_NAME:-Open WebUI}
+      - WEBUI_URL=${WEBUI_URL:-http://localhost:${WEBUI_PORT:-8080}}
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-change-me}
+    networks: [ollama-docker]
 
 networks:
   ollama-docker:
     external: false
-  
