@@ -49,15 +49,24 @@ RUN conda init bash \
 # Setup JupyterLab plugins
 RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main \
  && conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r \
- && conda install -c conda-forge starship nodejs pandoc texlive-core texlab chktex \
- && pip install 'jupyterlab==4.1.7' jupyterlab-lsp 'python-lsp-server[all]' \
-        jupyterlab-code-formatter black isort jupyterlab-spellchecker jupyterlab-latex \
-        jupyter-resource-usage jupyterlab_execute_time lckr_jupyterlab_variableinspector \
-        jupyterlab-git jupyterlab_wakatime 'ipywidgets>=8.0' jupyter_bokeh \
- && npm set prefix /root && npm install -g --save-dev remark-language-server \
-        remark-preset-lint-consistent remark-preset-lint-recommended \
- && jupyter labextension disable "@jupyterlab/apputils-extension:announcements" \
- && conda clean -a && pip cache purge && npm cache clean --force
+ && conda install -c conda-forge -y starship nodejs=20.* pandoc texlive-core texlab chktex \
+ && pip install --no-cache-dir \
+      'jupyterlab==4.4.6' \
+      'jupyterlab-lsp==5.2.0' 'python-lsp-server[all]==1.13.1' \
+      'jupyterlab-code-formatter==3.0.2' black isort \
+      'jupyterlab-latex==4.3.0' \
+      'jupyter-resource-usage==1.0.0' \
+      'jupyterlab-git==0.51.2' \
+      'ipywidgets>=8.0' \
+      'jupyter_bokeh' \
+ && npm set prefix /root \
+ && npm install -g --save-dev remark-language-server remark-preset-lint-consistent remark-preset-lint-recommended \
+ && mkdir -p /usr/local/etc/jupyter \
+ && jupyter labextension disable --level=system "@jupyterlab/apputils-extension:announcements" \
+ && conda clean -a -y && pip cache purge && npm cache clean --force
+
+#  ── (옵션) 깜박임 유발 가능 확장: 필요할 때만 설치하세요 ─────────────────────────
+# RUN pip install --no-cache-dir 'jupyterlab-spellchecker==0.8.4' 'lckr_jupyterlab_variableinspector==3.2.4' 'jupyterlab_wakatime==0.2.0' 'jupyterlab-execute-time==3.2.0'
 
 # 파이썬 빌드 의존성(빌드 격리 끄므로 직접 준비)
 RUN pip install --no-cache-dir -U pip wheel setuptools setuptools-scm packaging \
@@ -76,8 +85,8 @@ RUN pip install --no-cache-dir \
  && pip install --no-cache-dir wandb openai langchain_community langchain-huggingface huggingface_hub chromadb pymilvus opensearch-py pymupdf pdfminer pdfplumber pymupdf4llm pdfkit pypdf markdownify safetensors
 
 # Install unsloth & llm library
-RUN pip install --no-cache-dir --no-deps unsloth transformers==4.55.4 xformers==0.0.32.post2 bitsandbytes
-RUN pip install --no-cache-dir unsloth_zoo sentence-transformers auto_gptq autoawq autotrain-advanced gradio streamlit datasets timm \
+RUN pip install --no-cache-dir --no-deps unsloth unsloth_zoo transformers==4.55.4 xformers==0.0.32.post2 bitsandbytes trl accelerate peft
+RUN pip install --no-cache-dir sentence-transformers auto_gptq autoawq autotrain-advanced gradio streamlit datasets timm \
     langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling langchain-docling langchain-milvus \
     langchain-qdrant langchain-chroma langchain-ollama langchain-experimental bs4 langgraph wikipedia
 
@@ -86,6 +95,10 @@ RUN pip install --no-cache-dir unsloth_zoo sentence-transformers auto_gptq autoa
 #     git -C /tmp/vllm fetch --tags && \
 #     CUDA_HOME=/usr/local/cuda pip install --no-build-isolation --no-deps -e /tmp/vllm && \
 #     rm -rf /tmp/vllm
+
+# /notebook 디렉터리 생성 및 Git safe.directory 등록 ─────────────────────
+RUN mkdir -p /notebook \
+ && git config --global --add safe.directory /notebook
 
 # Setup oh-my-zsh
 RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
