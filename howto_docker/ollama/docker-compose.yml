@@ -13,15 +13,15 @@ services:
     environment:
       - OLLAMA_HOST=0.0.0.0:${PORT}
       - OLLAMA_KEEP_ALIVE=${OLLAMA_KEEP_ALIVE}
-      - CUDA_VISIBLE_DEVICES=${GPU_ID}
+      # - CUDA_VISIBLE_DEVICES=${GPU_ID}
       - NVIDIA_VISIBLE_DEVICES=${GPU_ID}
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: ["${GPU_ID}"]
-              capabilities: [gpu]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           device_ids: ["${GPU_ID}"]
+    #           capabilities: [gpu]
     networks: [ollama-docker]
 
   ollama-webui:
