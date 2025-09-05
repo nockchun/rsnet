@@ -81,7 +81,7 @@ RUN pip install torch torchvision torchaudio
 RUN pip install --no-cache-dir \
     graphviz pyopencl sentencepiece pillow geckodriver apscheduler statsmodels scikit-learn ipykernel ipytest ipympl pykalman gplearn \
     opencv-python gym gymnasium gymnasium[classic-control] deap evaluate pygad gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
-    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm asyncio nest-asyncio werkzeug \
+    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm asyncio nest-asyncio werkzeug torchinfo torchview \
  && pip install --no-cache-dir danbi ta pandas-ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py dbutils pandas-profiling pandas-datareader protobuf \
  && pip install --no-cache-dir wandb openai langchain_community langchain-huggingface huggingface_hub chromadb pymilvus opensearch-py pymupdf pdfminer pdfplumber pymupdf4llm pdfkit pypdf markdownify safetensors
 
