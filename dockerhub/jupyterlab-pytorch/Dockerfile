@@ -98,6 +98,29 @@ RUN git clone --recursive https://github.com/vllm-project/vllm /tmp/vllm && \
     CUDA_HOME=/usr/local/cuda pip install --no-build-isolation --no-deps -e /tmp/vllm && \
     rm -rf /tmp/vllm
 
+# ───────────────────────────────────────────────────────────────────────────────
+# llama.cpp (HF → GGUF 변환 의존성만 venv에 격리 설치)
+# ───────────────────────────────────────────────────────────────────────────────
+ENV LLAMA_CPP_DIR=/opt/llama.cpp \
+    LLAMA_CPP_VENV=/opt/llama.cpp/.venv
+
+RUN git clone --depth=1 https://github.com/ggml-org/llama.cpp ${LLAMA_CPP_DIR} \
+ && python -m venv ${LLAMA_CPP_VENV} \
+ && ${LLAMA_CPP_VENV}/bin/python -m pip install --upgrade pip \
+ && ${LLAMA_CPP_VENV}/bin/pip install --no-cache-dir -r ${LLAMA_CPP_DIR}/requirements/requirements-convert_hf_to_gguf.txt \
+ && printf '%s\n' '#!/usr/bin/env bash' \
+      'set -euo pipefail' \
+      'LLAMA_DIR="${LLAMA_CPP_DIR:-/opt/llama.cpp}"' \
+      'VENV="${LLAMA_CPP_VENV:-$LLAMA_DIR/.venv}"' \
+      'if   [ -f "$LLAMA_DIR/convert_hf_to_gguf.py" ]; then SCRIPT="$LLAMA_DIR/convert_hf_to_gguf.py";' \
+      'elif [ -f "$LLAMA_DIR/convert-hf-to-gguf.py" ]; then SCRIPT="$LLAMA_DIR/convert-hf-to-gguf.py";' \
+      'elif [ -f "$LLAMA_DIR/convert.py" ]; then SCRIPT="$LLAMA_DIR/convert.py";' \
+      'else echo "No converter script found in $LLAMA_DIR" >&2; exit 1; fi' \
+      'exec "$VENV/bin/python" "$SCRIPT" "$@"' \
+    > /usr/local/bin/convert-hf-to-gguf \
+ && chmod +x /usr/local/bin/convert-hf-to-gguf
+
+
 # Setup oh-my-zsh
 RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
  && cp /root/.oh-my-zsh/templates/zshrc.zsh-template /root/.zshrc \
