@@ -8,3 +8,4 @@
 **/*cache
 **/faiss_index
 **/*temp
+**/*.pyc
