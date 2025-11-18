@@ -87,8 +87,8 @@ RUN pip install --no-cache-dir \
 
 # Install unsloth & llm library
 RUN pip install --no-cache-dir --no-deps unsloth unsloth_zoo transformers==4.55.4 xformers==0.0.32.post2 bitsandbytes trl accelerate peft hf_transfer
-RUN pip install --no-cache-dir sentence-transformers auto_gptq autoawq autotrain-advanced gradio streamlit datasets timm \
-    langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling langchain-docling langchain-milvus \
+RUN pip install --no-cache-dir sentence-transformers auto_gptq autoawq autotrain-advanced gradio streamlit datasets timm docling docling-core \
+    langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling langchain-milvus \
     langchain-qdrant langchain-chroma langchain-ollama langchain-experimental bs4 langgraph wikipedia
 
 # vLLM 소스 설치 (서브모듈/태그 포함, torch 유지 위해 --no-deps)
