@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - IMAGE_BASE=timescale/timescaledb-ha:pg18
+    image: nockchun/timescaledb-ha:pg18-vectorscale
+    container_name: pg18_vec
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - /store/ts_data:/home/postgres/pgdata/data
+    restart: unless-stopped
