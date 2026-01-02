@@ -8,3 +8,5 @@
 **/faiss_index
 **/*temp
 **/*.pyc
+**/media
+**/__pycache__
