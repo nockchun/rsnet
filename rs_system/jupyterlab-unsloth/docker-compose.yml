@@ -1,0 +1,35 @@
+services:
+  jupyterlab-unsloth:
+    build:
+      context: .
+      args:
+        # 태그를 고정하면 재현성이 좋아집니다 (원하는 버전으로 변경)
+        BASE_IMAGE: ${BASE_IMAGE:-unsloth/unsloth:latest}
+    image: unsloth-rsnet:20260102
+    container_name: unsloth-rsnet
+
+    # Unsloth 기본 예시: Jupyter 8888, SSH 2222 :contentReference[oaicite:3]{index=3}
+    ports:
+      - "${JUPYTER_PORT:-8888}:8888"
+
+    # 작업물/캐시를 호스트에 보존
+    volumes:
+      - /data/nfshare/notebook:/workspace/work
+
+    environment:
+      # Unsloth 문서에서 사용하는 변수들 :contentReference[oaicite:4]{index=4}
+      - JUPYTER_PASSWORD=${JUPYTER_PASSWORD:-unsloth}
+      # (선택) 컨테이너 내부에서 sudo가 필요하면 비밀번호 설정
+      - USER_PASSWORD=${USER_PASSWORD:-unsloth}
+
+    # PyTorch DataLoader 등에서 shared memory 부족 방지용(권장)
+    shm_size: "16gb"
+
+    # GPU 사용 (docker compose v2 기준)
+    gpus: all
+
+    restart: unless-stopped
+
+    command:
+      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
+

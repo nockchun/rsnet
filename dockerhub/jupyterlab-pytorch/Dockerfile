@@ -8,6 +8,10 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 LC_ALL=C.UTF-8 \
     TZ=Asia/Seoul
 
+# (권장) CUDA 확장 빌드 시, 빌드 머신에 GPU가 없어도 arch 감지가 안 되어 터질 수 있어 명시
+# 필요에 따라 줄이거나 본인 GPU 아키텍처만 남기세요.
+ENV TORCH_CUDA_ARCH_LIST="7.5;8.0;8.6;8.9;9.0"
+
 # Install dependencies
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN sed -i 's/archive.ubuntu.com/ftp.kaist.ac.kr/g' /etc/apt/sources.list \
@@ -67,15 +71,23 @@ RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkg
  && conda clean -a -y && pip cache purge && npm cache clean --force
 
 #  ── (옵션) 깜박임 유발 가능 확장: 필요할 때만 설치하세요 ─────────────────────────
-# RUN pip install --no-cache-dir 'jupyterlab-spellchecker==0.8.4' 'lckr_jupyterlab_variableinspector==3.2.4' 'jupyterlab_wakatime==0.2.0' 
+# RUN pip install --no-cache-dir 'jupyterlab-spellchecker==0.8.4' 'lckr_jupyterlab_variableinspector==3.2.4' 'jupyterlab_wakatime==0.2.0'
 
 # 파이썬 빌드 의존성(빌드 격리 끄므로 직접 준비)
 RUN pip install --no-cache-dir -U pip wheel setuptools setuptools-scm packaging \
     cmake ninja pybind11 scikit-build-core
 
 # Install PyTorch
-RUN pip install torch torchvision torchaudio
-# RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+RUN pip install --no-cache-dir torch torchvision torchaudio xformers
+# (옵션) CUDA 휠을 쓰려면 본인 CUDA에 맞는 index-url을 사용하세요.
+# RUN pip install --no-cache-dir torch torchvision torchaudio xformers --index-url https://download.pytorch.org/whl/cu121
+# RUN pip install --no-cache-dir torch torchvision torchaudio xformers --index-url https://download.pytorch.org/whl/cu128
+
+# ------------------------------------------------------------------------------
+# GPTQ: AutoGPTQ는 EOL/Unmaintained로 표시되어 있어(그리고 최신 torch/cuda 조합에서 빌드가 자주 깨짐)
+# GPTQModel로 교체합니다.
+# ------------------------------------------------------------------------------
+RUN python -m pip install --no-cache-dir --no-build-isolation -U gptqmodel autoawq
 
 # Install Additional library
 RUN pip install --no-cache-dir \
@@ -87,8 +99,11 @@ RUN pip install --no-cache-dir \
 
 # Install unsloth & llm library
 RUN pip install --no-cache-dir --no-deps unsloth unsloth_zoo transformers==4.55.4 xformers==0.0.32.post2 bitsandbytes trl accelerate peft hf_transfer
-RUN pip install --no-cache-dir sentence-transformers auto_gptq autoawq autotrain-advanced gradio streamlit datasets timm docling docling-core \
-    langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling langchain-milvus \
+
+# (기존 auto_gptq 제거됨)
+RUN pip install --no-cache-dir \
+    sentence-transformers autotrain-advanced gradio streamlit datasets timm docling docling-core \
+    langchain langchain-core langchain-text-splitters langchain-openai langchain-milvus langchain-docling \
     langchain-qdrant langchain-chroma langchain-ollama langchain-experimental bs4 langgraph wikipedia
 
 # vLLM 소스 설치 (서브모듈/태그 포함, torch 유지 위해 --no-deps)
@@ -120,7 +135,6 @@ RUN git clone --depth=1 https://github.com/ggml-org/llama.cpp ${LLAMA_CPP_DIR} \
     > /usr/local/bin/convert-hf-to-gguf \
  && chmod +x /usr/local/bin/convert-hf-to-gguf
 
-
 # Setup oh-my-zsh
 RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
  && cp /root/.oh-my-zsh/templates/zshrc.zsh-template /root/.zshrc \
@@ -136,3 +150,12 @@ RUN mkdir -p /notebook \
 VOLUME ["/notebook"]
 
 ENTRYPOINT ["/usr/bin/zsh", "-c", "exec \"$@\"", "--"]
+
+# ------------------------------------------------------------------------------
+# (옵션) 그래도 auto_gptq import 호환이 “꼭” 필요하면, 아래를 쓰면 CUDA 확장 빌드 없이 설치를 시도합니다(느림).
+# AutoGPTQ는 EOL/unmaintained 상태라 최신 torch/cuda 조합에서 CUDA 확장 빌드는 자주 실패합니다.
+#
+# ENV BUILD_CUDA_EXT=0
+# RUN python -m pip install --no-cache-dir --no-build-isolation --no-deps \
+#     "git+https://github.com/AutoGPTQ/AutoGPTQ.git@v0.7.1"
+# ------------------------------------------------------------------------------

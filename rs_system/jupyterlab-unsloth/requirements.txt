@@ -1,0 +1,12 @@
+# 데이터/학습 유틸
+datasets
+accelerate
+evaluate
+
+# 실험/로깅
+wandb
+tensorboard
+
+# 기타 편의
+rich
+ipywidgets

@@ -7,7 +7,7 @@ services:
         - USERNAME=rsnet
         - IMAGE_BASE=nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
         - VERSION_MINICONDA=latest
-        - VERSION_PYTHON=3.11
+        - VERSION_PYTHON=3.12
         - VERSION_NUMPY=1.26.4
         - VERSION_PYTORCH=2.8.0
     image: nockchun/jupyterlab-torch:2.8_build2
@@ -24,7 +24,7 @@ services:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
 
   jupyterlab-pasa:
-    image: nockchun/jupyterlab-torch:2.8_build1
+    image: nockchun/jupyterlab-torch:2.8_build2
     container_name: pasa
     restart: unless-stopped
     volumes:
@@ -36,7 +36,7 @@ services:
       jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
 
   jupyterlab-local:
-    image: nockchun/jupyterlab-torch:2.8_build1
+    image: nockchun/jupyterlab-torch:2.8_build2
     container_name: jlab
     restart: unless-stopped
     volumes:
