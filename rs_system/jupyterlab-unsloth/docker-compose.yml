@@ -11,7 +11,7 @@ services:
     # Unsloth 기본 예시: Jupyter 8888, SSH 2222 :contentReference[oaicite:3]{index=3}
     ports:
       - "${JUPYTER_PORT:-8888}:8888"
-
+    
     # 작업물/캐시를 호스트에 보존
     volumes:
       - /data/nfshare/notebook:/workspace/work
@@ -31,5 +31,5 @@ services:
     restart: unless-stopped
 
     command:
-      jupyter lab --notebook-dir=/notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
+      jupyter lab --notebook-dir=/workspace/work --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
 

@@ -1,0 +1,31 @@
+services:
+  arcadedb:
+    image: arcadedata/arcadedb:25.11.1   # 필요하면 latest 또는 원하는 버전 태그로 변경
+    container_name: arcadedb
+    restart: unless-stopped
+
+    ports:
+      - "2480:2480"  # Studio / HTTP :contentReference[oaicite:1]{index=1}
+      - "2424:2424"  # Binary protocol :contentReference[oaicite:2]{index=2}
+
+    environment:
+      # 첫 실행 시 root 비밀번호 입력 프롬프트를 건너뛰려면 JVM 설정으로 전달 :contentReference[oaicite:3]{index=3}
+      - JAVA_OPTS=-Darcadedb.server.rootPassword=${ARCADEDB_ROOT_PASSWORD:-playwithdata}
+
+      # (선택) JVM 메모리 튜닝 (예: 800M) :contentReference[oaicite:4]{index=4}
+      # - ARCADEDB_OPTS_MEMORY=-Xms800M -Xmx800M
+
+    volumes:
+      # DB 파일 기본 경로 (영속화 필수) :contentReference[oaicite:5]{index=5}
+      - /data/arcadedb/databases:/home/arcadedb/databases
+      # 백업 기본 경로 :contentReference[oaicite:6]{index=6}
+      - /data/arcadedb/backups:/home/arcadedb/backups
+      # root 계정 정보가 저장되는 config (재시작/재배포 시 계정 유지) :contentReference[oaicite:7]{index=7}
+      - /data/arcadedb/config:/home/arcadedb/config
+      - /data/arcadedb/log:/home/arcadedb/log
+
+volumes:
+  arcadedb-data:
+  arcadedb-backups:
+  arcadedb-config:
+  arcadedb-log:

@@ -30,3 +30,4 @@ USER unsloth
 WORKDIR /workspace/work
 
 # 베이스 이미지의 entrypoint/cmd를 그대로 사용 (Jupyter/SSH 등)
+ENTRYPOINT []
