@@ -23,7 +23,7 @@ services:
       - USER_PASSWORD=${USER_PASSWORD:-unsloth}
 
     # PyTorch DataLoader 등에서 shared memory 부족 방지용(권장)
-    shm_size: "16gb"
+    shm_size: "32gb"
 
     # GPU 사용 (docker compose v2 기준)
     gpus: all

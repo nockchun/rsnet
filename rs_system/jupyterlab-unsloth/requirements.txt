@@ -7,6 +7,39 @@ evaluate
 wandb
 tensorboard
 
-# 기타 편의
-rich
+# jupyterlab 확장
+jupyterlab-lsp
+python-lsp-server[all]
+jupyterlab-code-formatter
+jupyterlab-latex
+jupyterlab-git
 ipywidgets
+jupyter_bokeh
+jupyterlab-execute-time
+
+# LangGraph / LangChain
+langgraph
+langchain
+langchain-core
+
+# Embeddings (HF)
+sentence-transformers
+langchain-huggingface
+
+# Document processing
+docling
+docling-core
+
+# Vector / Utils
+chromadb
+numpy
+pydantic
+requests
+tqdm
+pymilvus
+
+
+
+
+
+
