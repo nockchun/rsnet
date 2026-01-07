@@ -2,6 +2,8 @@
 datasets
 accelerate
 evaluate
+tslearn
+h5py
 
 # 실험/로깅
 wandb

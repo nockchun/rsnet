@@ -42,7 +42,14 @@ RUN pip install --no-cache-dir \
 COPY requirements.txt /tmp/requirements.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
     python -m pip install --upgrade pip \
- && python -m pip install --no-cache-dir -r /tmp/requirements.txt
+ && python -m pip install --no-cache-dir -r /tmp/requirements.txt \
+ && pip install torch torchvision torchao==0.14.1
+
+# Setup oh-my-zsh
+RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
+ && cp /root/.oh-my-zsh/templates/zshrc.zsh-template /root/.zshrc \
+ && sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/g' /root/.zshrc
+ENV SHELL=/usr/bin/zsh
 
 # 런타임은 다시 unsloth 유저로
 USER unsloth
