@@ -5,8 +5,8 @@ services:
       args:
         # 태그를 고정하면 재현성이 좋아집니다 (원하는 버전으로 변경)
         BASE_IMAGE: ${BASE_IMAGE:-unsloth/unsloth:latest}
-    image: unsloth-rsnet:20260102
-    container_name: unsloth-rsnet
+    image: nockchun/jupyterlab-unsloth:20260114
+    container_name: unsloth
 
     # Unsloth 기본 예시: Jupyter 8888, SSH 2222 :contentReference[oaicite:3]{index=3}
     ports:
