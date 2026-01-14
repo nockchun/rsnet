@@ -8,6 +8,7 @@ h5py
 # 실험/로깅
 wandb
 tensorboard
+optimum-quanto
 
 # jupyterlab 확장
 jupyterlab-lsp

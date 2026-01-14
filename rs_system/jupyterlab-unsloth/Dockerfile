@@ -45,14 +45,35 @@ RUN --mount=type=cache,target=/root/.cache/pip \
  && python -m pip install --no-cache-dir -r /tmp/requirements.txt \
  && pip install torch torchvision torchao==0.14.1
 
-# Setup oh-my-zsh
-RUN git clone https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
- && cp /root/.oh-my-zsh/templates/zshrc.zsh-template /root/.zshrc \
- && sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/g' /root/.zshrc
-ENV SHELL=/usr/bin/zsh
+# --- FlashAttention2 (flash-attn) 설치 ---
+# flash-attn 빌드/동작에 CUDA toolkit(nvcc), ninja, packaging 필요
+# 공식 설치: pip install flash-attn --no-build-isolation
+# MAX_JOBS는 RAM 부족 시 컴파일 병렬 수 제한용
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH=${CUDA_HOME}/bin:${PATH}
+ENV LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
+ENV MAX_JOBS=4
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python -m pip install --upgrade pip setuptools wheel \
+ && pip install --no-cache-dir packaging ninja \
+ && (nvcc --version || (echo "ERROR: nvcc not found. flash-attn은 소스 빌드 시 CUDA toolkit(nvcc)이 필요합니다." && exit 1)) \
+ && pip install --no-cache-dir flash-attn --no-build-isolation \
+ && python -c "import flash_attn; print('flash_attn OK:', flash_attn.__version__)"
+
+# Setup oh-my-zsh (for unsloth user)
+ARG USERNAME=unsloth
+ARG USER_HOME=/home/${USERNAME}
+
+RUN git clone https://github.com/ohmyzsh/ohmyzsh.git ${USER_HOME}/.oh-my-zsh \
+ && cp ${USER_HOME}/.oh-my-zsh/templates/zshrc.zsh-template ${USER_HOME}/.zshrc \
+ && sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/g' ${USER_HOME}/.zshrc \
+ && chown -R ${USERNAME}:${USERNAME} ${USER_HOME}/.oh-my-zsh ${USER_HOME}/.zshrc
 
 # 런타임은 다시 unsloth 유저로
 USER unsloth
+ENV HOME=/home/unsloth
+ENV SHELL=/usr/bin/zsh
 
 # Unsloth 권장 작업 디렉토리(볼륨 마운트 대상) :contentReference[oaicite:2]{index=2}
 WORKDIR /workspace/work

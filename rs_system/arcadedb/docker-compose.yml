@@ -7,10 +7,14 @@ services:
     ports:
       - "2480:2480"  # Studio / HTTP :contentReference[oaicite:1]{index=1}
       - "2424:2424"  # Binary protocol :contentReference[oaicite:2]{index=2}
+      - "8182:8182"   # Gremlin Server (WebSocket)
 
     environment:
       # 첫 실행 시 root 비밀번호 입력 프롬프트를 건너뛰려면 JVM 설정으로 전달 :contentReference[oaicite:3]{index=3}
-      - JAVA_OPTS=-Darcadedb.server.rootPassword=${ARCADEDB_ROOT_PASSWORD:-playwithdata}
+      JAVA_OPTS: >-
+        -Darcadedb.server.rootPassword=${ARCADEDB_ROOT_PASSWORD:-playwithdata}
+        -Darcadedb.server.defaultDatabases=graph[]
+        -Darcadedb.server.plugins=GremlinServer:com.arcadedb.server.gremlin.GremlinServerPlugin
 
       # (선택) JVM 메모리 튜닝 (예: 800M) :contentReference[oaicite:4]{index=4}
       # - ARCADEDB_OPTS_MEMORY=-Xms800M -Xmx800M
