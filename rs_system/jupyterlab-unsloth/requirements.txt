@@ -40,7 +40,8 @@ pydantic
 requests
 tqdm
 pymilvus
-
+gremlinpython
+arcadedb-python
 
 
 

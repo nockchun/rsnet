@@ -52,7 +52,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 ENV CUDA_HOME=/usr/local/cuda
 ENV PATH=${CUDA_HOME}/bin:${PATH}
 ENV LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
-ENV MAX_JOBS=4
+ENV MAX_JOBS=8
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     python -m pip install --upgrade pip setuptools wheel \
