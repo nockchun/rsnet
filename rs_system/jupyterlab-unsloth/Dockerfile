@@ -26,7 +26,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
        texlive-latex-extra texlive-fonts-extra texlive-latex-recommended texlive-science tipa \
        libgoogle-glog-dev libhdf5-serial-dev libleveldb-dev liblmdb-dev libprotobuf-dev libsnappy-dev protobuf-compiler ghostscript python3-tk python3-dev \
        software-properties-common gpg librdmacm1 libibverbs1 ibverbs-providers openssh-server supervisor tini \
-       sox libcairo2-dev libpango1.0-dev libboost-all-dev swig libarchive-dev zsh libnuma-dev wkhtmltopdf \
+       sox libcairo2-dev libpango1.0-dev libboost-all-dev swig libarchive-dev zsh libnuma-dev wkhtmltopdf zip \
     && apt autoremove \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*

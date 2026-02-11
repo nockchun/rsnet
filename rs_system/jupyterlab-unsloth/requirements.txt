@@ -42,7 +42,7 @@ tqdm
 pymilvus
 gremlinpython
 arcadedb-python
-
+FlagEmbedding
 
 
 
