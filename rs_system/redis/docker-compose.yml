@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  redis: # container name
+    image: redis:8.2.4
+    container_name: redis
+    ports: # 바인딩할 포트:내부 포트
+      - 6379:6379
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "redis"]
+    volumes: # 마운트할 볼륨 설정
+      - /store/redis/data:/data
+    restart: unless-stopped
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: simple-redisinsight
+    ports:
+      - 5540:5540
+    environment:
+      - RI_REDIS_HOST=redis
+      - RI_REDIS_PORT=6379
+      - RI_REDIS_ALIAS=local-redis
+    depends_on:
+      - redis
+    volumes:
+      - /store/redis/insight:/db
