@@ -4,11 +4,11 @@ services:
     image: docker.n8n.io/n8nio/n8n:latest
     container_name: n8n
     ports:
-      - "127.0.0.1:5678:5678"
+      - "5678:5678"
     environment:
       # --- DB (Postgres) ---
       DB_TYPE: postgresdb
-      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_HOST: 192.168.24.12
       DB_POSTGRESDB_PORT: 5432
       DB_POSTGRESDB_DATABASE: n8n
       DB_POSTGRESDB_USER: n8n
@@ -16,7 +16,7 @@ services:
 
       # --- Queue mode (Redis) ---
       EXECUTIONS_MODE: queue
-      QUEUE_BULL_REDIS_HOST: redis
+      QUEUE_BULL_REDIS_HOST: 192.168.24.12
       QUEUE_BULL_REDIS_PORT: 6379
       QUEUE_BULL_REDIS_PASSWORD: ${REDIS_PASSWORD}
       OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
@@ -36,8 +36,9 @@ services:
       N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE:-false}
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-}
       N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-}
+    user: "${UID}:${GID}"
     volumes:
-      - /store/n8n:/home/node/.n8n
+      - /data/volumes/n8n:/home/node/.n8n
     restart: unless-stopped
 
   n8n-worker:
@@ -47,14 +48,14 @@ services:
     environment:
       # main과 동일하게 DB/Queue 설정 필요
       DB_TYPE: postgresdb
-      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_HOST: 192.168.24.12
       DB_POSTGRESDB_PORT: 5432
       DB_POSTGRESDB_DATABASE: n8n
       DB_POSTGRESDB_USER: n8n
       DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
 
       EXECUTIONS_MODE: queue
-      QUEUE_BULL_REDIS_HOST: redis
+      QUEUE_BULL_REDIS_HOST: 192.168.24.12
       QUEUE_BULL_REDIS_PORT: 6379
       QUEUE_BULL_REDIS_PASSWORD: ${REDIS_PASSWORD}
 

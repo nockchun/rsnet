@@ -7,8 +7,9 @@ services:
     ports: # 바인딩할 포트:내부 포트
       - 6379:6379
     command: ["redis-server", "--appendonly", "yes", "--requirepass", "redis"]
+    user: "${UID}:${GID}"
     volumes: # 마운트할 볼륨 설정
-      - /store/redis/data:/data
+      - /data/volumes/redis/data:/data
     restart: unless-stopped
 
   redisinsight:
@@ -22,5 +23,6 @@ services:
       - RI_REDIS_ALIAS=local-redis
     depends_on:
       - redis
+    user: "${UID}:${GID}"
     volumes:
-      - /store/redis/insight:/db
+      - /data/volumes/redis/insight:/db
