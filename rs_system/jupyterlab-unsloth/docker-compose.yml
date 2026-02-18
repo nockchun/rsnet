@@ -1,10 +1,10 @@
 services:
   jupyterlab-unsloth:
-    build:
-      context: .
-      args:
-        # 태그를 고정하면 재현성이 좋아집니다 (원하는 버전으로 변경)
-        BASE_IMAGE: ${BASE_IMAGE:-unsloth/unsloth:latest}
+    # build:
+    #   context: .
+    #   args:
+    #     # 태그를 고정하면 재현성이 좋아집니다 (원하는 버전으로 변경)
+    #     BASE_IMAGE: ${BASE_IMAGE:-unsloth/unsloth:latest}
     image: nockchun/jupyterlab-unsloth:20260114
     container_name: unsloth
 
@@ -13,8 +13,9 @@ services:
       - "${JUPYTER_PORT:-8888}:8888"
     
     # 작업물/캐시를 호스트에 보존
+    user: "${UID}:${GID}"
     volumes:
-      - /data/nfshare/notebook:/workspace/work
+      - /data/share/notebook:/workspace/work
 
     environment:
       # Unsloth 문서에서 사용하는 변수들 :contentReference[oaicite:4]{index=4}
