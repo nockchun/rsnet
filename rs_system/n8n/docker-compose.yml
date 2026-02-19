@@ -22,20 +22,27 @@ services:
       OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
 
       # --- n8n 필수/권장 ---
+      N8N_LISTEN_ADDRESS: ${N8N_LISTEN_ADDRESS:-0.0.0.0}
+      N8N_HOST: ${N8N_HOST:-192.168.24.12}
+      N8N_PORT: ${N8N_PORT:-5678}
+      N8N_PROTOCOL: ${N8N_PROTOCOL:-http}
+      WEBHOOK_URL: ${WEBHOOK_URL:-http://192.168.24.20:5678/}
+      N8N_EDITOR_BASE_URL: ${N8N_EDITOR_BASE_URL:-http://192.168.24.20:5678}
+      N8N_SECURE_COOKIE: ${N8N_SECURE_COOKIE:-false}
       N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
       GENERIC_TIMEZONE: Asia/Seoul
       TZ: Asia/Seoul
 
-      # (선택) 외부 도메인/리버스프록시 쓸 때 세팅
-      N8N_HOST: ${N8N_HOST:-localhost}
-      N8N_PORT: 5678
-      N8N_PROTOCOL: ${N8N_PROTOCOL:-http}
-      WEBHOOK_URL: ${WEBHOOK_URL:-http://localhost:5678/}
+      # # (선택) 외부 도메인/리버스프록시 쓸 때 세팅
+      # N8N_HOST: ${N8N_HOST:-localhost}
+      # N8N_PORT: 5678
+      # N8N_PROTOCOL: ${N8N_PROTOCOL:-http}
+      # WEBHOOK_URL: ${WEBHOOK_URL:-http://localhost:5678/}
 
-      # (선택) 간단 보호(리버스프록시 인증 없을 때)
-      N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE:-false}
-      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-}
-      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-}
+      # # (선택) 간단 보호(리버스프록시 인증 없을 때)
+      # N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE:-false}
+      # N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-}
+      # N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-}
     user: "${UID}:${GID}"
     volumes:
       - /data/volumes/n8n:/home/node/.n8n
