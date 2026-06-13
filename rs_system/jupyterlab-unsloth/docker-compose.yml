@@ -18,10 +18,12 @@ services:
       - /data/share/notebook:/workspace/work
 
     environment:
-      # Unsloth 문서에서 사용하는 변수들 :contentReference[oaicite:4]{index=4}
       - JUPYTER_PASSWORD=${JUPYTER_PASSWORD:-unsloth}
-      # (선택) 컨테이너 내부에서 sudo가 필요하면 비밀번호 설정
       - USER_PASSWORD=${USER_PASSWORD:-unsloth}
+      - JUPYTER_RUNTIME_DIR=/home/unsloth/.local/share/jupyter/runtime
+      - JUPYTER_CONFIG_DIR=/home/unsloth/.jupyter
+      - JUPYTER_DATA_DIR=/home/unsloth/.local/share/jupyter
+      - HF_HOME=/workspace/.cache/huggingface
 
     # PyTorch DataLoader 등에서 shared memory 부족 방지용(권장)
     shm_size: "32gb"
@@ -32,5 +34,6 @@ services:
     restart: unless-stopped
 
     command:
-      jupyter lab --notebook-dir=/workspace/work --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
+      # jupyter lab --notebook-dir=/workspace/work --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
+      jupyter lab --notebook-dir=/workspace/work --no-browser --ip=0.0.0.0 --NotebookApp.token="rsnet"
 
