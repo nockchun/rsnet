@@ -13,7 +13,7 @@ services:
       - "${JUPYTER_PORT:-8888}:8888"
     
     # 작업물/캐시를 호스트에 보존
-    user: "1000:1000"
+    # user: "1000:1000"
     volumes:
       - /data/share/notebook:/workspace/work
 
