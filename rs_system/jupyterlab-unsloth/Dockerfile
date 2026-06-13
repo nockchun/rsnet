@@ -70,6 +70,17 @@ RUN git clone https://github.com/ohmyzsh/ohmyzsh.git ${USER_HOME}/.oh-my-zsh \
  && sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/g' ${USER_HOME}/.zshrc \
  && chown -R ${USERNAME}:${USERNAME} ${USER_HOME}/.oh-my-zsh ${USER_HOME}/.zshrc
 
+# Fix ownership
+RUN mkdir -p \
+      ${USER_HOME}/.local/share/jupyter/runtime \
+      ${USER_HOME}/.local/share/jupyter \
+      ${USER_HOME}/.jupyter \
+      ${USER_HOME}/.cache \
+      ${USER_HOME}/.config \
+      /workspace/work \
+ && chown -R ${USERNAME}:${USERNAME} ${USER_HOME} /workspace/work \
+ && chmod 700 ${USER_HOME}/.local/share/jupyter/runtime
+
 # 런타임은 다시 unsloth 유저로
 USER unsloth
 ENV HOME=/home/unsloth
