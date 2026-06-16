@@ -1,7 +1,5 @@
-# syntax=docker/dockerfile:1.7
-
 # 원하는 Unsloth 태그로 고정하고 싶으면 빌드 시 BASE_IMAGE를 바꾸세요.
-# 예: unsloth/unsloth:2025.11.2-pt2.8.0-cu12.8-trans4.57.0  (Docker Hub / GHCR에 존재)
+# 예: unsloth/unsloth:2026.3.8-pt2.9.0-vllm-0.16.0-cu12.8-studio-release
 ARG BASE_IMAGE=unsloth/unsloth:latest
 FROM ${BASE_IMAGE}
 
@@ -13,10 +11,12 @@ USER root
 # - build-essential: 일부 pip 패키지 빌드에 필요
 # - git/curl: 소스 설치/다운로드용
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+ENV DEBIAN_FRONTEND=noninteractive
 RUN --mount=type=cache,target=/var/cache/apt \
-    apt-get update && apt-get install -y --no-install-recommends \
+    apt-get update && apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
       git curl ca-certificates build-essential \
-    && apt-get install -yq --no-install-recommends debconf apt wget git curl bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 \
+    && apt-get install -yq --no-install-recommends  -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
+       debconf apt wget git curl bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 \
        tzdata fonts-liberation fonts-nanum* net-tools vim openssh-client graphviz libgraphviz-dev libhdf5-dev openmpi-bin pandoc run-one \
        autoconf automake dpkg-dev file build-essential g++ gcc imagemagick libbz2-dev libc6-dev libcurl4-openssl-dev libdb-dev cmake ninja-build \
        libevent-dev libffi-dev libgdbm-dev libgeoip-dev libglib2.0-dev libgmp-dev libjpeg-dev libkrb5-dev liblzma-dev htop cm-super dvipng \
@@ -32,34 +32,15 @@ RUN --mount=type=cache,target=/var/cache/apt \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir \
-    graphviz pyopencl sentencepiece pillow geckodriver apscheduler statsmodels scikit-learn ipykernel ipytest ipympl pykalman gplearn \
-    opencv-python gym gymnasium gymnasium[classic-control] deap evaluate pygad gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper ray[all] tables nengo[all] lz4 nltk poetry tsaug seasonal pydot einops typing-extensions \
-    python-kubernetes pyts dash tortoise-orm html5lib more-itertools httplib2 celery psycopg2 asyncpg tqdm asyncio nest-asyncio werkzeug torchinfo torchview \
- && pip install --no-cache-dir danbi ta selenium backtrader yfinance transitions plotly filterpy orjson nats-py dbutils pandas-profiling pandas-datareader protobuf \
- && pip install --no-cache-dir wandb openai langchain_community langchain-huggingface huggingface_hub chromadb pymilvus opensearch-py pymupdf pdfminer pdfplumber pymupdf4llm pdfkit pypdf markdownify safetensors
-
+    graphviz pyopencl geckodriver apscheduler statsmodels ipytest ipympl pykalman gplearn \
+    opencv-python gym gymnasium gymnasium[classic-control] deap pygad gymnasium[atari,accept-rom-license] gymnasium[box2d] gym-notebook-wrapper tables nengo[all] lz4 nltk poetry tsaug seasonal pydot \
+    pyts dash tortoise-orm html5lib httplib2 celery psycopg2 asyncpg asyncio
+ 
 # (권장) 요구사항 파일로 추가 파이썬 라이브러리 설치
 COPY requirements.txt /tmp/requirements.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
     python -m pip install --upgrade pip \
- && python -m pip install --no-cache-dir -r /tmp/requirements.txt \
- && pip install torch torchvision torchao==0.14.1
-
-# --- FlashAttention2 (flash-attn) 설치 ---
-# flash-attn 빌드/동작에 CUDA toolkit(nvcc), ninja, packaging 필요
-# 공식 설치: pip install flash-attn --no-build-isolation
-# MAX_JOBS는 RAM 부족 시 컴파일 병렬 수 제한용
-ENV CUDA_HOME=/usr/local/cuda
-ENV PATH=${CUDA_HOME}/bin:${PATH}
-ENV LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
-ENV MAX_JOBS=1
-
-RUN --mount=type=cache,target=/root/.cache/pip \
-    python -m pip install --upgrade pip setuptools wheel \
- && pip install --no-cache-dir packaging ninja \
- && (nvcc --version || (echo "ERROR: nvcc not found. flash-attn은 소스 빌드 시 CUDA toolkit(nvcc)이 필요합니다." && exit 1)) \
- && pip install --no-cache-dir flash-attn --no-build-isolation \
- && python -c "import flash_attn; print('flash_attn OK:', flash_attn.__version__)"
+ && python -m pip install --no-cache-dir -r /tmp/requirements.txt
 
 # Setup oh-my-zsh (for unsloth user)
 ARG USERNAME=unsloth
@@ -70,24 +51,10 @@ RUN git clone https://github.com/ohmyzsh/ohmyzsh.git ${USER_HOME}/.oh-my-zsh \
  && sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="agnoster"/g' ${USER_HOME}/.zshrc \
  && chown -R ${USERNAME}:${USERNAME} ${USER_HOME}/.oh-my-zsh ${USER_HOME}/.zshrc
 
-# Jupyter / cache / workspace permissions
-RUN mkdir -p \
-      ${USER_HOME}/.local/share/jupyter/runtime \
-      ${USER_HOME}/.local/share/jupyter \
-      ${USER_HOME}/.jupyter \
-      ${USER_HOME}/.cache \
-      ${USER_HOME}/.config \
-      /workspace/work \
-      /workspace/.cache/huggingface \
- && chown -R ${USERNAME}:${USERNAME} ${USER_HOME} /workspace \
- && chmod 700 ${USER_HOME}/.local/share/jupyter/runtime
-
-RUN mkdir -p /workspace/work /tmp/jupyter-runtime \
- && chown -R unsloth:unsloth /home/unsloth /workspace \
- && chmod 1777 /tmp/jupyter-runtime
-
-USER ${USERNAME}
-WORKDIR /workspace/work
+# 런타임은 다시 unsloth 유저로
+RUN usermod -aG unsloth ubuntu
+# USER unsloth
+ENV HOME=/home/unsloth
 ENV SHELL=/usr/bin/zsh
 
 # Unsloth 권장 작업 디렉토리(볼륨 마운트 대상) :contentReference[oaicite:2]{index=2}

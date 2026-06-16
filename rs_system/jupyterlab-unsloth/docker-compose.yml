@@ -5,12 +5,14 @@ services:
       args:
         # 태그를 고정하면 재현성이 좋아집니다 (원하는 버전으로 변경)
         BASE_IMAGE: ${BASE_IMAGE:-unsloth/unsloth:latest}
-    image: nockchun/jupyterlab-unsloth:20260612
+    image: nockchun/jupyterlab-unsloth:20260616
     container_name: unsloth
 
     # Unsloth 기본 예시: Jupyter 8888, SSH 2222 :contentReference[oaicite:3]{index=3}
     ports:
       - "${JUPYTER_PORT:-8888}:8888"
+      - "${STUDIO_PORT:-8000}:8000"
+      - "${TENSOR_BOARD:-6006}:6006"
     
     # 작업물/캐시를 호스트에 보존
     # user: "1000:1000"
@@ -26,7 +28,7 @@ services:
       - HF_HOME=/workspace/.cache/huggingface
 
     # PyTorch DataLoader 등에서 shared memory 부족 방지용(권장)
-    shm_size: "32gb"
+    shm_size: "64gb"
 
     # GPU 사용 (docker compose v2 기준)
     gpus: all
@@ -34,6 +36,5 @@ services:
     restart: unless-stopped
 
     command:
-      # jupyter lab --notebook-dir=/workspace/work --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
-      jupyter lab --notebook-dir=/workspace/work --no-browser --ip=0.0.0.0 --NotebookApp.token="rsnet"
+      jupyter lab --notebook-dir=/workspace/work --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token="rsnet"
 

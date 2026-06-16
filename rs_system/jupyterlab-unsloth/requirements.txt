@@ -1,49 +1,53 @@
-# 데이터/학습 유틸
-datasets
-accelerate
-evaluate
-tslearn
-h5py
-
-# 실험/로깅
-wandb
-tensorboard
-optimum-quanto
-
 # jupyterlab 확장
 jupyterlab-lsp
 python-lsp-server[all]
 jupyterlab-code-formatter
 jupyterlab-latex
 jupyterlab-git
-ipywidgets
-jupyter_bokeh
+jupyter-bokeh
 jupyterlab-execute-time
+
+# machine learning library
+tslearn
+h5py
+pandas-profiling
+pandas-datareader
+torchinfo
+torchview
+optimum-quanto
+pymilvus
+gremlinpython
+arcadedb-python
+FlagEmbedding
+plotly
+seaborn
+bokeh
 
 # LangGraph / LangChain
 langgraph
 langchain
 langchain-core
-
-# Embeddings (HF)
-sentence-transformers
 langchain-huggingface
+langchain_community
+langchain-huggingface
+opensearch-py
 
 # Document processing
 docling
 docling-core
+pdfminer
+pdfplumber
+pdfkit
+pypdf
+markdownify
 
-# Vector / Utils
-chromadb
-numpy
-pydantic
-requests
-tqdm
-pymilvus
-gremlinpython
-arcadedb-python
-FlagEmbedding
-
-
-
-
+# stock quant
+danbi
+ta
+selenium
+backtrader
+yfinance
+transitions
+filterpy
+nats-py
+dbutils
