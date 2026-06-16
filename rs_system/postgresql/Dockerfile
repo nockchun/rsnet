@@ -37,7 +37,7 @@ RUN cargo install --locked cargo-pgrx --version \
 RUN cargo pgrx init --pg18 /usr/lib/postgresql/18/bin/pg_config
 
 # 여기서 .so/.control/.sql이 "정상 설치 경로"로 들어감
-RUN cargo pgrx install --release --pg-config /usr/lib/postgresql/18/bin/pg_config
+RUN cargo pgrx package --pg-config /usr/lib/postgresql/18/bin/pg_config
 
 # [STEP 2: 실행 스테이지]
 FROM ${IMAGE_BASE}
